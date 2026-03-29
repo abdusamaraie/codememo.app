@@ -125,6 +125,8 @@ export default function LanguagePathPage({
             const Icon = cfg.icon;
             const isClickable = section.status !== 'locked';
             const href = isClickable ? `/study/${language}/${section.order}` : undefined;
+            const practiceHref = isClickable ? `/practice/${language}/${section.order}` : undefined;
+            const quizHref = isClickable ? `/quiz/${language}/${section.order}` : undefined;
 
             const card = (
               <div
@@ -154,8 +156,24 @@ export default function LanguagePathPage({
 
                 {/* CTA */}
                 {isClickable && (
-                  <div className={`flex items-center gap-1 text-xs font-semibold shrink-0 ${cfg.text}`}>
-                    {cfg.label} <ChevronRight className="h-3.5 w-3.5" />
+                  <div className="flex items-center gap-2 shrink-0">
+                    <span className={`flex items-center gap-1 text-xs font-semibold ${cfg.text}`}>
+                      {cfg.label} <ChevronRight className="h-3.5 w-3.5" />
+                    </span>
+                    <Link
+                      href={practiceHref!}
+                      className="text-[10px] px-2 py-1 rounded border border-[--border] text-[--muted-foreground] hover:text-[--foreground]"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      Practice
+                    </Link>
+                    <Link
+                      href={quizHref!}
+                      className="text-[10px] px-2 py-1 rounded border border-[--border] text-[--muted-foreground] hover:text-[--foreground]"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      Quiz
+                    </Link>
                   </div>
                 )}
               </div>
