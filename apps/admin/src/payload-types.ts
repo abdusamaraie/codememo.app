@@ -68,6 +68,10 @@ export interface Config {
   blocks: {};
   collections: {
     users: User;
+    languages: Language;
+    sections: Section;
+    flashcards: Flashcard;
+    exercises: Exercise;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -76,6 +80,10 @@ export interface Config {
   collectionsJoins: {};
   collectionsSelect: {
     users: UsersSelect<false> | UsersSelect<true>;
+    languages: LanguagesSelect<false> | LanguagesSelect<true>;
+    sections: SectionsSelect<false> | SectionsSelect<true>;
+    flashcards: FlashcardsSelect<false> | FlashcardsSelect<true>;
+    exercises: ExercisesSelect<false> | ExercisesSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -85,8 +93,12 @@ export interface Config {
     defaultIDType: number;
   };
   fallbackLocale: null;
-  globals: {};
-  globalsSelect: {};
+  globals: {
+    'site-settings': SiteSetting;
+  };
+  globalsSelect: {
+    'site-settings': SiteSettingsSelect<false> | SiteSettingsSelect<true>;
+  };
   locale: null;
   user: User & {
     collection: 'users';
@@ -140,6 +152,149 @@ export interface User {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "languages".
+ */
+export interface Language {
+  id: number;
+  name: string;
+  /**
+   * Language identifier — set on creation and read-only thereafter.
+   */
+  slug: 'python' | 'javascript' | 'typescript' | 'rust' | 'go' | 'sql' | 'bash' | 'java' | 'cpp';
+  description?: string | null;
+  /**
+   * Hex color code, e.g. #3776AB
+   */
+  color: string;
+  /**
+   * Controls display ordering (ascending).
+   */
+  order: number;
+  isPublished?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "sections".
+ */
+export interface Section {
+  id: number;
+  title: string;
+  /**
+   * URL-safe identifier. Auto-generated from title on creation.
+   */
+  slug: string;
+  /**
+   * The programming language this section belongs to.
+   */
+  language: number | Language;
+  description?: string | null;
+  /**
+   * Controls display ordering within the language (ascending).
+   */
+  order: number;
+  difficulty: 'beginner' | 'intermediate' | 'advanced';
+  isPublished?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "flashcards".
+ */
+export interface Flashcard {
+  id: number;
+  section: number | Section;
+  questionType: 'fill-in-blank' | 'multiple-choice' | 'code-completion' | 'true-false';
+  front: {
+    /**
+     * The question or hint shown on this face.
+     */
+    prompt: string;
+    /**
+     * Optional code block displayed alongside the prompt.
+     */
+    code?: string | null;
+    /**
+     * Language hint for syntax highlighting (e.g. python, typescript).
+     */
+    language?: string | null;
+  };
+  back: {
+    /**
+     * The question or hint shown on this face.
+     */
+    prompt: string;
+    /**
+     * Optional code block displayed alongside the prompt.
+     */
+    code?: string | null;
+    /**
+     * Language hint for syntax highlighting (e.g. python, typescript).
+     */
+    language?: string | null;
+  };
+  difficulty: 'beginner' | 'intermediate' | 'advanced';
+  /**
+   * Controls display ordering within the section (ascending).
+   */
+  order?: number | null;
+  tags?:
+    | {
+        value: string;
+        id?: string | null;
+      }[]
+    | null;
+  isPublished?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "exercises".
+ */
+export interface Exercise {
+  id: number;
+  section: number | Section;
+  type: 'fill-blank' | 'multiple-choice' | 'arrange-lines' | 'spot-error';
+  question: string;
+  /**
+   * Optional code block shown alongside the question.
+   */
+  code?: string | null;
+  /**
+   * Language hint for syntax highlighting (e.g. python, typescript).
+   */
+  language?: string | null;
+  /**
+   * Provide choices for multiple-choice exercises.
+   */
+  options?:
+    | {
+        value: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * For multiple-choice use the option text. For arrange-lines, provide newline-separated lines in order.
+   */
+  correctAnswer: string;
+  /**
+   * Shown to the learner after they answer.
+   */
+  explanation: string;
+  difficulty: 'beginner' | 'intermediate' | 'advanced';
+  /**
+   * Controls display ordering within the section (ascending).
+   */
+  order?: number | null;
+  isPublished?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
@@ -161,10 +316,27 @@ export interface PayloadKv {
  */
 export interface PayloadLockedDocument {
   id: number;
-  document?: {
-    relationTo: 'users';
-    value: number | User;
-  } | null;
+  document?:
+    | ({
+        relationTo: 'users';
+        value: number | User;
+      } | null)
+    | ({
+        relationTo: 'languages';
+        value: number | Language;
+      } | null)
+    | ({
+        relationTo: 'sections';
+        value: number | Section;
+      } | null)
+    | ({
+        relationTo: 'flashcards';
+        value: number | Flashcard;
+      } | null)
+    | ({
+        relationTo: 'exercises';
+        value: number | Exercise;
+      } | null);
   globalSlug?: string | null;
   user: {
     relationTo: 'users';
@@ -231,6 +403,92 @@ export interface UsersSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "languages_select".
+ */
+export interface LanguagesSelect<T extends boolean = true> {
+  name?: T;
+  slug?: T;
+  description?: T;
+  color?: T;
+  order?: T;
+  isPublished?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "sections_select".
+ */
+export interface SectionsSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  language?: T;
+  description?: T;
+  order?: T;
+  difficulty?: T;
+  isPublished?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "flashcards_select".
+ */
+export interface FlashcardsSelect<T extends boolean = true> {
+  section?: T;
+  questionType?: T;
+  front?:
+    | T
+    | {
+        prompt?: T;
+        code?: T;
+        language?: T;
+      };
+  back?:
+    | T
+    | {
+        prompt?: T;
+        code?: T;
+        language?: T;
+      };
+  difficulty?: T;
+  order?: T;
+  tags?:
+    | T
+    | {
+        value?: T;
+        id?: T;
+      };
+  isPublished?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "exercises_select".
+ */
+export interface ExercisesSelect<T extends boolean = true> {
+  section?: T;
+  type?: T;
+  question?: T;
+  code?: T;
+  language?: T;
+  options?:
+    | T
+    | {
+        value?: T;
+        id?: T;
+      };
+  correctAnswer?: T;
+  explanation?: T;
+  difficulty?: T;
+  order?: T;
+  isPublished?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv_select".
  */
 export interface PayloadKvSelect<T extends boolean = true> {
@@ -268,6 +526,44 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
   batch?: T;
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "site-settings".
+ */
+export interface SiteSetting {
+  id: number;
+  /**
+   * When disabled, the app always uses the default dark + purple theme.
+   */
+  allowThemeSwitch?: boolean | null;
+  /**
+   * When enabled, the app will display a maintenance page to all users.
+   */
+  maintenanceMode?: boolean | null;
+  announcementBanner?: {
+    enabled?: boolean | null;
+    message?: string | null;
+  };
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "site-settings_select".
+ */
+export interface SiteSettingsSelect<T extends boolean = true> {
+  allowThemeSwitch?: T;
+  maintenanceMode?: T;
+  announcementBanner?:
+    | T
+    | {
+        enabled?: T;
+        message?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

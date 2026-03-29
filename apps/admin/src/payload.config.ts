@@ -3,6 +3,8 @@ import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import path from 'path'
 import { buildConfig } from 'payload'
 import { fileURLToPath } from 'url'
+import { Exercises, Flashcards, Languages, Sections } from './collections'
+import { SiteSettings } from './globals'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -43,8 +45,12 @@ export default buildConfig({
       auth: true,
       fields: [],
     },
+    Languages,
+    Sections,
+    Flashcards,
+    Exercises,
   ],
-  globals: [],
+  globals: [SiteSettings],
   endpoints: [],
   secret: process.env.PAYLOAD_SECRET,
   typescript: {

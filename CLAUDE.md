@@ -154,10 +154,42 @@ If 2+ apps use the same code → move it to a `packages/*` package immediately. 
 
 ## Testing
 
-- Jest + React Testing Library
-- Mobile: `jest-expo` preset
-- Tests in `src/__tests__/` mirroring source structure
-- Test coverage thresholds must be met before merging
+### TDD mandate — tests before implementation
+**Every new feature, logic function, or mutation MUST have tests written before or alongside the implementation. No PR/commit without tests for new logic.**
+
+- **Rule**: Write failing tests first → implement → make them pass.
+- **Domain logic** (`@repo/domain`): Jest unit tests in `packages/domain/__tests__/` — 100% coverage on pure logic functions.
+- **Convex mutations/queries**: Test using Convex testing utilities (`convex-test`).
+- **PayloadCMS hooks/endpoints**: Unit tests with mocked `fetch` / Payload context.
+- **React components** (web/mobile): React Testing Library for interaction logic.
+
+### Test file location
+| Package / App | Test location | Runner |
+|---|---|---|
+| `packages/domain` | `packages/domain/__tests__/*.test.ts` | Jest (vanilla) |
+| `apps/mobile` | `apps/mobile/src/__tests__/*.test.tsx` | jest-expo |
+| `apps/web` | `apps/web/src/__tests__/*.test.tsx` | jest (Next.js) |
+| `apps/admin` | `apps/admin/src/__tests__/*.test.ts` | Jest (vanilla) |
+
+### Run tests
+```bash
+# All
+npx turbo run test
+
+# Domain only (fastest, pure logic)
+cd packages/domain && npm test
+
+# Mobile
+cd apps/mobile && npm test
+```
+
+### After every feature
+Run all three. Fix any failures before moving on:
+```bash
+npm run lint
+npm run typecheck
+npx turbo run test
+```
 
 ## Adding New Apps or Packages
 
