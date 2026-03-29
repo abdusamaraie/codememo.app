@@ -6,22 +6,17 @@
  *
  * Usage:
  *   cd apps/admin
- *   npx tsx src/seed.ts
+ *   npm run seed
  *
  * Requires DATABASE_URL and PAYLOAD_SECRET in .env.local.
  */
-import { config as loadEnv } from 'dotenv';
-loadEnv({ path: '.env.local' });
-
 import { getPayload } from 'payload';
 import config from './payload.config';
-import {
-  languages,
-  sections,
-  pythonFlashcards,
-  jsFlashcards,
-  exercises,
-} from '@repo/mock-data';
+import { languages } from '../../../packages/mock-data/seed/languages';
+import { sections } from '../../../packages/mock-data/seed/sections';
+import { pythonFlashcards } from '../../../packages/mock-data/seed/flashcards-python';
+import { jsFlashcards } from '../../../packages/mock-data/seed/flashcards-javascript';
+import { exercises } from '../../../packages/mock-data/seed/exercises';
 
 async function seed() {
   console.log('🌱 Starting seed…\n');
