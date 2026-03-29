@@ -1,4 +1,5 @@
 export * from './Sidebar';
+export * from './SidebarNav';
 export * from './SidebarItem';
 export * from './MobileHeader';
 export * from './MobileBottomNav';

@@ -1,0 +1,22 @@
+'use client';
+
+import { BookOpen, Code2, BarChart2, Trophy, Flame } from 'lucide-react';
+import { SidebarItem } from './SidebarItem';
+
+const NAV_ITEMS = [
+  { label: 'Learn',        href: '/learn',        icon: BookOpen  },
+  { label: 'Languages',    href: '/languages',    icon: Code2     },
+  { label: 'Progress',     href: '/progress',     icon: BarChart2 },
+  { label: 'Leaderboard',  href: '/leaderboard',  icon: Trophy    },
+  { label: 'Quests',       href: '/quests',       icon: Flame     },
+];
+
+export function SidebarNav() {
+  return (
+    <nav className="flex-1 px-3 py-2 flex flex-col gap-1 overflow-y-auto">
+      {NAV_ITEMS.map((item) => (
+        <SidebarItem key={item.href} {...item} />
+      ))}
+    </nav>
+  );
+}
