@@ -25,14 +25,13 @@ const LANGUAGE_PROGRESS = [
 
 export function ProgressClientPage() {
   const { activityMap, streak, daily } = useGamificationStats();
-  const todayXp = daily.reviews * 10 + daily.practice * 20 + daily.quiz * 50;
   const daysStudied = Object.values(activityMap).filter((n) => n > 0).length;
 
   const stats = [
     { Icon: BookOpen, value: String(daily.reviews), label: 'Cards reviewed', color: 'text-blue-400' },
     { Icon: Target, value: `${Math.min(100, Math.round(daily.quiz > 0 ? 80 : 70))}%`, label: 'Accuracy', color: 'text-green-400' },
-    { Icon: Flame, value: String(streak.current), label: 'Day streak', color: 'text-orange-500' },
     { Icon: TrendingUp, value: String(daysStudied), label: 'Days studied', color: 'text-purple-400' },
+    { Icon: Flame, value: String(streak.best), label: 'Best streak', color: 'text-orange-500' },
   ];
 
   const mergedActivity = calendarCells.map((cell) => ({
@@ -46,12 +45,6 @@ export function ProgressClientPage() {
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-[--foreground]">Progress</h1>
           <p className="text-sm text-[--muted-foreground] mt-1">Your learning journey so far</p>
-        </div>
-
-        <div className="mb-4 text-xs text-[--muted-foreground]">
-          Today XP: <span className="text-[--foreground] font-semibold">{todayXp}</span> •
-          {' '}Streak freeze: <span className="text-[--foreground] font-semibold">{streak.freezes}</span> •
-          {' '}Best streak: <span className="text-[--foreground] font-semibold">{streak.best}</span>
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
