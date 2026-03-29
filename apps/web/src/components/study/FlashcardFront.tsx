@@ -1,7 +1,11 @@
 'use client';
 
-import { useRef, useCallback } from 'react';
-import { Lightbulb } from 'lucide-react';
+import { useRef, useCallback, useState } from 'react';
+import { Lightbulb, Sparkles } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { getProgressiveHint, type AiHintResult } from '@/lib/ai-assist';
+import { getRemainingAiRequests } from '@/lib/ai-assist';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 type Props = {
   question: string;
@@ -20,6 +24,9 @@ export function FlashcardFront({
   attempt, onAttemptChange, hintVisible, onShowHint,
 }: Props) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const [aiHint, setAiHint] = useState<AiHintResult | null>(null);
+  const [loadingAiHint, setLoadingAiHint] = useState(false);
+  const [aiHintOpen, setAiHintOpen] = useState(false);
 
   const handleChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
     onAttemptChange(e.target.value);
@@ -42,6 +49,20 @@ export function FlashcardFront({
       });
     }
   }, [attempt, onAttemptChange]);
+
+  const requestAiHint = useCallback(async () => {
+    if (loadingAiHint) return;
+    setLoadingAiHint(true);
+    const result = await getProgressiveHint({
+      question,
+      curatedHint: hintVisible ? hint : undefined,
+      language,
+      userAttempt: attempt,
+    });
+    setAiHint(result);
+    setAiHintOpen(true);
+    setLoadingAiHint(false);
+  }, [loadingAiHint, question, hintVisible, hint, language, attempt]);
 
   return (
     <div className="flex flex-col gap-6">
@@ -77,23 +98,62 @@ export function FlashcardFront({
         />
       </div>
 
-      {/* Hint */}
-      {hint && (
-        hintVisible ? (
-          <div className="flex items-start gap-2 bg-amber-500/10 border border-amber-500/25 rounded-xl p-3">
-            <Lightbulb className="h-4 w-4 text-amber-400 shrink-0 mt-0.5" />
-            <p className="text-sm text-amber-300">{hint}</p>
-          </div>
-        ) : (
-          <button
-            onClick={onShowHint}
-            className="flex items-center gap-1.5 text-sm text-[--muted-foreground] hover:text-amber-400 transition-colors self-start"
-          >
-            <Lightbulb className="h-4 w-4" />
-            Show hint
-          </button>
-        )
+      {hintVisible && hint && (
+        <div className="flex items-start gap-2 bg-amber-500/10 border border-amber-500/25 rounded-xl p-3">
+          <Lightbulb className="h-4 w-4 text-amber-400 shrink-0 mt-0.5" />
+          <p className="text-sm text-amber-300">{hint}</p>
+        </div>
       )}
+
+      {/* Hint actions */}
+      <div className="flex items-center justify-between gap-3">
+        <div>
+          {hint && !hintVisible && (
+            <button
+              onClick={onShowHint}
+              className="flex items-center gap-1.5 text-sm text-[--muted-foreground] hover:text-amber-400 transition-colors"
+            >
+              <Lightbulb className="h-4 w-4" />
+              Show hint
+            </button>
+          )}
+        </div>
+
+        <TooltipProvider delayDuration={150}>
+          <Tooltip open={aiHintOpen} onOpenChange={setAiHintOpen}>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={requestAiHint}
+                disabled={loadingAiHint}
+                className="h-8 px-2.5 text-xs text-[--muted-foreground] hover:text-[--foreground] hover:bg-white/5"
+              >
+                <Sparkles className="h-3.5 w-3.5 mr-1.5 text-[--primary]" />
+                {loadingAiHint ? 'Generating...' : 'AI hint'}
+              </Button>
+            </TooltipTrigger>
+            {aiHint && (
+              <TooltipContent
+                side="bottom"
+                align="end"
+                sideOffset={8}
+                className="max-w-[320px] rounded-xl border border-[--primary]/30 bg-[--card] p-3 shadow-[0_12px_30px_rgba(0,0,0,0.35)]"
+              >
+                <div className="flex items-center gap-2 mb-1.5">
+                  <Sparkles className="h-4 w-4 text-[--primary]" />
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-[--primary]">AI Hint</span>
+                  <span className="text-[10px] text-[--muted-foreground]">({aiHint.source})</span>
+                </div>
+                <p className="text-sm text-[--foreground] whitespace-pre-line leading-relaxed">{aiHint.text}</p>
+                <p className="mt-2 text-[10px] text-[--muted-foreground]">
+                  AI requests left today: {getRemainingAiRequests()}
+                </p>
+              </TooltipContent>
+            )}
+          </Tooltip>
+        </TooltipProvider>
+      </div>
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import { getSiteSettings } from '@/lib/site-settings';
+import { getSiteSettingsWithStatus } from '@/lib/site-settings';
 import { getThemeFromCookie } from '@/lib/theme-cookie';
 import { FeedWrapper, RightSidebar } from '@/components/layout';
 import { ThemeSwitcher } from '@/components/ui/theme-switcher';
@@ -8,8 +8,8 @@ export const metadata = {
 };
 
 export default async function SettingsPage() {
-  const [settings, { accent, theme }] = await Promise.all([
-    getSiteSettings(),
+  const [{ settings, connected, payloadUrl }, { accent, theme }] = await Promise.all([
+    getSiteSettingsWithStatus(),
     getThemeFromCookie(),
   ]);
 
@@ -20,6 +20,17 @@ export default async function SettingsPage() {
         <p className="text-sm text-[--muted-foreground] mb-8">
           Manage your preferences
         </p>
+
+        {!connected && (
+          <section className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-4 mb-4">
+            <h2 className="text-sm font-semibold text-amber-300 mb-1">Admin settings not reachable</h2>
+            <p className="text-xs text-amber-200/90">
+              Web app is currently using fallback defaults because it could not fetch
+              <code className="mx-1 px-1.5 py-0.5 rounded bg-black/20">{payloadUrl}/api/globals/site-settings</code>.
+              Check <code className="mx-1 px-1.5 py-0.5 rounded bg-black/20">NEXT_PUBLIC_ADMIN_URL</code> and ensure the admin app is running.
+            </p>
+          </section>
+        )}
 
         {/* Appearance — only shown when admin enables it */}
         {settings.allowThemeSwitch ? (

@@ -18,12 +18,11 @@ export function FlashcardCard({ card, flipped, userAttempt, onAttemptChange }: P
   return (
     <div style={{ perspective: '1200px' }}>
       <div
-        className="relative transition-transform duration-[650ms]"
+        className="relative min-h-[320px] md:min-h-[360px] transition-transform duration-[650ms]"
         style={{
           transformStyle: 'preserve-3d',
           transform: flipped ? 'rotateY(180deg)' : 'rotateY(0deg)',
           transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)',
-          minHeight: '360px',
         }}
       >
         {/* Front face */}

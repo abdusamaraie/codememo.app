@@ -34,8 +34,8 @@ export default function LearnPage() {
             { Icon: Zap,   value: '340', label: 'XP this week', color: 'text-yellow-400' },
             { Icon: Clock, value: '23',  label: 'Min today',    color: 'text-blue-400'   },
           ] as const).map(({ Icon, value, label, color }) => (
-            <div key={label} className="bg-[--card] border border-[--border] rounded-xl p-3 flex items-center gap-3">
-              <Icon className={`h-5 w-5 shrink-0 ${color}`} />
+            <div key={label} className="bg-[--card] border border-[--primary]/40 rounded-xl p-3 flex items-center gap-3">
+              <Icon className={`h-7 w-7 shrink-0 ${color}`} />
               <div>
                 <div className="text-lg font-bold text-[--foreground] leading-none">{value}</div>
                 <div className="text-xs text-[--muted-foreground] mt-0.5">{label}</div>

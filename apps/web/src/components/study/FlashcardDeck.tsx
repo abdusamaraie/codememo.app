@@ -97,6 +97,7 @@ export function FlashcardDeck({ cards, sectionTitle, language, backHref }: Props
             currentCard && (
               <div className="space-y-3 sm:space-y-0">
                 <FlashcardCard
+                  key={currentCard.id}
                   card={currentCard}
                   flipped={flipped}
                   userAttempt={userAttempt}

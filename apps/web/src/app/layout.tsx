@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Nunito, JetBrains_Mono } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 import { ConvexClientProvider } from "@/components/ConvexClientProvider";
+import { getSiteSettings } from "@/lib/site-settings";
 import { getThemeFromCookie } from "@/lib/theme-cookie";
 import "./globals.css";
 
@@ -27,12 +28,16 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const { accent, theme } = await getThemeFromCookie();
+  const [{ accent, theme }, settings] = await Promise.all([
+    getThemeFromCookie(),
+    getSiteSettings(),
+  ]);
 
   return (
     <html
       lang="en"
       data-accent={accent}
+      data-app-data-source={settings.appDataSource}
       className={`${theme} ${nunito.variable} ${jetbrainsMono.variable}`}
     >
       <body className={nunito.className}>

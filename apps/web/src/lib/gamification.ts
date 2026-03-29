@@ -1,3 +1,4 @@
+import { getClientAppDataSource } from '@/lib/data-source';
 export type DailyMetric = 'reviews' | 'practice' | 'quiz';
 
 export type DailyStats = {
@@ -9,6 +10,20 @@ export type DailyStats = {
 const DAILY_STATS_KEY = 'codememo-daily-stats';
 const ACTIVITY_MAP_KEY = 'codememo-activity-map';
 const FREEZE_KEY = 'codememo-streak-freezes';
+const MOCK_DAILY_STATS: DailyStats = { reviews: 18, practice: 2, quiz: 1 };
+const MOCK_ACTIVITY_MAP: Record<string, number> = {
+  '2026-03-19': 1,
+  '2026-03-20': 2,
+  '2026-03-21': 3,
+  '2026-03-22': 1,
+  '2026-03-23': 4,
+  '2026-03-24': 2,
+  '2026-03-25': 3,
+  '2026-03-26': 2,
+  '2026-03-27': 4,
+  '2026-03-28': 3,
+  '2026-03-29': 2,
+};
 
 function todayKey(now: Date = new Date()): string {
   return now.toISOString().slice(0, 10);
@@ -25,12 +40,17 @@ function parseJson<T>(raw: string | null, fallback: T): T {
 
 export function readDailyStats(now: Date = new Date()): DailyStats {
   if (typeof window === 'undefined') return { reviews: 0, practice: 0, quiz: 0 };
+  if (getClientAppDataSource() === 'mock') return MOCK_DAILY_STATS;
   const all = parseJson<Record<string, DailyStats>>(localStorage.getItem(DAILY_STATS_KEY), {});
   return all[todayKey(now)] ?? { reviews: 0, practice: 0, quiz: 0 };
 }
 
 export function incrementDailyMetric(metric: DailyMetric, amount = 1, now: Date = new Date()): void {
   if (typeof window === 'undefined') return;
+  if (getClientAppDataSource() === 'mock') {
+    window.dispatchEvent(new Event('codememo:stats-updated'));
+    return;
+  }
   const key = todayKey(now);
 
   const allStats = parseJson<Record<string, DailyStats>>(localStorage.getItem(DAILY_STATS_KEY), {});
@@ -48,10 +68,14 @@ export function incrementDailyMetric(metric: DailyMetric, amount = 1, now: Date 
 
 export function readActivityMap(): Record<string, number> {
   if (typeof window === 'undefined') return {};
+  if (getClientAppDataSource() === 'mock') return MOCK_ACTIVITY_MAP;
   return parseJson<Record<string, number>>(localStorage.getItem(ACTIVITY_MAP_KEY), {});
 }
 
 export function readStreak(): { current: number; best: number; freezes: number } {
+  if (typeof window !== 'undefined' && getClientAppDataSource() === 'mock') {
+    return { current: 7, best: 14, freezes: 2 };
+  }
   const map = readActivityMap();
   const freezes =
     typeof window === 'undefined'
@@ -92,4 +116,3 @@ export function readStreak(): { current: number; best: number; freezes: number }
 
   return { current, best, freezes };
 }
-

@@ -16,6 +16,17 @@ const LANGUAGES = [
 
 const FILTERS = ['All', 'In Progress', 'Not Started'] as const;
 type Filter = (typeof FILTERS)[number];
+const FILTER_QUERY_VALUE: Record<Filter, string> = {
+  All: 'all',
+  'In Progress': 'in-progress',
+  'Not Started': 'not-started',
+};
+
+function parseFilter(value?: string): Filter {
+  if (value === 'in-progress') return 'In Progress';
+  if (value === 'not-started') return 'Not Started';
+  return 'All';
+}
 
 function filterLanguages(langs: typeof LANGUAGES, filter: Filter) {
   if (filter === 'In Progress') return langs.filter((l) => l.done > 0 && l.done < l.sections);
@@ -23,13 +34,13 @@ function filterLanguages(langs: typeof LANGUAGES, filter: Filter) {
   return langs;
 }
 
-export default function LanguagesPage({
+export default async function LanguagesPage({
   searchParams,
 }: {
   searchParams: Promise<{ filter?: string }>;
 }) {
-  // Static render — filter applied via URL param (no client state needed)
-  const filter: Filter = 'All'; // default; client-side tabs added in Phase 7
+  const { filter: rawFilter } = await searchParams;
+  const filter: Filter = parseFilter(rawFilter);
   const filtered = filterLanguages(LANGUAGES, filter);
 
   return (
@@ -43,18 +54,20 @@ export default function LanguagesPage({
         </div>
 
         {/* Filter tabs */}
-        <div className="flex gap-2 mb-5">
+        <div className="flex gap-2 mb-5 border-b border-[--border]">
           {FILTERS.map((f) => (
-            <span
+            <Link
               key={f}
+              href={`/languages?filter=${FILTER_QUERY_VALUE[f]}`}
+              aria-current={f === filter ? 'page' : undefined}
               className={`px-3 py-1.5 rounded-lg text-xs font-medium ${
                 f === filter
-                  ? 'bg-[--primary] text-white'
-                  : 'bg-[--secondary] text-[--muted-foreground]'
+                  ? 'text-[--primary] border-b-2 border-[--primary] bg-[--primary]/10 rounded-b-none -mb-px'
+                  : 'text-[--muted-foreground] border-b-2 border-transparent hover:text-[--foreground] hover:bg-[--primary]/5 rounded-b-none -mb-px'
               }`}
             >
               {f}
-            </span>
+            </Link>
           ))}
         </div>
 
