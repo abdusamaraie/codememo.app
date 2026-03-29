@@ -2,6 +2,7 @@
 
 import type { QualityRating } from '@repo/domain';
 import { similarity } from '@/lib/code-diff';
+import { Button } from '@/components/ui/button';
 import { Mascot } from './Mascot';
 
 type Props = {
@@ -9,6 +10,7 @@ type Props = {
   flipped: boolean;
   userAttempt: string;
   answerCode?: string;
+  hidePreRevealCtaOnMobile?: boolean;
   onReveal: () => void;
   onRate: (quality: QualityRating) => void;
 };
@@ -31,7 +33,14 @@ function getFeedback(score: number, hasAttempt: boolean): {
   return           { text: 'Keep practicing 💪',           sub: `${score}% match — review the answer.`,   mascot: 'think'     };
 }
 
-export function StudyBottomBar({ flipped, userAttempt, answerCode, onReveal, onRate }: Props) {
+export function StudyBottomBar({
+  flipped,
+  userAttempt,
+  answerCode,
+  hidePreRevealCtaOnMobile = false,
+  onReveal,
+  onRate,
+}: Props) {
   const score = answerCode ? similarity(userAttempt, answerCode) : 0;
   const hasAttempt = userAttempt.trim().length > 0;
   const feedback = getFeedback(score, hasAttempt);
@@ -43,7 +52,7 @@ export function StudyBottomBar({ flipped, userAttempt, answerCode, onReveal, onR
     >
       {flipped ? (
         /* ── Post-reveal: mascot + feedback + confidence rating ── */
-        <div className="flex items-center gap-4 px-5 py-4">
+        <div className="mx-auto w-full max-w-2xl flex items-center gap-3 sm:gap-4 px-3 sm:px-4 md:px-6 py-3 sm:py-4">
           {/* Mascot + text */}
           <div className="flex items-center gap-3 flex-1 min-w-0">
             <Mascot size={48} variant={feedback.mascot} className="shrink-0" />
@@ -70,16 +79,21 @@ export function StudyBottomBar({ flipped, userAttempt, answerCode, onReveal, onR
         </div>
       ) : (
         /* ── Pre-reveal: Check Answer button ── */
-        <div className="flex items-center justify-end px-5 py-4">
-          <button
+        <div
+          className={`mx-auto w-full max-w-2xl items-center justify-center lg:justify-end px-3 sm:px-4 md:px-6 py-3 sm:py-4 ${
+            hidePreRevealCtaOnMobile ? 'hidden lg:flex' : 'flex'
+          }`}
+        >
+          <Button
             onClick={onReveal}
-            className="flex items-center gap-2 px-6 py-3 rounded-xl bg-[--primary] text-white font-bold text-sm hover:opacity-90 active:scale-[0.98] transition-all"
+            size="lg"
+            className="gap-2 w-auto min-w-[220px] sm:min-w-0"
           >
             Check Answer
             <kbd className="hidden sm:inline-flex items-center gap-0.5 text-[10px] bg-white/20 px-1.5 py-0.5 rounded">
               ↵
             </kbd>
-          </button>
+          </Button>
         </div>
       )}
     </div>

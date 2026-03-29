@@ -1,6 +1,8 @@
 import { Sidebar } from '@/components/layout/Sidebar';
 import { MobileHeader } from '@/components/layout/MobileHeader';
 import { MobileBottomNav } from '@/components/layout/MobileBottomNav';
+import { SidebarProvider } from '@/components/layout/SidebarContext';
+import { AppShell } from '@/components/layout/AppShell';
 
 export default function AppLayout({
   children,
@@ -8,20 +10,20 @@ export default function AppLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="h-full">
-      {/* Desktop: fixed 256px left sidebar */}
-      <Sidebar />
+    <SidebarProvider>
+      <div className="h-full">
+        {/* Desktop: fixed collapsible sidebar */}
+        <Sidebar />
 
-      {/* Mobile: fixed top header (50px) */}
-      <MobileHeader />
+        {/* Mobile: fixed top header (50px) */}
+        <MobileHeader />
 
-      {/* Main content — offset for fixed sidebar (desktop) and fixed header (mobile) */}
-      <main className="h-full pt-[50px] lg:pl-[256px] lg:pt-0">
-        <div className="mx-auto h-full max-w-[1056px]">{children}</div>
-      </main>
+        {/* Main content — offset tracks sidebar width */}
+        <AppShell>{children}</AppShell>
 
-      {/* Mobile: fixed bottom nav (60px) */}
-      <MobileBottomNav />
-    </div>
+        {/* Mobile: fixed bottom nav (60px) */}
+        <MobileBottomNav />
+      </div>
+    </SidebarProvider>
   );
 }

@@ -1,5 +1,7 @@
 import { Trophy, Zap, RotateCcw, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 
 type RatingSummary = { forgot: number; hard: number; good: number; nailed: number };
 
@@ -52,19 +54,22 @@ export function SessionComplete({ sectionTitle, language, totalCards, xpEarned, 
 
       {/* Actions */}
       <div className="flex gap-3 w-full max-w-sm">
-        <button
+        <Button
           onClick={onRestart}
-          className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl border border-[--border] text-[--foreground] font-semibold text-sm hover:bg-[--muted] transition-colors"
+          variant="outline"
+          className="flex-1 gap-2"
         >
           <RotateCcw className="h-4 w-4" />
           Retry
-        </button>
+        </Button>
         <Link
           href={`/path/${language}`}
-          className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-[--primary] text-white font-semibold text-sm hover:opacity-90 transition-opacity"
+          className="flex-1"
         >
-          Next Section
-          <ArrowRight className="h-4 w-4" />
+          <Button className="w-full gap-2">
+            Next Section
+            <ArrowRight className="h-4 w-4" />
+          </Button>
         </Link>
       </div>
     </div>
@@ -73,10 +78,12 @@ export function SessionComplete({ sectionTitle, language, totalCards, xpEarned, 
 
 function StatCard({ label, value, highlight }: { label: string; value: string; highlight?: boolean }) {
   return (
-    <div className={`rounded-xl p-3 ${highlight ? 'bg-[--primary]/10 border border-[--primary]/30' : 'bg-[--secondary]'}`}>
-      <div className={`text-xl font-bold ${highlight ? 'text-[--primary]' : 'text-[--foreground]'}`}>{value}</div>
-      <div className="text-xs text-[--muted-foreground] mt-0.5">{label}</div>
-    </div>
+    <Card className={highlight ? 'bg-[--primary]/10 border-[--primary]/30' : 'bg-[--secondary]'}>
+      <CardContent className="p-3">
+        <div className={`text-xl font-bold ${highlight ? 'text-[--primary]' : 'text-[--foreground]'}`}>{value}</div>
+        <div className="text-xs text-[--muted-foreground] mt-0.5">{label}</div>
+      </CardContent>
+    </Card>
   );
 }
 

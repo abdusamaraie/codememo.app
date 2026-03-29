@@ -4,6 +4,7 @@ import { useState, useCallback, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import type { QualityRating } from '@repo/domain';
 import { useStudySession } from '@/hooks/useStudySession.hook';
+import { Button } from '@/components/ui/button';
 import { FlashcardCard } from './FlashcardCard';
 import { SessionComplete } from './SessionComplete';
 import { StudyTopBar } from './StudyTopBar';
@@ -34,11 +35,6 @@ export function FlashcardDeck({ cards, sectionTitle, language, backHref }: Props
   const { currentCard, currentIndex, flipped, completed, xpEarned, ratings, reveal, rate, restart } =
     useStudySession(cards);
 
-  // Reset attempt whenever the card changes
-  useEffect(() => {
-    setUserAttempt('');
-  }, [currentIndex]);
-
   // Enter key shortcut: reveal if front, continue (rate Good) if back
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
@@ -55,23 +51,28 @@ export function FlashcardDeck({ cards, sectionTitle, language, backHref }: Props
     setUserAttempt('');
   }, [rate]);
 
+  const handleAttemptChange = useCallback((value: string) => {
+    if (value === userAttempt) return;
+    setUserAttempt(value);
+  }, [userAttempt]);
+
   if (cards.length === 0) {
     return (
-      <div className="fixed inset-0 bg-[--background] flex flex-col items-center justify-center gap-4 text-center p-8">
+      <div className="fixed inset-0 z-[70] bg-[--background] flex flex-col items-center justify-center gap-4 text-center p-8">
         <p className="text-lg font-semibold text-[--foreground]">No cards due for review!</p>
         <p className="text-sm text-[--muted-foreground]">Come back later or choose another section.</p>
-        <button
+        <Button
           onClick={() => router.push(backHref)}
-          className="px-6 py-2.5 rounded-xl bg-[--primary] text-white font-semibold text-sm"
+          size="sm"
         >
           Back to Path
-        </button>
+        </Button>
       </div>
     );
   }
 
   return (
-    <div className="fixed inset-0 bg-[--background] flex flex-col">
+    <div className="fixed inset-0 z-[70] bg-[--background] flex flex-col">
       {/* Top bar — progress segments */}
       <StudyTopBar
         current={completed ? cards.length : currentIndex}
@@ -80,8 +81,8 @@ export function FlashcardDeck({ cards, sectionTitle, language, backHref }: Props
         onExit={() => router.push(backHref)}
       />
 
-      {/* Main content — centered */}
-      <main className="flex-1 overflow-y-auto flex items-start justify-center px-4 py-8">
+      {/* Main content — centered, shares responsive width rhythm with top bar */}
+      <main className="flex-1 overflow-y-auto flex items-start justify-center px-3 py-4 sm:px-4 sm:py-6 md:px-6 md:py-8">
         <div className="w-full max-w-2xl">
           {completed ? (
             <SessionComplete
@@ -94,13 +95,23 @@ export function FlashcardDeck({ cards, sectionTitle, language, backHref }: Props
             />
           ) : (
             currentCard && (
-              <FlashcardCard
-                card={currentCard}
-                flipped={flipped}
-                userAttempt={userAttempt}
-                onAttemptChange={setUserAttempt}
-                onRate={handleRate}
-              />
+              <div className="space-y-3 sm:space-y-0">
+                <FlashcardCard
+                  card={currentCard}
+                  flipped={flipped}
+                  userAttempt={userAttempt}
+                  onAttemptChange={handleAttemptChange}
+                />
+
+                {/* Mobile + tablet CTA sits directly under the card (avoids menu bar overlap) */}
+                {!flipped && (
+                  <div className="lg:hidden flex justify-center">
+                    <Button onClick={reveal} size="lg" className="gap-2 w-full max-w-sm md:max-w-md">
+                      Check Answer
+                    </Button>
+                  </div>
+                )}
+              </div>
             )
           )}
         </div>
@@ -112,6 +123,7 @@ export function FlashcardDeck({ cards, sectionTitle, language, backHref }: Props
           flipped={flipped}
           userAttempt={userAttempt}
           answerCode={currentCard.answerCode}
+          hidePreRevealCtaOnMobile
           onReveal={reveal}
           onRate={handleRate}
         />

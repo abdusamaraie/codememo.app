@@ -1,25 +1,24 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useMemo, useState } from 'react';
 import { Lock, X } from 'lucide-react';
 import { SignUpButton } from '@clerk/nextjs';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 
 const STORAGE_KEY = 'codememo-nudge-dismissed';
 const REVIEW_COUNT_KEY = 'codememo-anon-reviews';
 const NUDGE_THRESHOLD = 5;
 
 export function SaveProgressNudge() {
-  const [visible, setVisible] = useState(false);
-
-  useEffect(() => {
+  const initiallyVisible = useMemo(() => {
+    if (typeof window === 'undefined') return false;
     const dismissed = localStorage.getItem(STORAGE_KEY);
-    if (dismissed) return;
-
+    if (dismissed) return false;
     const count = parseInt(localStorage.getItem(REVIEW_COUNT_KEY) ?? '0', 10);
-    if (count >= NUDGE_THRESHOLD) {
-      setVisible(true);
-    }
+    return count >= NUDGE_THRESHOLD;
   }, []);
+  const [visible, setVisible] = useState(initiallyVisible);
 
   if (!visible) return null;
 
@@ -29,7 +28,8 @@ export function SaveProgressNudge() {
   }
 
   return (
-    <div className="rounded-xl border border-[--border] bg-[--card] p-4 relative">
+    <Card className="relative">
+      <CardContent className="p-4">
       <button
         onClick={dismiss}
         className="absolute top-2 right-2 p-1 rounded hover:bg-[--muted] transition-colors"
@@ -49,12 +49,13 @@ export function SaveProgressNudge() {
           </p>
         </div>
         <SignUpButton mode="modal">
-          <button className="w-full py-2 rounded-lg bg-[--primary] text-white text-sm font-semibold hover:opacity-90 transition-opacity">
+          <Button className="w-full" size="sm">
             Create free account
-          </button>
+          </Button>
         </SignUpButton>
       </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 }
 

@@ -1,4 +1,6 @@
 export * from './Sidebar';
+export * from './SidebarContext';
+export * from './AppShell';
 export * from './SidebarNav';
 export * from './SidebarItem';
 export * from './MobileHeader';
