@@ -1,6 +1,8 @@
 import Link from 'next/link';
 import { Lock, CheckCircle2, PlayCircle, BookOpen, ChevronRight } from 'lucide-react';
 import { FeedWrapper, RightSidebar } from '@/components/layout';
+import { getLanguageBySlug, getSections, getFlashcardCounts } from '@/lib/api/payload';
+import { notFound } from 'next/navigation';
 
 export const metadata = { title: 'Learning Path — CodeMemo' };
 
@@ -8,73 +10,13 @@ type SectionStatus = 'locked' | 'available' | 'in-progress' | 'completed';
 
 type Section = {
   order: number;
+  slug: string;
   title: string;
   description: string;
   cardCount: number;
   masteryPct: number;
   status: SectionStatus;
 };
-
-const LANGUAGE_META: Record<string, { name: string; color: string; totalSections: number }> = {
-  python:     { name: 'Python',     color: '#3B82F6', totalSections: 14 },
-  typescript: { name: 'TypeScript', color: '#7C6AF6', totalSections: 10 },
-  javascript: { name: 'JavaScript', color: '#F59E0B', totalSections: 12 },
-  rust:       { name: 'Rust',       color: '#F97316', totalSections: 8  },
-  go:         { name: 'Go',         color: '#06B6D4', totalSections: 8  },
-  sql:        { name: 'SQL',        color: '#10B981', totalSections: 6  },
-};
-
-function buildSections(lang: string): Section[] {
-  const sectionTitles: Record<string, string[]> = {
-    python: [
-      'Variables & Types', 'Control Flow', 'Functions', 'List Comprehensions',
-      'Dictionaries & Sets', 'Classes & OOP', 'Decorators', 'Generators',
-      'Context Managers', 'Type Hints', 'Async/Await', 'Standard Library',
-      'Testing with pytest', 'Packaging & Imports',
-    ],
-    typescript: [
-      'Basic Types', 'Interfaces & Types', 'Generics', 'Utility Types',
-      'Discriminated Unions', 'Type Guards', 'Decorators', 'Modules',
-      'Advanced Patterns', 'Compiler Options',
-    ],
-    javascript: [
-      'Variables & Scope', 'Functions & Closures', 'Prototypes', 'ES6 Classes',
-      'Promises', 'Async/Await', 'Modules', 'Destructuring',
-      'Iterators & Generators', 'WeakMap & WeakSet', 'Proxy & Reflect', 'Error Handling',
-    ],
-    rust: [
-      'Ownership', 'Borrowing', 'Lifetimes', 'Structs',
-      'Enums & Pattern Matching', 'Traits', 'Closures', 'Concurrency',
-    ],
-    go: [
-      'Variables & Types', 'Functions', 'Goroutines', 'Channels',
-      'Interfaces', 'Error Handling', 'Packages', 'Testing',
-    ],
-    sql: [
-      'SELECT & Filtering', 'Joins', 'Aggregations', 'Subqueries',
-      'Window Functions', 'Indexes & Performance',
-    ],
-  };
-
-  const titles = sectionTitles[lang] ?? Array.from({ length: 8 }, (_, i) => `Section ${i + 1}`);
-  const doneCount = lang === 'python' ? 4 : lang === 'typescript' ? 1 : 0;
-
-  return titles.map((title, i) => {
-    let status: SectionStatus = 'locked';
-    if (i < doneCount) status = 'completed';
-    else if (i === doneCount) status = i === 0 ? 'available' : 'in-progress';
-    else if (i === doneCount + 1) status = 'available';
-
-    return {
-      order: i + 1,
-      title,
-      description: `Master the key syntax patterns for ${title.toLowerCase()}.`,
-      cardCount: 8 + Math.floor(Math.random() * 8),
-      masteryPct: status === 'completed' ? 80 + Math.floor(Math.random() * 20) : 0,
-      status,
-    };
-  });
-}
 
 const STATUS_CONFIG = {
   locked:      { icon: Lock,          bg: 'bg-[--secondary]',        text: 'text-[--muted-foreground]', label: 'Locked'      },
@@ -89,10 +31,25 @@ export default async function LanguagePathPage({
   params: Promise<{ language: string }>;
 }) {
   const { language } = await params;
-  const meta = LANGUAGE_META[language] ?? { name: language, color: '#7C6AF6', totalSections: 8 };
-  const sections = buildSections(language);
+  const lang = await getLanguageBySlug(language);
+  if (!lang) return notFound();
+
+  const cmsSections = await getSections(lang.id);
+  const cardCounts = await getFlashcardCounts(cmsSections.map((s) => s.id));
+
+  // Until user progress is wired, all sections default to 'available'
+  const sections: Section[] = cmsSections.map((s, i) => ({
+    order: s.order,
+    slug: s.slug,
+    title: s.title,
+    description: s.description ?? `Master the key syntax patterns for ${s.title.toLowerCase()}.`,
+    cardCount: cardCounts.get(s.id) ?? 0,
+    masteryPct: 0,
+    status: i === 0 ? 'available' : 'available',
+  }));
+
   const completedCount = sections.filter((s) => s.status === 'completed').length;
-  const overallPct = Math.round((completedCount / sections.length) * 100);
+  const overallPct = sections.length > 0 ? Math.round((completedCount / sections.length) * 100) : 0;
 
   return (
     <div className="flex gap-8 px-6 py-6">
@@ -101,15 +58,15 @@ export default async function LanguagePathPage({
         <div className="flex items-center gap-4 mb-6">
           <div
             className="w-14 h-14 rounded-2xl flex items-center justify-center text-white font-bold text-2xl shrink-0"
-            style={{ backgroundColor: meta.color }}
+            style={{ backgroundColor: lang.color }}
           >
-            {meta.name[0]}
+            {lang.name[0]}
           </div>
           <div className="flex-1 min-w-0">
-            <h1 className="text-2xl font-bold text-[--foreground]">{meta.name}</h1>
+            <h1 className="text-2xl font-bold text-[--foreground]">{lang.name}</h1>
             <div className="flex items-center gap-3 mt-1">
               <div className="flex-1 h-1.5 bg-[--secondary] rounded-full overflow-hidden">
-                <div className="h-full rounded-full" style={{ width: `${overallPct}%`, backgroundColor: meta.color }} />
+                <div className="h-full rounded-full" style={{ width: `${overallPct}%`, backgroundColor: lang.color }} />
               </div>
               <span className="text-xs text-[--muted-foreground] shrink-0">{completedCount}/{sections.length} sections</span>
             </div>
@@ -122,9 +79,9 @@ export default async function LanguagePathPage({
             const cfg = STATUS_CONFIG[section.status];
             const Icon = cfg.icon;
             const isClickable = section.status !== 'locked';
-            const studyHref = isClickable ? `/study/${language}/${section.order}` : undefined;
-            const practiceHref = isClickable ? `/practice/${language}/${section.order}` : undefined;
-            const quizHref = isClickable ? `/quiz/${language}/${section.order}` : undefined;
+            const studyHref = isClickable ? `/study/${language}/${section.slug}` : undefined;
+            const practiceHref = isClickable ? `/practice/${language}/${section.slug}` : undefined;
+            const quizHref = isClickable ? `/quiz/${language}/${section.slug}` : undefined;
 
             const card = (
               <div

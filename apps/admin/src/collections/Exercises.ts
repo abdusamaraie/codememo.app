@@ -16,6 +16,7 @@ const EXERCISE_TYPE_OPTIONS = [
 
 export const Exercises: CollectionConfig = {
   slug: 'exercises',
+  access: { read: () => true },
   admin: {
     useAsTitle: 'question',
     group: 'Content',

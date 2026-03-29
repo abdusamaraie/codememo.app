@@ -3,6 +3,7 @@ import { syncToConvex } from '../endpoints';
 
 export const CheatSheetEntries: CollectionConfig = {
   slug: 'cheatSheetEntries',
+  access: { read: () => true },
   admin: {
     useAsTitle: 'title',
     group: 'Content',

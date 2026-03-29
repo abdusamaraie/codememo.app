@@ -9,6 +9,7 @@ const DIFFICULTY_OPTIONS = [
 
 export const Sections: CollectionConfig = {
   slug: 'sections',
+  access: { read: () => true },
   admin: {
     useAsTitle: 'title',
     group: 'Content',

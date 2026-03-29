@@ -1,18 +1,18 @@
 import Link from 'next/link';
 import { FeedWrapper, RightSidebar } from '@/components/layout';
+import { getLanguages, getSections } from '@/lib/api/payload';
 
 export const metadata = { title: 'Languages — CodeMemo' };
 
-const LANGUAGES = [
-  { name: 'Python',     slug: 'python',     color: '#3B82F6', desc: 'List comprehensions, decorators, async/await, type hints.',     sections: 14, done: 4,  totalCards: 150 },
-  { name: 'TypeScript', slug: 'typescript', color: '#7C6AF6', desc: 'Generics, utility types, discriminated unions, decorators.',      sections: 10, done: 1,  totalCards: 120 },
-  { name: 'JavaScript', slug: 'javascript', color: '#F59E0B', desc: 'Closures, prototypes, Promises, ES6+ patterns.',                  sections: 12, done: 0,  totalCards: 140 },
-  { name: 'Rust',       slug: 'rust',       color: '#F97316', desc: 'Ownership, borrowing, lifetimes, traits, pattern matching.',     sections: 8,  done: 0,  totalCards: 100 },
-  { name: 'Go',         slug: 'go',         color: '#06B6D4', desc: 'Goroutines, channels, interfaces, error handling.',              sections: 8,  done: 0,  totalCards: 90  },
-  { name: 'SQL',        slug: 'sql',        color: '#10B981', desc: 'Joins, subqueries, window functions, indexes, transactions.',    sections: 6,  done: 0,  totalCards: 70  },
-  { name: 'Bash',       slug: 'bash',       color: '#8B5CF6', desc: 'Shell scripting, pipes, process substitution, awk/sed.',         sections: 5,  done: 0,  totalCards: 60  },
-  { name: 'Java',       slug: 'java',       color: '#EF4444', desc: 'Generics, streams, concurrency, design patterns.',               sections: 10, done: 0,  totalCards: 120 },
-];
+type LangRow = {
+  name: string;
+  slug: string;
+  color: string;
+  desc: string;
+  sections: number;
+  done: number;
+  totalCards: number;
+};
 
 const FILTERS = ['All', 'In Progress', 'Not Started'] as const;
 type Filter = (typeof FILTERS)[number];
@@ -28,7 +28,7 @@ function parseFilter(value?: string): Filter {
   return 'All';
 }
 
-function filterLanguages(langs: typeof LANGUAGES, filter: Filter) {
+function filterLanguages(langs: LangRow[], filter: Filter) {
   if (filter === 'In Progress') return langs.filter((l) => l.done > 0 && l.done < l.sections);
   if (filter === 'Not Started') return langs.filter((l) => l.done === 0);
   return langs;
@@ -41,7 +41,24 @@ export default async function LanguagesPage({
 }) {
   const { filter: rawFilter } = await searchParams;
   const filter: Filter = parseFilter(rawFilter);
-  const filtered = filterLanguages(LANGUAGES, filter);
+
+  const cmsLanguages = await getLanguages();
+  const languages: LangRow[] = await Promise.all(
+    cmsLanguages.map(async (lang) => {
+      const sections = await getSections(lang.id);
+      return {
+        name: lang.name,
+        slug: lang.slug,
+        color: lang.color,
+        desc: lang.description ?? '',
+        sections: sections.length,
+        done: 0,
+        totalCards: 0,
+      };
+    }),
+  );
+
+  const filtered = filterLanguages(languages, filter);
 
   return (
     <div className="flex gap-8 px-6 py-6">
@@ -49,7 +66,7 @@ export default async function LanguagesPage({
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-[--foreground]">Languages</h1>
           <p className="text-sm text-[--muted-foreground] mt-1">
-            {LANGUAGES.length} languages available · pick one to start memorising
+            {languages.length} languages available · pick one to start memorising
           </p>
         </div>
 

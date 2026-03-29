@@ -45,6 +45,7 @@ const faceFields = [
 
 export const Flashcards: CollectionConfig = {
   slug: 'flashcards',
+  access: { read: () => true },
   admin: {
     useAsTitle: 'id',
     group: 'Content',

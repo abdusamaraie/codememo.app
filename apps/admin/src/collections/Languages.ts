@@ -17,6 +17,7 @@ const LANGUAGE_SLUG_OPTIONS = [
 
 export const Languages: CollectionConfig = {
   slug: 'languages',
+  access: { read: () => true },
   admin: {
     useAsTitle: 'name',
     group: 'Content',

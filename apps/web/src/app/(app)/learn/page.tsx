@@ -1,22 +1,30 @@
 import Link from 'next/link';
 import { BookOpen, Flame, Zap, Clock } from 'lucide-react';
 import { FeedWrapper, RightSidebar } from '@/components/layout';
+import { getLanguages, getSections } from '@/lib/api/payload';
 
 export const metadata = { title: 'Learn — CodeMemo' };
 
-const LANGUAGES = [
-  { name: 'Python',     slug: 'python',     color: '#3B82F6', sections: 14, done: 4,  cardsDue: 12 },
-  { name: 'TypeScript', slug: 'typescript', color: '#7C6AF6', sections: 10, done: 1,  cardsDue: 28 },
-  { name: 'JavaScript', slug: 'javascript', color: '#F59E0B', sections: 12, done: 0,  cardsDue: 0  },
-  { name: 'Rust',       slug: 'rust',       color: '#F97316', sections: 8,  done: 0,  cardsDue: 0  },
-  { name: 'Go',         slug: 'go',         color: '#06B6D4', sections: 8,  done: 0,  cardsDue: 0  },
-  { name: 'SQL',        slug: 'sql',        color: '#10B981', sections: 6,  done: 0,  cardsDue: 0  },
-];
+export default async function LearnPage() {
+  const cmsLanguages = await getLanguages();
 
-export default function LearnPage() {
-  const inProgress = LANGUAGES.filter((l) => l.done > 0);
-  const notStarted = LANGUAGES.filter((l) => l.done === 0);
-  const totalDue   = LANGUAGES.reduce((sum, l) => sum + l.cardsDue, 0);
+  const languages = await Promise.all(
+    cmsLanguages.map(async (lang) => {
+      const sections = await getSections(lang.id);
+      return {
+        name: lang.name,
+        slug: lang.slug,
+        color: lang.color,
+        sections: sections.length,
+        done: 0,
+        cardsDue: 0,
+      };
+    }),
+  );
+
+  const inProgress = languages.filter((l) => l.done > 0);
+  const notStarted = languages.filter((l) => l.done === 0);
+  const totalDue   = languages.reduce((sum, l) => sum + l.cardsDue, 0);
 
   return (
     <div className="flex gap-8 px-6 py-6">
