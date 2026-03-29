@@ -1,3 +1,3 @@
 export * from "./utils";
 export * from "./site-settings";
-export * from "./theme-cookie";
+export * from "./theme-constants";

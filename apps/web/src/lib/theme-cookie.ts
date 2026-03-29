@@ -1,16 +1,13 @@
+// Server-only — uses next/headers. Do NOT import from Client Components.
 import { cookies } from 'next/headers';
-
-export const ACCENT_COOKIE = 'codememo-accent';
-export const THEME_COOKIE  = 'codememo-theme';
-
-export const DEFAULT_ACCENT = 'purple';
-export const DEFAULT_THEME  = 'dark';
-
-export type AccentName =
-  | 'purple' | 'sky' | 'blue' | 'indigo' | 'teal'
-  | 'green'  | 'yellow' | 'orange' | 'red' | 'rose' | 'gray';
-
-export type ThemeMode = 'dark' | 'light';
+import {
+  ACCENT_COOKIE,
+  THEME_COOKIE,
+  DEFAULT_ACCENT,
+  DEFAULT_THEME,
+  type AccentName,
+  type ThemeMode,
+} from './theme-constants';
 
 const VALID_ACCENTS = new Set<string>([
   'purple','sky','blue','indigo','teal','green','yellow','orange','red','rose','gray',

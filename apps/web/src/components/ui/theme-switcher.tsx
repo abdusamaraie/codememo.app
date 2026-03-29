@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { ACCENT_COOKIE, THEME_COOKIE, type AccentName, type ThemeMode } from '@/lib/theme-cookie';
+import { ACCENT_COOKIE, THEME_COOKIE, type AccentName, type ThemeMode } from '@/lib/theme-constants';
 
 const ACCENTS: { name: AccentName; swatch: string; label: string }[] = [
   { name: 'purple', swatch: '#7c6af6', label: 'Purple (Default)' },
