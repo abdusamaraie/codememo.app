@@ -80,6 +80,7 @@ export function QuizRunner({ exercises }: Props) {
         <CardContent className="space-y-3 relative z-10">
           {(current.options ?? []).map((option, optionIndex) => {
             const active = selected === option;
+            const letter = String.fromCharCode(65 + optionIndex); // A, B, C, D
             return (
               <button
                 key={`${current.id}-${optionIndex}`}
@@ -92,18 +93,11 @@ export function QuizRunner({ exercises }: Props) {
                     : 'border-[--border] bg-[--card] hover:bg-[--secondary] hover:border-[--primary]/50'
                 }`}
               >
-                <div className="flex items-center justify-between gap-3">
-                  <div className="flex items-center gap-3 min-w-0">
-                    <Badge variant={active ? 'default' : 'secondary'} className="shrink-0">
-                      {optionIndex + 1}
-                    </Badge>
-                    <span className="text-sm font-semibold text-[--foreground] break-words">{option}</span>
-                  </div>
-                  <span
-                    className={`h-4 w-4 rounded-full border shrink-0 ${
-                      active ? 'border-[--primary] bg-[--primary]' : 'border-[--border]'
-                    }`}
-                  />
+                <div className="flex items-center gap-3 min-w-0">
+                  <Badge variant={active ? 'default' : 'secondary'} className="shrink-0">
+                    {letter}
+                  </Badge>
+                  <span className="text-sm font-semibold text-[--foreground] break-words">{option}</span>
                 </div>
               </button>
             );
