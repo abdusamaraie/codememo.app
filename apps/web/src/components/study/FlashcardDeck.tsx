@@ -4,6 +4,7 @@ import { useState, useCallback, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import type { QualityRating } from '@repo/domain';
 import { useStudySession } from '@/hooks/useStudySession.hook';
+import { useSidebar } from '@/components/layout/SidebarContext';
 import { Button } from '@/components/ui/button';
 import { FlashcardCard } from './FlashcardCard';
 import { SessionComplete } from './SessionComplete';
@@ -31,8 +32,11 @@ type Props = {
 
 export function FlashcardDeck({ cards, sectionTitle, language, backHref }: Props) {
   const router = useRouter();
+  const { collapsed } = useSidebar();
   const [userAttempt, setUserAttempt] = useState('');
   const [cheatSheetOpen, setCheatSheetOpen] = useState(false);
+
+  const sidebarOffset = collapsed ? 'lg:left-[72px]' : 'lg:left-[256px]';
 
   const { currentCard, currentIndex, flipped, completed, xpEarned, ratings, reveal, rate, restart } =
     useStudySession(cards);
@@ -60,7 +64,7 @@ export function FlashcardDeck({ cards, sectionTitle, language, backHref }: Props
 
   if (cards.length === 0) {
     return (
-      <div className="fixed inset-0 z-[70] bg-[--background] flex flex-col items-center justify-center gap-4 text-center p-8">
+      <div className={`fixed inset-0 ${sidebarOffset} z-[70] bg-background flex flex-col items-center justify-center gap-4 text-center p-8 transition-[left] duration-300`}>
         <p className="text-lg font-semibold text-[--foreground]">No cards due for review!</p>
         <p className="text-sm text-[--muted-foreground]">Come back later or choose another section.</p>
         <Button
@@ -74,7 +78,7 @@ export function FlashcardDeck({ cards, sectionTitle, language, backHref }: Props
   }
 
   return (
-    <div className="fixed inset-0 z-[70] bg-[--background] flex flex-col">
+    <div className={`fixed inset-0 ${sidebarOffset} z-[70] bg-background flex flex-col transition-[left] duration-300`}>
       {/* Top bar — progress segments */}
       <StudyTopBar
         current={completed ? cards.length : currentIndex}

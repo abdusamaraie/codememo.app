@@ -88,7 +88,7 @@ export default async function LanguagesPage({
           ))}
         </div>
 
-        <div className="grid gap-3">
+        <div className="grid gap-3 min-w-0">
           {filtered.map((lang) => {
             const pct = lang.sections > 0 ? Math.round((lang.done / lang.sections) * 100) : 0;
             const status = lang.done === 0 ? 'Not started' : lang.done === lang.sections ? 'Completed' : `${lang.done} / ${lang.sections} sections`;
@@ -96,7 +96,7 @@ export default async function LanguagesPage({
               <Link
                 key={lang.slug}
                 href={`/path/${lang.slug}`}
-                className="bg-[--card] border border-[--border] hover:border-[--primary] rounded-xl p-4 flex items-center gap-4 transition-colors"
+                className="bg-[--card] border border-[--border] hover:border-[--primary] rounded-xl p-4 flex items-center gap-4 transition-colors min-w-0"
               >
                 <div
                   className="w-12 h-12 rounded-xl flex items-center justify-center text-white font-bold text-lg shrink-0"

@@ -43,7 +43,7 @@ export function StudyTopBar({ current, total, sectionTitle, onExit, onQuickRef }
                       ? 'var(--primary)'
                       : i === current
                       ? 'color-mix(in srgb, var(--primary) 50%, transparent)'
-                      : 'rgba(255,255,255,0.12)',
+                      : 'var(--border)',
                 }}
               />
             ))}

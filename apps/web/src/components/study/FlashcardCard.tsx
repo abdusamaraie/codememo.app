@@ -27,7 +27,7 @@ export function FlashcardCard({ card, flipped, userAttempt, onAttemptChange }: P
       >
         {/* Front face */}
         <div
-          className="absolute inset-0 rounded-2xl bg-white/[0.03] border border-white/[0.07] p-4 sm:p-6 md:p-8 overflow-y-auto"
+          className="absolute inset-0 rounded-2xl bg-card border border-border shadow-sm p-4 sm:p-6 md:p-8 overflow-y-auto"
           style={{ backfaceVisibility: 'hidden' }}
         >
           <FlashcardFront
@@ -44,7 +44,7 @@ export function FlashcardCard({ card, flipped, userAttempt, onAttemptChange }: P
 
         {/* Back face */}
         <div
-          className="absolute inset-0 rounded-2xl bg-white/[0.03] border border-green-500/20 p-4 sm:p-6 md:p-8 overflow-y-auto"
+          className="absolute inset-0 rounded-2xl bg-card border border-green-500/30 shadow-sm p-4 sm:p-6 md:p-8 overflow-y-auto"
           style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
         >
           <FlashcardBack
