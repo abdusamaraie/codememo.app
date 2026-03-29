@@ -1,0 +1,44 @@
+{
+  "name": "@repo/admin",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --port 3001",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint --max-warnings 0",
+    "typecheck": "next typegen && tsc --noEmit"
+  },
+  "dependencies": {
+    "@dnd-kit/accessibility": "^3.1.1",
+    "@payloadcms/db-postgres": "3.72.0",
+    "@payloadcms/next": "3.72.0",
+    "@payloadcms/richtext-lexical": "3.72.0",
+    "@repo/ui": "*",
+    "cross-env": "^7.0.3",
+    "drizzle-kit": "^0.31.7",
+    "graphql": "^16.8.1",
+    "graphql-scalars": "^1.22.2",
+    "next": "15.4.10",
+    "payload": "3.72.0",
+    "pg": "^8.16.3",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "to-snake-case": "^1.0.0"
+  },
+  "devDependencies": {
+    "@repo/eslint-config": "*",
+    "@repo/tailwind-config": "*",
+    "@repo/typescript-config": "*",
+    "@types/node": "^22.15.3",
+    "@types/react": "19.2.2",
+    "@types/react-dom": "19.2.2",
+    "autoprefixer": "^10.4.23",
+    "eslint": "^9.39.1",
+    "postcss": "^8.4.49",
+    "sass": "^1.77.4",
+    "tailwindcss": "^3.4.19",
+    "typescript": "5.9.2"
+  }
+}

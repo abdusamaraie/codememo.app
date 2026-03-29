@@ -1,0 +1,26 @@
+{
+  "name": "@repo/theme",
+  "version": "0.0.0",
+  "private": true,
+  "main": "./index.ts",
+  "types": "./index.ts",
+  "exports": {
+    ".": "./index.ts",
+    "./components": "./components/index.ts",
+    "./utils": "./utils/index.ts",
+    "./motion": "./motion/index.ts",
+    "./tokens": "./tokens/index.ts",
+    "./tokens/colors": "./tokens/colors/index.ts",
+    "./tokens/typography": "./tokens/typography/index.ts",
+    "./types": "./types.ts"
+  },
+  "scripts": {
+    "lint": "eslint . --max-warnings 0",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@repo/eslint-config": "*",
+    "@repo/typescript-config": "*",
+    "typescript": "latest"
+  }
+}

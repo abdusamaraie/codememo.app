@@ -1,0 +1,5 @@
+{
+  "name": "codememo-app",
+  "description": "TypeScript monorepo with mobile (Expo), web (Next.js), and admin (Payload CMS) apps",
+  "maintainedByCoreTeam": true
+}

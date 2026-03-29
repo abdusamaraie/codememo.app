@@ -1,0 +1,59 @@
+{
+  "name": "codememo-app",
+  "private": true,
+  "scripts": {
+    "build": "turbo build",
+    "dev": "turbo dev",
+    "lint": "turbo lint",
+    "typecheck": "turbo typecheck",
+    "dev:admin": "npm --workspace @repo/admin run dev --",
+    "build:admin": "npm --workspace @repo/admin run build --",
+    "start:admin": "npm --workspace @repo/admin run start --",
+    "lint:admin": "npm --workspace @repo/admin run lint --",
+    "typecheck:admin": "npm --workspace @repo/admin run typecheck --",
+    "dev:web": "npm --workspace @repo/web run dev --",
+    "build:web": "npm --workspace @repo/web run build --",
+    "start:web": "npm --workspace @repo/web run start --",
+    "lint:web": "npm --workspace @repo/web run lint --",
+    "start:mobile": "npm --workspace @repo/mobile start --",
+    "start:mobile:clean": "npm --workspace @repo/mobile run start:clean --",
+    "start:mobile:ios": "npm --workspace @repo/mobile run ios --",
+    "start:mobile:android": "npm --workspace @repo/mobile run android --",
+    "start:mobile:web": "npm --workspace @repo/mobile run web --",
+    "run:mobile:ios": "npm --workspace @repo/mobile run build:ios:dev",
+    "run:mobile:android": "npm --workspace @repo/mobile exec -- npx expo run:android",
+    "prebuild:mobile": "npm --workspace @repo/mobile run prebuild",
+    "prebuild:mobile:clean": "npm --workspace @repo/mobile run prebuild:clean",
+    "doctor:mobile": "npm --workspace @repo/mobile run doctor",
+    "build:mobile:ios": "npm --workspace @repo/mobile run build:ios",
+    "build:mobile:ios:simulator": "npm --workspace @repo/mobile run build:ios:simulator",
+    "build:mobile:android": "npm --workspace @repo/mobile run build:android",
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "android": "npm run run:mobile:android",
+    "ios": "npm run run:mobile:ios",
+    "test:mobile": "npm --workspace @repo/mobile run test",
+    "typecheck:mobile": "npm --workspace @repo/mobile run typecheck"
+  },
+  "devDependencies": {
+    "@testing-library/react-native": "^13.3.3",
+    "jest-expo": "^54.0.16",
+    "prettier": "^3.2.5",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "react-native": "0.81.5",
+    "react-native-svg-transformer": "^1.5.2",
+    "react-native-worklets": "0.5.1",
+    "react-test-renderer": "19.1.0",
+    "turbo": "^2.3.3",
+    "typescript": "5.9.2"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "packageManager": "npm@10.2.4",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "version": "1.0.0"
+}
