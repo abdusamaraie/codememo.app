@@ -8,7 +8,7 @@ import {
   Code2,
   BarChart2,
   Trophy,
-  Flame,
+  Settings,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -19,11 +19,11 @@ type NavTab = {
 };
 
 const NAV_TABS: NavTab[] = [
-  { label: 'Learn', href: '/learn', icon: BookOpen },
-  { label: 'Languages', href: '/languages', icon: Code2 },
-  { label: 'Progress', href: '/progress', icon: BarChart2 },
-  { label: 'Leaderboard', href: '/leaderboard', icon: Trophy },
-  { label: 'Quests', href: '/quests', icon: Flame },
+  { label: 'Learn',       href: '/learn',       icon: BookOpen  },
+  { label: 'Languages',   href: '/languages',   icon: Code2     },
+  { label: 'Progress',    href: '/progress',    icon: BarChart2 },
+  { label: 'Leaderboard', href: '/leaderboard', icon: Trophy    },
+  { label: 'Settings',    href: '/settings',    icon: Settings  },
 ];
 
 export function MobileBottomNav() {

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Nunito, JetBrains_Mono } from "next/font/google";
 import { ConvexClientProvider } from "@/components/ConvexClientProvider";
+import { getThemeFromCookie } from "@/lib/theme-cookie";
 import "./globals.css";
 
 const nunito = Nunito({
@@ -20,16 +21,18 @@ export const metadata: Metadata = {
   description: "Syntax memorization for experienced developers.",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const { accent, theme } = await getThemeFromCookie();
+
   return (
     <html
       lang="en"
-      data-accent="purple"
-      className={`dark ${nunito.variable} ${jetbrainsMono.variable}`}
+      data-accent={accent}
+      className={`${theme} ${nunito.variable} ${jetbrainsMono.variable}`}
     >
       <body className={nunito.className}>
         <ConvexClientProvider>{children}</ConvexClientProvider>

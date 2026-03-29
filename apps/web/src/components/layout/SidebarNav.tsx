@@ -1,6 +1,6 @@
 'use client';
 
-import { BookOpen, Code2, BarChart2, Trophy, Flame } from 'lucide-react';
+import { BookOpen, Code2, BarChart2, Trophy, Flame, Settings } from 'lucide-react';
 import { SidebarItem } from './SidebarItem';
 
 const NAV_ITEMS = [
@@ -9,6 +9,7 @@ const NAV_ITEMS = [
   { label: 'Progress',     href: '/progress',     icon: BarChart2 },
   { label: 'Leaderboard',  href: '/leaderboard',  icon: Trophy    },
   { label: 'Quests',       href: '/quests',       icon: Flame     },
+  { label: 'Settings',     href: '/settings',     icon: Settings  },
 ];
 
 export function SidebarNav() {
