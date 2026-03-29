@@ -9,6 +9,10 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View } from 'react-native';
+import { ConvexProvider, ConvexReactClient } from 'convex/react';
+
+const convexUrl = process.env.EXPO_PUBLIC_CONVEX_URL;
+const convex = new ConvexReactClient(convexUrl ?? '');
 
 export default function App() {
   const [fontsLoaded] = useFonts({
@@ -22,15 +26,17 @@ export default function App() {
   }
 
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
-      <SafeAreaProvider>
-        <View style={styles.container}>
-          <Text style={styles.heading}>CodeMemo</Text>
-          <Text style={styles.mono}>JetBrains Mono loaded ✓</Text>
-          <StatusBar style="light" />
-        </View>
-      </SafeAreaProvider>
-    </GestureHandlerRootView>
+    <ConvexProvider client={convex}>
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <SafeAreaProvider>
+          <View style={styles.container}>
+            <Text style={styles.heading}>CodeMemo</Text>
+            <Text style={styles.mono}>JetBrains Mono loaded ✓</Text>
+            <StatusBar style="light" />
+          </View>
+        </SafeAreaProvider>
+      </GestureHandlerRootView>
+    </ConvexProvider>
   );
 }
 

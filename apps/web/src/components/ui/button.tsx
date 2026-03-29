@@ -11,16 +11,16 @@ const buttonVariants = cva(
       variant: {
         // Solid primary — no side borders, 6px depth bottom border
         default:
-          "bg-primary text-primary-foreground border-0 shadow-[0_6px_0_var(--accent-700)] hover:bg-primary/90 active:translate-y-[6px] active:shadow-none active:translate-y-[6px]",
+          "bg-primary text-primary-foreground border-0 shadow-[0_6px_0_var(--accent-700)] hover:bg-primary/90 active:shadow-none active:translate-y-[6px]",
         // Red destructive — same 3D structure
         destructive:
           "bg-red-500 text-slate-100 border-0 border-b-[6px] border-b-[#b91c1c] hover:bg-destructive/90 active:translate-y-[6px] active:border-b-0",
         // Outlined — 2px all sides, 6px accent depth on bottom
         outline:
-          "border-2 border-input border-b-[6px] border-b-[var(--accent-700)] bg-background hover:bg-accent hover:text-accent-foreground active:translate-y-[4px] active:border-b-2",
+          "border-2 border-input shadow-[0_4px_0_var(--accent-700)] bg-background hover:bg-accent hover:text-accent-foreground active:shadow-none active:translate-y-[4px]",
         // Secondary — muted bg, subtle purple border, accent depth
         secondary:
-          "bg-secondary text-secondary-foreground border-2 border-primary/20 border-b-[6px] border-b-[var(--accent-700)] hover:bg-secondary/80 active:translate-y-[4px] active:border-b-2",
+          "bg-secondary text-secondary-foreground border-2 border-primary/20 shadow-[0_4px_0_var(--accent-700)]  hover:bg-secondary/80 active:shadow-none active:translate-y-[4px]",
         // Ghost & link — no depth, keeps lightweight feel
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link:  "text-primary underline-offset-4 hover:underline",

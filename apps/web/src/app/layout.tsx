@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Nunito, JetBrains_Mono } from "next/font/google";
+import { ConvexClientProvider } from "@/components/ConvexClientProvider";
 import "./globals.css";
 
 const nunito = Nunito({
@@ -30,7 +31,9 @@ export default function RootLayout({
       data-accent="purple"
       className={`dark ${nunito.variable} ${jetbrainsMono.variable}`}
     >
-      <body className={nunito.className}>{children}</body>
+      <body className={nunito.className}>
+        <ConvexClientProvider>{children}</ConvexClientProvider>
+      </body>
     </html>
   );
 }

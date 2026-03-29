@@ -31,6 +31,7 @@
     "@repo/domain": "*",
     "@repo/mock-data": "*",
     "@repo/theme": "*",
+    "convex": "^1.34.1",
     "expo": "~54.0.31",
     "expo-asset": "~12.0.12",
     "expo-blur": "~15.0.8",
