@@ -14,7 +14,7 @@ const buttonVariants = cva(
           "bg-primary text-primary-foreground border-0 shadow-[0_6px_0_var(--accent-700)] hover:bg-primary/90 active:shadow-none active:translate-y-[6px]",
         // Red destructive — same 3D structure
         destructive:
-          "bg-red-500 text-slate-100 border-0 border-b-[6px] border-b-[#b91c1c] hover:bg-destructive/90 active:translate-y-[6px] active:border-b-0",
+          "bg-red-500 text-slate-100 border-0  shadow-[0_6px_0_#b91c1c] hover:bg-destructive/90 active:shadow-none active:translate-y-[6px]",
         // Outlined — 2px all sides, 6px accent depth on bottom
         outline:
           "border-2 border-input shadow-[0_4px_0_var(--accent-700)] bg-background hover:bg-accent hover:text-accent-foreground active:shadow-none active:translate-y-[4px]",
