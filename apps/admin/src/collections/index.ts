@@ -4,3 +4,4 @@ export { Languages } from './Languages';
 export { Sections } from './Sections';
 export { Flashcards } from './Flashcards';
 export { Exercises } from './Exercises';
+export { CheatSheetEntries } from './CheatSheetEntries';

@@ -14,3 +14,5 @@ export { jcrFlashcards } from './flashcards-jcr-sql2.js';
 export { exercises, pythonExercises, jsExercises } from './exercises.js';
 export { jcrExercises } from './exercises-jcr-sql2.js';
 export type { ExerciseSeed } from './exercises.js';
+export { cheatSheetEntries } from './cheatsheet-entries.js';
+export type { CheatSheetEntrySeed } from './cheatsheet-entries.js';

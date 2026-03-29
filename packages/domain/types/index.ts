@@ -7,4 +7,4 @@ export * from './quiz';
 export * from './user';
 export * from './progress';
 export * from './streak';
-
+export * from './cheatsheet';

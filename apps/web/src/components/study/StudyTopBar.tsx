@@ -1,15 +1,16 @@
 'use client';
 
-import { X } from 'lucide-react';
+import { BookOpen, X } from 'lucide-react';
 
 type Props = {
   current: number;      // 0-based index of current card
   total: number;
   sectionTitle: string;
   onExit: () => void;
+  onQuickRef?: () => void;
 };
 
-export function StudyTopBar({ current, total, sectionTitle, onExit }: Props) {
+export function StudyTopBar({ current, total, sectionTitle, onExit, onQuickRef }: Props) {
   return (
     <div className="shrink-0 px-3 pt-6 pb-3 sm:px-4 sm:pt-4 sm:pb-3 md:px-6">
       <div className="mx-auto w-full max-w-2xl">
@@ -48,8 +49,18 @@ export function StudyTopBar({ current, total, sectionTitle, onExit }: Props) {
             ))}
           </div>
 
-          {/* Right spacer keeps progress visually centered against left exit button */}
-          <div />
+          {/* Quick Reference button */}
+          {onQuickRef ? (
+            <button
+              onClick={onQuickRef}
+              className="flex h-9 w-9 items-center justify-center rounded-lg text-[--muted-foreground] hover:text-[--foreground] hover:bg-white/10 transition-colors"
+              aria-label="Quick Reference"
+            >
+              <BookOpen className="h-5 w-5" />
+            </button>
+          ) : (
+            <div />
+          )}
         </div>
       </div>
     </div>

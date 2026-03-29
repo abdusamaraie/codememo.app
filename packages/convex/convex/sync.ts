@@ -24,6 +24,9 @@ export const syncFromPayload = httpAction(async (ctx, request) => {
     case 'exercises':
       await ctx.runMutation(api.sync.upsertExercise, { data: body.data });
       break;
+    case 'cheatSheetEntries':
+      await ctx.runMutation(api.sync.upsertCheatSheetEntry, { data: body.data });
+      break;
     default:
       return new Response(`Unknown collection: ${body.collection}`, { status: 400 });
   }
@@ -32,7 +35,7 @@ export const syncFromPayload = httpAction(async (ctx, request) => {
 });
 
 type SyncPayload = {
-  collection: 'languages' | 'sections' | 'flashcards' | 'exercises';
+  collection: 'languages' | 'sections' | 'flashcards' | 'exercises' | 'cheatSheetEntries';
   operation:  'create' | 'update' | 'delete';
   data:       Record<string, unknown>;
 };
@@ -176,6 +179,43 @@ export const upsertExercise = mutation({
       await ctx.db.patch(existing._id, record);
     } else {
       await ctx.db.insert('exercises', record);
+    }
+  },
+});
+
+export const upsertCheatSheetEntry = mutation({
+  args: { data: v.any() },
+  handler: async (ctx, { data }) => {
+    const d = data as Record<string, unknown>;
+
+    // Resolve language relationship to slug
+    const language = await ctx.db
+      .query('languages')
+      .withIndex('by_payload_id', (q) => q.eq('payloadId', d.languageId as string))
+      .first();
+
+    if (!language) throw new Error(`Language not found for payloadId: ${d.languageId}`);
+
+    const existing = await ctx.db
+      .query('cheatSheetEntries')
+      .withIndex('by_payload_id', (q) => q.eq('payloadId', d.id as string))
+      .first();
+
+    const record = {
+      payloadId:    d.id as string,
+      languageSlug: language.slug,
+      category:     d.category as string,
+      title:        d.title as string,
+      syntax:       d.syntax as string,
+      description:  (d.description as string) ?? '',
+      example:      d.example as string | undefined,
+      order:        (d.order as number) ?? 0,
+    };
+
+    if (existing) {
+      await ctx.db.patch(existing._id, record);
+    } else {
+      await ctx.db.insert('cheatSheetEntries', record);
     }
   },
 });

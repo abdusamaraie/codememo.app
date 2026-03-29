@@ -1,4 +1,4 @@
-export type LanguageSlug = 'python' | 'javascript' | 'typescript' | 'rust' | 'go' | 'java' | 'cpp' | 'csharp' | 'swift' | 'kotlin';
+export type LanguageSlug = 'python' | 'javascript' | 'typescript' | 'rust' | 'go' | 'java' | 'cpp' | 'csharp' | 'swift' | 'kotlin' | 'jcr-sql2';
 
 export type Language = {
   id: string;

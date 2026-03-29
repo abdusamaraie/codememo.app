@@ -88,6 +88,20 @@ export default defineSchema({
     .index('by_payload_id', ['payloadId'])
     .index('by_section', ['sectionId']),
 
+  cheatSheetEntries: defineTable({
+    payloadId:    v.string(),
+    languageSlug: v.string(),
+    category:     v.string(),
+    title:        v.string(),
+    syntax:       v.string(),
+    description:  v.string(),
+    example:      v.optional(v.string()),
+    order:        v.number(),
+  })
+    .index('by_payload_id', ['payloadId'])
+    .index('by_language', ['languageSlug'])
+    .index('by_language_category', ['languageSlug', 'category']),
+
   // ── User Progress ─────────────────────────────────────────────────────────
   cardProgress: defineTable({
     userId:             v.id('users'),

@@ -72,6 +72,7 @@ export interface Config {
     sections: Section;
     flashcards: Flashcard;
     exercises: Exercise;
+    cheatSheetEntries: CheatSheetEntry;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -84,6 +85,7 @@ export interface Config {
     sections: SectionsSelect<false> | SectionsSelect<true>;
     flashcards: FlashcardsSelect<false> | FlashcardsSelect<true>;
     exercises: ExercisesSelect<false> | ExercisesSelect<true>;
+    cheatSheetEntries: CheatSheetEntriesSelect<false> | CheatSheetEntriesSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -297,6 +299,41 @@ export interface Exercise {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "cheatSheetEntries".
+ */
+export interface CheatSheetEntry {
+  id: number;
+  language: number | Language;
+  /**
+   * Grouping label (e.g. "Node Types", "Path Functions", "Array Methods").
+   */
+  category: string;
+  /**
+   * Entry name (e.g. "ISDESCENDANTNODE", "list comprehension").
+   */
+  title: string;
+  /**
+   * Primary code syntax or pattern to remember.
+   */
+  syntax: string;
+  /**
+   * Short explanation of what this syntax does.
+   */
+  description: string;
+  /**
+   * Optional example code snippet showing usage.
+   */
+  example?: string | null;
+  /**
+   * Controls display ordering within the category (ascending).
+   */
+  order?: number | null;
+  isPublished?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
@@ -338,6 +375,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'exercises';
         value: number | Exercise;
+      } | null)
+    | ({
+        relationTo: 'cheatSheetEntries';
+        value: number | CheatSheetEntry;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -484,6 +525,22 @@ export interface ExercisesSelect<T extends boolean = true> {
   correctAnswer?: T;
   explanation?: T;
   difficulty?: T;
+  order?: T;
+  isPublished?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "cheatSheetEntries_select".
+ */
+export interface CheatSheetEntriesSelect<T extends boolean = true> {
+  language?: T;
+  category?: T;
+  title?: T;
+  syntax?: T;
+  description?: T;
+  example?: T;
   order?: T;
   isPublished?: T;
   updatedAt?: T;

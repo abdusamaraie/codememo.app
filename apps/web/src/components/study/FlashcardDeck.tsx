@@ -9,6 +9,7 @@ import { FlashcardCard } from './FlashcardCard';
 import { SessionComplete } from './SessionComplete';
 import { StudyTopBar } from './StudyTopBar';
 import { StudyBottomBar } from './StudyBottomBar';
+import { CheatSheetPanel } from './CheatSheetPanel';
 
 export type StudyCard = {
   id: string;
@@ -31,6 +32,7 @@ type Props = {
 export function FlashcardDeck({ cards, sectionTitle, language, backHref }: Props) {
   const router = useRouter();
   const [userAttempt, setUserAttempt] = useState('');
+  const [cheatSheetOpen, setCheatSheetOpen] = useState(false);
 
   const { currentCard, currentIndex, flipped, completed, xpEarned, ratings, reveal, rate, restart } =
     useStudySession(cards);
@@ -79,6 +81,14 @@ export function FlashcardDeck({ cards, sectionTitle, language, backHref }: Props
         total={cards.length}
         sectionTitle={sectionTitle}
         onExit={() => router.push(backHref)}
+        onQuickRef={() => setCheatSheetOpen(true)}
+      />
+
+      <CheatSheetPanel
+        open={cheatSheetOpen}
+        onOpenChange={setCheatSheetOpen}
+        languageSlug={language}
+        sectionTitle={sectionTitle}
       />
 
       {/* Main content — centered, shares responsive width rhythm with top bar */}

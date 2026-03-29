@@ -83,14 +83,12 @@ const STATUS_CONFIG = {
   completed:   { icon: CheckCircle2,  bg: 'bg-green-500/10',          text: 'text-green-400',            label: 'Review'      },
 };
 
-export default function LanguagePathPage({
+export default async function LanguagePathPage({
   params,
 }: {
   params: Promise<{ language: string }>;
 }) {
-  // Static render — params resolved at build time in production
-  // For dev, we fall back to 'python' via the mock data
-  const language = 'python'; // TODO: replace with `(await params).language` when on Next 15+
+  const { language } = await params;
   const meta = LANGUAGE_META[language] ?? { name: language, color: '#7C6AF6', totalSections: 8 };
   const sections = buildSections(language);
   const completedCount = sections.filter((s) => s.status === 'completed').length;
