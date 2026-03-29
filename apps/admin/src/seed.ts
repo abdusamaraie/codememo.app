@@ -16,7 +16,9 @@ import { languages } from '../../../packages/mock-data/seed/languages';
 import { sections } from '../../../packages/mock-data/seed/sections';
 import { pythonFlashcards } from '../../../packages/mock-data/seed/flashcards-python';
 import { jsFlashcards } from '../../../packages/mock-data/seed/flashcards-javascript';
+import { jcrFlashcards } from '../../../packages/mock-data/seed/flashcards-jcr-sql2';
 import { exercises } from '../../../packages/mock-data/seed/exercises';
+import { jcrExercises } from '../../../packages/mock-data/seed/exercises-jcr-sql2';
 
 async function seed() {
   console.log('🌱 Starting seed…\n');
@@ -95,7 +97,7 @@ async function seed() {
   }
 
   // ── 3. Flashcards ──────────────────────────────────────────────────────────
-  const allFlashcards = [...pythonFlashcards, ...jsFlashcards];
+  const allFlashcards = [...pythonFlashcards, ...jsFlashcards, ...jcrFlashcards];
   console.log(`\n🃏 Seeding ${allFlashcards.length} flashcards…`);
   let fcCreated = 0;
   let fcSkipped = 0;
@@ -137,11 +139,12 @@ async function seed() {
   console.log(`  ✅ ${fcCreated} flashcards created, ${fcSkipped} skipped`);
 
   // ── 4. Exercises ────────────────────────────────────────────────────────────
-  console.log(`\n🏋️ Seeding ${exercises.length} exercises…`);
+  const allExercises = [...exercises, ...jcrExercises];
+  console.log(`\n🏋️ Seeding ${allExercises.length} exercises…`);
   let exCreated = 0;
   let exSkipped = 0;
 
-  for (const ex of exercises) {
+  for (const ex of allExercises) {
     const sectionId = sectionIdBySlug.get(ex.sectionSlug);
     if (!sectionId) {
       console.warn(`  ⚠ Skipping exercise for section "${ex.sectionSlug}" — not found`);

@@ -30,4 +30,13 @@ export const languages = [
     order: 3,
     isPublished: true,
   },
+  {
+    name: 'JCR-SQL2',
+    slug: 'jcr-sql2',
+    description:
+      'The query language for the Java Content Repository (JCR). Used in Adobe Experience Manager (AEM) and Apache Jackrabbit to query content nodes, properties, and paths in the CRX/CRXDE repository.',
+    color: '#EB1000',
+    order: 4,
+    isPublished: true,
+  },
 ] as const;

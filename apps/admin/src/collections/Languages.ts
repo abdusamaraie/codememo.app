@@ -8,6 +8,7 @@ const LANGUAGE_SLUG_OPTIONS = [
   { label: 'Rust', value: 'rust' },
   { label: 'Go', value: 'go' },
   { label: 'SQL', value: 'sql' },
+  { label: 'JCR-SQL2', value: 'jcr-sql2' },
   { label: 'Bash', value: 'bash' },
   { label: 'Java', value: 'java' },
   { label: 'C++', value: 'cpp' },

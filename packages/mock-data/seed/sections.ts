@@ -281,4 +281,99 @@ export const jsSections: SectionSeed[] = [
   },
 ];
 
-export const sections: SectionSeed[] = [...pythonSections, ...jsSections];
+// ─── JCR-SQL2 Sections ───────────────────────────────────────────────────────
+
+export const jcrSections: SectionSeed[] = [
+  {
+    title: 'Core Syntax',
+    slug: 'jcr-core-syntax',
+    languageSlug: 'jcr-sql2',
+    description: 'SELECT/FROM/WHERE skeleton, aliases, and selecting specific columns in JCR-SQL2.',
+    order: 1,
+    difficulty: 'beginner',
+    isPublished: true,
+  },
+  {
+    title: 'Node Types',
+    slug: 'jcr-node-types',
+    languageSlug: 'jcr-sql2',
+    description: 'All JCR/AEM node types: nt:*, cq:*, dam:*, sling:*, rep:*, and oak:* for querying the content repository.',
+    order: 2,
+    difficulty: 'beginner',
+    isPublished: true,
+  },
+  {
+    title: 'Path Functions',
+    slug: 'jcr-path-functions',
+    languageSlug: 'jcr-sql2',
+    description: 'ISDESCENDANTNODE, ISCHILDNODE, and ISSAMENODE for scoping queries to specific repository paths.',
+    order: 3,
+    difficulty: 'beginner',
+    isPublished: true,
+  },
+  {
+    title: 'Text & Search Functions',
+    slug: 'jcr-text-search',
+    languageSlug: 'jcr-sql2',
+    description: 'CONTAINS for full-text search, LIKE for pattern matching, and NAME/LOCALNAME for node name queries.',
+    order: 4,
+    difficulty: 'beginner',
+    isPublished: true,
+  },
+  {
+    title: 'Operators & Conditions',
+    slug: 'jcr-operators',
+    languageSlug: 'jcr-sql2',
+    description: 'Comparison operators (=, <>, <, >), IS NULL/IS NOT NULL, logical operators (AND, OR, NOT), and grouping.',
+    order: 5,
+    difficulty: 'beginner',
+    isPublished: true,
+  },
+  {
+    title: 'Ordering & Pseudo Columns',
+    slug: 'jcr-ordering-pseudo',
+    languageSlug: 'jcr-sql2',
+    description: 'ORDER BY ASC/DESC, jcr:score relevance, and pseudo columns like jcr:path, jcr:primaryType, jcr:uuid.',
+    order: 6,
+    difficulty: 'intermediate',
+    isPublished: true,
+  },
+  {
+    title: 'Common Properties',
+    slug: 'jcr-common-properties',
+    languageSlug: 'jcr-sql2',
+    description: 'Frequently queried JCR/AEM properties: jcr:title, cq:template, sling:resourceType, dc:format, and more.',
+    order: 7,
+    difficulty: 'intermediate',
+    isPublished: true,
+  },
+  {
+    title: 'CAST & Type Conversion',
+    slug: 'jcr-cast-types',
+    languageSlug: 'jcr-sql2',
+    description: 'CAST expressions for converting values to STRING, DATE, LONG, DOUBLE, and BOOLEAN types.',
+    order: 8,
+    difficulty: 'intermediate',
+    isPublished: true,
+  },
+  {
+    title: 'JOINs',
+    slug: 'jcr-joins',
+    languageSlug: 'jcr-sql2',
+    description: 'INNER JOIN and LEFT OUTER JOIN with ON ISCHILDNODE/ISDESCENDANTNODE join conditions.',
+    order: 9,
+    difficulty: 'advanced',
+    isPublished: true,
+  },
+  {
+    title: 'Real-World AEM Queries',
+    slug: 'jcr-real-world',
+    languageSlug: 'jcr-sql2',
+    description: 'Practical query patterns for AEM: finding pages by template, assets by format, components by resourceType, and replication status.',
+    order: 10,
+    difficulty: 'advanced',
+    isPublished: true,
+  },
+];
+
+export const sections: SectionSeed[] = [...pythonSections, ...jsSections, ...jcrSections];

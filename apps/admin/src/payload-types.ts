@@ -162,7 +162,7 @@ export interface Language {
   /**
    * Language identifier — set on creation and read-only thereafter.
    */
-  slug: 'python' | 'javascript' | 'typescript' | 'rust' | 'go' | 'sql' | 'bash' | 'java' | 'cpp';
+  slug: 'python' | 'javascript' | 'typescript' | 'rust' | 'go' | 'sql' | 'jcr-sql2' | 'bash' | 'java' | 'cpp';
   description?: string | null;
   /**
    * Hex color code, e.g. #3776AB
