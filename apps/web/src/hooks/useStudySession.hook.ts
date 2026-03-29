@@ -2,12 +2,7 @@ import { useState, useCallback } from 'react';
 import { calculateNextReview } from '@repo/domain';
 import type { QualityRating, SM2Params } from '@repo/domain';
 import { incrementAnonReviewCount } from '@/components/layout/SaveProgressNudge';
-
-type StudyCard = {
-  id: string;
-  question: string;
-  answer: string;
-};
+import type { StudyCard } from '@/components/study/FlashcardDeck';
 
 type RatingSummary = { forgot: number; hard: number; good: number; nailed: number };
 

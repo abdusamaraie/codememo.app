@@ -1,12 +1,13 @@
 'use client';
 
-import { X } from 'lucide-react';
+import { useState, useCallback, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import type { QualityRating } from '@repo/domain';
 import { useStudySession } from '@/hooks/useStudySession.hook';
 import { FlashcardCard } from './FlashcardCard';
-import { StudyProgressBar } from './StudyProgressBar';
 import { SessionComplete } from './SessionComplete';
+import { StudyTopBar } from './StudyTopBar';
+import { StudyBottomBar } from './StudyBottomBar';
 
 export type StudyCard = {
   id: string;
@@ -28,14 +29,37 @@ type Props = {
 
 export function FlashcardDeck({ cards, sectionTitle, language, backHref }: Props) {
   const router = useRouter();
+  const [userAttempt, setUserAttempt] = useState('');
+
   const { currentCard, currentIndex, flipped, completed, xpEarned, ratings, reveal, rate, restart } =
     useStudySession(cards);
 
+  // Reset attempt whenever the card changes
+  useEffect(() => {
+    setUserAttempt('');
+  }, [currentIndex]);
+
+  // Enter key shortcut: reveal if front, continue (rate Good) if back
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+        if (!flipped) reveal();
+      }
+    }
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [flipped, reveal]);
+
+  const handleRate = useCallback((q: QualityRating) => {
+    rate(q);
+    setUserAttempt('');
+  }, [rate]);
+
   if (cards.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center h-full gap-4 text-center p-8">
+      <div className="fixed inset-0 bg-[--background] flex flex-col items-center justify-center gap-4 text-center p-8">
         <p className="text-lg font-semibold text-[--foreground]">No cards due for review!</p>
-        <p className="text-sm text-[--muted-foreground]">Come back later or choose a new section.</p>
+        <p className="text-sm text-[--muted-foreground]">Come back later or choose another section.</p>
         <button
           onClick={() => router.push(backHref)}
           className="px-6 py-2.5 rounded-xl bg-[--primary] text-white font-semibold text-sm"
@@ -47,30 +71,18 @@ export function FlashcardDeck({ cards, sectionTitle, language, backHref }: Props
   }
 
   return (
-    <div className="flex flex-col h-full">
-      {/* Top bar */}
-      <div className="flex items-center gap-4 px-6 py-4 border-b border-[--border] shrink-0">
-        <button
-          onClick={() => router.push(backHref)}
-          className="p-1.5 rounded-lg hover:bg-[--muted] transition-colors"
-          aria-label="Exit session"
-        >
-          <X className="h-5 w-5 text-[--muted-foreground]" />
-        </button>
-        <div className="flex-1">
-          <StudyProgressBar
-            current={completed ? cards.length : currentIndex}
-            total={cards.length}
-          />
-        </div>
-        <span className="text-xs font-semibold text-[--muted-foreground] shrink-0">
-          {sectionTitle}
-        </span>
-      </div>
+    <div className="fixed inset-0 bg-[--background] flex flex-col">
+      {/* Top bar — progress segments */}
+      <StudyTopBar
+        current={completed ? cards.length : currentIndex}
+        total={cards.length}
+        sectionTitle={sectionTitle}
+        onExit={() => router.push(backHref)}
+      />
 
-      {/* Card area */}
-      <div className="flex-1 flex items-center justify-center p-6 overflow-y-auto">
-        <div className="w-full max-w-xl">
+      {/* Main content — centered */}
+      <main className="flex-1 overflow-y-auto flex items-start justify-center px-4 py-8">
+        <div className="w-full max-w-2xl">
           {completed ? (
             <SessionComplete
               sectionTitle={sectionTitle}
@@ -85,13 +97,25 @@ export function FlashcardDeck({ cards, sectionTitle, language, backHref }: Props
               <FlashcardCard
                 card={currentCard}
                 flipped={flipped}
-                onReveal={reveal}
-                onRate={(q: QualityRating) => rate(q)}
+                userAttempt={userAttempt}
+                onAttemptChange={setUserAttempt}
+                onRate={handleRate}
               />
             )
           )}
         </div>
-      </div>
+      </main>
+
+      {/* Bottom bar — Check Answer (front) / Mascot + Confidence (back) */}
+      {!completed && currentCard && (
+        <StudyBottomBar
+          flipped={flipped}
+          userAttempt={userAttempt}
+          answerCode={currentCard.answerCode}
+          onReveal={reveal}
+          onRate={handleRate}
+        />
+      )}
     </div>
   );
 }

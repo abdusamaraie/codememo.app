@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import type { QualityRating } from '@repo/domain';
 import type { StudyCard } from './FlashcardDeck';
 import { FlashcardFront } from './FlashcardFront';
@@ -8,26 +9,28 @@ import { FlashcardBack } from './FlashcardBack';
 type Props = {
   card: StudyCard;
   flipped: boolean;
-  onReveal: () => void;
+  userAttempt: string;
+  onAttemptChange: (v: string) => void;
   onRate: (quality: QualityRating) => void;
 };
 
-export function FlashcardCard({ card, flipped, onReveal, onRate }: Props) {
+export function FlashcardCard({ card, flipped, userAttempt, onAttemptChange, onRate }: Props) {
+  const [hintVisible, setHintVisible] = useState(false);
+
   return (
-    // Perspective container
-    <div className="w-full" style={{ perspective: '1200px' }}>
+    <div style={{ perspective: '1200px' }}>
       <div
-        className="relative w-full transition-transform duration-[650ms]"
+        className="relative transition-transform duration-[650ms]"
         style={{
           transformStyle: 'preserve-3d',
           transform: flipped ? 'rotateY(180deg)' : 'rotateY(0deg)',
           transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)',
-          minHeight: '420px',
+          minHeight: '360px',
         }}
       >
         {/* Front face */}
         <div
-          className="absolute inset-0 rounded-2xl bg-[--card] border border-[--border] overflow-hidden"
+          className="absolute inset-0 rounded-2xl bg-white/[0.03] border border-white/[0.07] p-8 overflow-y-auto"
           style={{ backfaceVisibility: 'hidden' }}
         >
           <FlashcardFront
@@ -35,13 +38,16 @@ export function FlashcardCard({ card, flipped, onReveal, onRate }: Props) {
             codeSnippet={card.codeSnippet}
             language={card.language}
             hint={card.hint}
-            onReveal={onReveal}
+            attempt={userAttempt}
+            onAttemptChange={onAttemptChange}
+            hintVisible={hintVisible}
+            onShowHint={() => setHintVisible(true)}
           />
         </div>
 
         {/* Back face */}
         <div
-          className="absolute inset-0 rounded-2xl bg-[--card] border border-green-500/20 overflow-hidden"
+          className="absolute inset-0 rounded-2xl bg-white/[0.03] border border-green-500/20 p-8 overflow-y-auto"
           style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
         >
           <FlashcardBack
@@ -49,7 +55,7 @@ export function FlashcardCard({ card, flipped, onReveal, onRate }: Props) {
             answerCode={card.answerCode}
             language={card.language}
             explanation={card.explanation}
-            onRate={onRate}
+            userAttempt={userAttempt}
           />
         </div>
       </div>

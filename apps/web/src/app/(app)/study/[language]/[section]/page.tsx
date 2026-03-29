@@ -151,14 +151,12 @@ export default async function StudyPage({
   const sectionTitle = `Section ${section}`;
 
   return (
-    // Full-screen study mode — hide the app shell layout
-    <div className="fixed inset-0 bg-[--background] z-50 flex flex-col">
-      <FlashcardDeck
-        cards={cards}
-        sectionTitle={sectionTitle}
-        language={language}
-        backHref={`/path/${language}`}
-      />
-    </div>
+    // FlashcardDeck renders as fixed inset-0 and owns the full screen
+    <FlashcardDeck
+      cards={cards}
+      sectionTitle={sectionTitle}
+      language={language}
+      backHref={`/path/${language}`}
+    />
   );
 }
