@@ -124,7 +124,7 @@ export default function LanguagePathPage({
             const cfg = STATUS_CONFIG[section.status];
             const Icon = cfg.icon;
             const isClickable = section.status !== 'locked';
-            const href = isClickable ? `/study/${language}/${section.order}` : undefined;
+            const studyHref = isClickable ? `/study/${language}/${section.order}` : undefined;
             const practiceHref = isClickable ? `/practice/${language}/${section.order}` : undefined;
             const quizHref = isClickable ? `/quiz/${language}/${section.order}` : undefined;
 
@@ -157,20 +157,18 @@ export default function LanguagePathPage({
                 {/* CTA */}
                 {isClickable && (
                   <div className="flex items-center gap-2 shrink-0">
-                    <span className={`flex items-center gap-1 text-xs font-semibold ${cfg.text}`}>
+                    <Link href={studyHref!} className={`flex items-center gap-1 text-xs font-semibold ${cfg.text} hover:underline`}>
                       {cfg.label} <ChevronRight className="h-3.5 w-3.5" />
-                    </span>
+                    </Link>
                     <Link
                       href={practiceHref!}
                       className="text-[10px] px-2 py-1 rounded border border-[--border] text-[--muted-foreground] hover:text-[--foreground]"
-                      onClick={(e) => e.stopPropagation()}
                     >
                       Practice
                     </Link>
                     <Link
                       href={quizHref!}
                       className="text-[10px] px-2 py-1 rounded border border-[--border] text-[--muted-foreground] hover:text-[--foreground]"
-                      onClick={(e) => e.stopPropagation()}
                     >
                       Quiz
                     </Link>
@@ -181,7 +179,7 @@ export default function LanguagePathPage({
 
             return (
               <div key={section.order} className="relative">
-                {href ? <Link href={href}>{card}</Link> : card}
+                {card}
                 {idx < sections.length - 1 && (
                   <div className="absolute left-[29px] top-full h-4 w-px bg-[--border]" />
                 )}

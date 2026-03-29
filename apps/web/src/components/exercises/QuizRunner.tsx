@@ -5,6 +5,8 @@ import { calculateQuizScore } from '@repo/domain';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { incrementDailyMetric } from '@/lib/gamification';
 import type { PracticeExercise } from './types';
 
 type QuizAnswer = { exerciseId: string; answer: unknown; isCorrect: boolean };
@@ -32,6 +34,7 @@ export function QuizRunner({ exercises }: Props) {
     const nextAnswers = [...answers, { exerciseId: current.id, answer: selected, isCorrect }];
     setAnswers(nextAnswers);
     setSelected(null);
+    incrementDailyMetric('quiz');
 
     if (index + 1 >= totalQuestions) {
       setDone(true);
@@ -74,19 +77,40 @@ export function QuizRunner({ exercises }: Props) {
           <CardTitle>Question {index + 1}</CardTitle>
           <CardDescription>{current.prompt}</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-3">
-          {(current.options ?? []).map((option) => (
-            <button
-              key={option}
-              onClick={() => setSelected(option)}
-              className={`w-full text-left rounded-xl border px-4 py-3 text-sm transition-colors ${
-                selected === option ? 'border-[--primary] bg-[--primary]/10' : 'border-[--border] hover:bg-[--secondary]'
-              }`}
-            >
-              {option}
-            </button>
-          ))}
-          <Button onClick={submitCurrent} disabled={!selected}>Next</Button>
+        <CardContent className="space-y-3 relative z-10">
+          {(current.options ?? []).map((option, optionIndex) => {
+            const active = selected === option;
+            return (
+              <button
+                key={`${current.id}-${optionIndex}`}
+                type="button"
+                onClick={() => setSelected(option)}
+                aria-pressed={active}
+                className={`w-full text-left rounded-[16px] border border-b-4 px-4 py-3 transition-colors ${
+                  active
+                    ? 'border-[--primary] bg-[--primary]/10 shadow-[0_3px_0_var(--accent-700)]'
+                    : 'border-[--border] bg-[--card] hover:bg-[--secondary] hover:border-[--primary]/50'
+                }`}
+              >
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <Badge variant={active ? 'default' : 'secondary'} className="shrink-0">
+                      {optionIndex + 1}
+                    </Badge>
+                    <span className="text-sm font-semibold text-[--foreground] break-words">{option}</span>
+                  </div>
+                  <span
+                    className={`h-4 w-4 rounded-full border shrink-0 ${
+                      active ? 'border-[--primary] bg-[--primary]' : 'border-[--border]'
+                    }`}
+                  />
+                </div>
+              </button>
+            );
+          })}
+          <Button onClick={submitCurrent} disabled={!selected}>
+            Next
+          </Button>
         </CardContent>
       </Card>
     </div>

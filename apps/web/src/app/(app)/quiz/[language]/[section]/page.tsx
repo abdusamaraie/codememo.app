@@ -18,7 +18,7 @@ export default async function QuizPage({
   }));
 
   return (
-    <div className="flex gap-8 px-6 py-6">
+    <div className="flex gap-8 px-4 sm:px-6 py-6">
       <FeedWrapper>
         <QuizRunner exercises={exercises} />
       </FeedWrapper>

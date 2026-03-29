@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react';
 import { Progress } from '@/components/ui/progress';
 import { Card, CardContent } from '@/components/ui/card';
+import { incrementDailyMetric } from '@/lib/gamification';
 import type { PracticeExercise } from './types';
 import { FillBlankExercise } from './FillBlankExercise';
 import { MultipleChoiceExercise } from './MultipleChoiceExercise';
@@ -26,6 +27,7 @@ export function ExerciseRunner({ language, section, exercises }: Props) {
   const correctCount = useMemo(() => attempts.filter((a) => a.isCorrect).length, [attempts]);
 
   function nextAnswer(isCorrect: boolean, answer: unknown) {
+    incrementDailyMetric('practice');
     const nextAttempts = [...attempts, { id: current.id, answer, isCorrect }];
     setAttempts(nextAttempts);
     if (index + 1 >= exercises.length) {

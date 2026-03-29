@@ -3,6 +3,7 @@ import { calculateNextReview } from '@repo/domain';
 import type { QualityRating, SM2Params } from '@repo/domain';
 import { incrementAnonReviewCount } from '@/components/layout/SaveProgressNudge';
 import type { StudyCard } from '@/components/study/FlashcardDeck';
+import { incrementDailyMetric } from '@/lib/gamification';
 
 type RatingSummary = { forgot: number; hard: number; good: number; nailed: number };
 
@@ -69,6 +70,7 @@ export function useStudySession(cards: StudyCard[]) {
 
     // Track for anonymous nudge
     incrementAnonReviewCount();
+    incrementDailyMetric('reviews');
 
     // Advance after short delay for UX feedback
     setTimeout(() => {
