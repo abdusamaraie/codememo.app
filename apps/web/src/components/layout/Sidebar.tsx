@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { Keyboard } from 'lucide-react';
+import { Show, UserButton, SignInButton, SignUpButton } from '@clerk/nextjs';
 import { SidebarNav } from './SidebarNav';
 
 export function Sidebar() {
@@ -16,17 +17,34 @@ export function Sidebar() {
       {/* Nav items */}
       <SidebarNav />
 
-      {/* User button */}
+      {/* User section */}
       <div className="p-4 border-t border-[--border] shrink-0">
-        <button
-          className="flex items-center gap-3 w-full px-3 py-2 rounded-lg hover:bg-[--muted] transition-colors"
-          aria-label="Account"
-        >
-          <div className="h-8 w-8 rounded-full bg-[--primary] flex items-center justify-center text-white text-sm font-semibold shrink-0">
-            U
+        <Show when="signed-in">
+          <div className="flex items-center gap-3 px-3 py-2">
+            <UserButton
+              appearance={{
+                elements: {
+                  avatarBox: 'h-8 w-8',
+                },
+              }}
+            />
+            <span className="text-sm font-medium text-[--foreground]">My Account</span>
           </div>
-          <span className="text-sm font-medium text-[--foreground]">Account</span>
-        </button>
+        </Show>
+        <Show when="signed-out">
+          <div className="flex flex-col gap-2">
+            <SignInButton mode="modal">
+              <button className="w-full px-3 py-2 rounded-lg border border-[--border] text-sm font-semibold text-[--foreground] hover:bg-[--muted] transition-colors">
+                Sign in
+              </button>
+            </SignInButton>
+            <SignUpButton mode="modal">
+              <button className="w-full px-3 py-2 rounded-lg bg-[--primary] text-white text-sm font-semibold hover:opacity-90 transition-opacity">
+                Create account
+              </button>
+            </SignUpButton>
+          </div>
+        </Show>
       </div>
     </div>
   );

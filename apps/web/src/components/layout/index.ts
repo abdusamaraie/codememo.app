@@ -9,3 +9,4 @@ export * from './RightSidebar';
 export * from './UserStats';
 export * from './DailyGoal';
 export * from './AdBanner';
+export * from './SaveProgressNudge';

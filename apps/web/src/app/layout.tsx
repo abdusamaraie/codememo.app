@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Nunito, JetBrains_Mono } from "next/font/google";
+import { ClerkProvider } from "@clerk/nextjs";
 import { ConvexClientProvider } from "@/components/ConvexClientProvider";
 import { getThemeFromCookie } from "@/lib/theme-cookie";
 import "./globals.css";
@@ -35,7 +36,9 @@ export default async function RootLayout({
       className={`${theme} ${nunito.variable} ${jetbrainsMono.variable}`}
     >
       <body className={nunito.className}>
-        <ConvexClientProvider>{children}</ConvexClientProvider>
+        <ClerkProvider>
+          <ConvexClientProvider>{children}</ConvexClientProvider>
+        </ClerkProvider>
       </body>
     </html>
   );

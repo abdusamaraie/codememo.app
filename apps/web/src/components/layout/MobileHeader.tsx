@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { Keyboard } from 'lucide-react';
+import { Show, UserButton, SignInButton } from '@clerk/nextjs';
 
 export function MobileHeader() {
   return (
@@ -11,13 +12,19 @@ export function MobileHeader() {
         <span className="font-bold text-[--primary]">CodeMemo</span>
       </Link>
 
-      <button
-        className="h-8 w-8 rounded-full bg-[--primary] flex items-center justify-center text-white text-sm font-semibold shrink-0"
-        aria-label="Account"
-        data-testid="mobile-header-avatar"
-      >
-        U
-      </button>
+      <Show when="signed-in">
+        <UserButton appearance={{ elements: { avatarBox: 'h-8 w-8' } }} />
+      </Show>
+      <Show when="signed-out">
+        <SignInButton mode="modal">
+          <button
+            className="h-8 px-3 rounded-lg bg-[--primary] text-white text-sm font-semibold"
+            aria-label="Sign in"
+          >
+            Sign in
+          </button>
+        </SignInButton>
+      </Show>
     </header>
   );
 }
