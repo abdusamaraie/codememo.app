@@ -3,12 +3,18 @@
  * Used by afterChange hooks — errors are logged but never thrown so
  * a sync failure can never block an admin save.
  */
+
+let warnedMissingUrl = false;
+
 export async function syncToConvex(entityType: string, doc: unknown): Promise<void> {
   const baseUrl = process.env.CONVEX_HTTP_URL;
   const secret = process.env.CONVEX_SYNC_SECRET;
 
   if (!baseUrl) {
-    console.warn('[syncToConvex] CONVEX_HTTP_URL is not set — skipping sync');
+    if (!warnedMissingUrl) {
+      console.warn('[syncToConvex] CONVEX_HTTP_URL is not set — skipping sync');
+      warnedMissingUrl = true;
+    }
     return;
   }
 
