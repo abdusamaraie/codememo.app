@@ -1,18 +1,18 @@
-import type { CollectionConfig } from 'payload';
+import type { CollectionConfig, Option } from 'payload';
 import { syncToConvex } from '../endpoints';
 
 const DIFFICULTY_OPTIONS = [
   { label: 'Beginner', value: 'beginner' },
   { label: 'Intermediate', value: 'intermediate' },
   { label: 'Advanced', value: 'advanced' },
-] as const;
+] satisfies Option[];
 
 const QUESTION_TYPE_OPTIONS = [
   { label: 'Fill in the Blank', value: 'fill-in-blank' },
   { label: 'Multiple Choice', value: 'multiple-choice' },
   { label: 'Code Completion', value: 'code-completion' },
   { label: 'True / False', value: 'true-false' },
-] as const;
+] satisfies Option[];
 
 /** Shared field group for a flashcard face (front or back). */
 const faceFields = [

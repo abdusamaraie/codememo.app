@@ -1,18 +1,18 @@
-import type { CollectionConfig } from 'payload';
+import type { CollectionConfig, Option } from 'payload';
 import { syncToConvex } from '../endpoints';
 
 const DIFFICULTY_OPTIONS = [
   { label: 'Beginner', value: 'beginner' },
   { label: 'Intermediate', value: 'intermediate' },
   { label: 'Advanced', value: 'advanced' },
-] as const;
+] satisfies Option[];
 
 const EXERCISE_TYPE_OPTIONS = [
   { label: 'Fill in the Blank', value: 'fill-blank' },
   { label: 'Multiple Choice', value: 'multiple-choice' },
   { label: 'Arrange Lines', value: 'arrange-lines' },
   { label: 'Spot the Error', value: 'spot-error' },
-] as const;
+] satisfies Option[];
 
 export const Exercises: CollectionConfig = {
   slug: 'exercises',

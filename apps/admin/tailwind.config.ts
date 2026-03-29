@@ -7,7 +7,7 @@ const config: Config = {
     './components/**/*.{js,ts,jsx,tsx,mdx}',
     './src/**/*.{js,ts,jsx,tsx,mdx}',
   ],
-  presets: [sharedConfig],
+  presets: [sharedConfig as Partial<Config>],
 }
 
 export default config

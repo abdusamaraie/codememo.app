@@ -1,11 +1,11 @@
-import type { CollectionConfig } from 'payload';
+import type { CollectionConfig, Option } from 'payload';
 import { syncToConvex } from '../endpoints';
 
 const DIFFICULTY_OPTIONS = [
   { label: 'Beginner', value: 'beginner' },
   { label: 'Intermediate', value: 'intermediate' },
   { label: 'Advanced', value: 'advanced' },
-] as const;
+] satisfies Option[];
 
 export const Sections: CollectionConfig = {
   slug: 'sections',

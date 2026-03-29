@@ -1,4 +1,4 @@
-import type { CollectionConfig } from 'payload';
+import type { CollectionConfig, Option } from 'payload';
 import { syncToConvex } from '../endpoints';
 
 const LANGUAGE_SLUG_OPTIONS = [
@@ -11,7 +11,7 @@ const LANGUAGE_SLUG_OPTIONS = [
   { label: 'Bash', value: 'bash' },
   { label: 'Java', value: 'java' },
   { label: 'C++', value: 'cpp' },
-] as const;
+] satisfies Option[];
 
 export const Languages: CollectionConfig = {
   slug: 'languages',
