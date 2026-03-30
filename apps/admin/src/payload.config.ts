@@ -17,6 +17,10 @@ if (!process.env.DATABASE_URL) {
   throw new Error('DATABASE_URL environment variable is required')
 }
 
+const PRODUCTION_ORIGINS = process.env.CORS_ORIGINS
+  ? process.env.CORS_ORIGINS.split(',').map((o) => o.trim())
+  : [];
+
 export default buildConfig({
   cors: [
     'http://localhost:3002',
@@ -25,6 +29,7 @@ export default buildConfig({
     'http://127.0.0.1:3002',
     'http://127.0.0.1:3003',
     'http://127.0.0.1:3000',
+    ...PRODUCTION_ORIGINS,
   ],
   admin: {
     user: 'users',

@@ -11,7 +11,7 @@
 
 export interface FlashcardSeed {
   sectionSlug: string;
-  questionType: 'fill-in-blank' | 'multiple-choice' | 'code-completion' | 'true-false';
+  questionType: 'fill_blank' | 'multiple_choice' | 'code_completion' | 'free_recall';
   front: { prompt: string; code?: string; language?: string };
   back: { prompt: string; code?: string; language?: string };
   difficulty: 'beginner' | 'intermediate' | 'advanced';
@@ -24,7 +24,7 @@ export const pythonFlashcards: FlashcardSeed[] = [
   // ── Variables & Data Types ────────────────────────────────────────────────
   {
     sectionSlug: 'py-variables-data-types',
-    questionType: 'fill-in-blank',
+    questionType: 'fill_blank',
     front: {
       prompt: 'What is the output of type(42)?',
       language: 'python',
@@ -41,7 +41,7 @@ export const pythonFlashcards: FlashcardSeed[] = [
   },
   {
     sectionSlug: 'py-variables-data-types',
-    questionType: 'multiple-choice',
+    questionType: 'multiple_choice',
     front: {
       prompt: 'Which of the following is NOT a valid Python variable name?',
     },
@@ -57,7 +57,7 @@ export const pythonFlashcards: FlashcardSeed[] = [
   },
   {
     sectionSlug: 'py-variables-data-types',
-    questionType: 'true-false',
+    questionType: 'free_recall',
     front: {
       prompt: 'True or False: In Python 3, dividing two integers with / always returns a float.',
     },
@@ -73,7 +73,7 @@ export const pythonFlashcards: FlashcardSeed[] = [
   },
   {
     sectionSlug: 'py-variables-data-types',
-    questionType: 'code-completion',
+    questionType: 'code_completion',
     front: {
       prompt: 'Write a single expression to check if a variable x is of type str.',
       language: 'python',
@@ -90,7 +90,7 @@ export const pythonFlashcards: FlashcardSeed[] = [
   },
   {
     sectionSlug: 'py-variables-data-types',
-    questionType: 'fill-in-blank',
+    questionType: 'fill_blank',
     front: {
       prompt: 'What does `None` represent in Python, and what is its type?',
       language: 'python',
@@ -109,7 +109,7 @@ export const pythonFlashcards: FlashcardSeed[] = [
   // ── Strings & Formatting ──────────────────────────────────────────────────
   {
     sectionSlug: 'py-strings-formatting',
-    questionType: 'code-completion',
+    questionType: 'code_completion',
     front: {
       prompt: 'Write an f-string that formats the variable `price` (a float) to exactly 2 decimal places.',
       language: 'python',
@@ -126,7 +126,7 @@ export const pythonFlashcards: FlashcardSeed[] = [
   },
   {
     sectionSlug: 'py-strings-formatting',
-    questionType: 'fill-in-blank',
+    questionType: 'fill_blank',
     front: {
       prompt: 'What does `"hello"[1:4]` return?',
       language: 'python',
@@ -143,7 +143,7 @@ export const pythonFlashcards: FlashcardSeed[] = [
   },
   {
     sectionSlug: 'py-strings-formatting',
-    questionType: 'code-completion',
+    questionType: 'code_completion',
     front: {
       prompt: 'How do you create a multi-line string that preserves newlines?',
       language: 'python',
@@ -160,7 +160,7 @@ export const pythonFlashcards: FlashcardSeed[] = [
   },
   {
     sectionSlug: 'py-strings-formatting',
-    questionType: 'true-false',
+    questionType: 'free_recall',
     front: {
       prompt: 'True or False: Strings in Python are mutable.',
     },
@@ -176,7 +176,7 @@ export const pythonFlashcards: FlashcardSeed[] = [
   },
   {
     sectionSlug: 'py-strings-formatting',
-    questionType: 'code-completion',
+    questionType: 'code_completion',
     front: {
       prompt: 'Split the string "a,b,c" into a list of individual characters using a comma delimiter.',
       language: 'python',
@@ -195,7 +195,7 @@ export const pythonFlashcards: FlashcardSeed[] = [
   // ── Lists & Tuples ────────────────────────────────────────────────────────
   {
     sectionSlug: 'py-lists-tuples',
-    questionType: 'code-completion',
+    questionType: 'code_completion',
     front: {
       prompt: 'Create a list of squares for numbers 0–4 using a list comprehension.',
       language: 'python',
@@ -212,7 +212,7 @@ export const pythonFlashcards: FlashcardSeed[] = [
   },
   {
     sectionSlug: 'py-lists-tuples',
-    questionType: 'fill-in-blank',
+    questionType: 'fill_blank',
     front: {
       prompt: 'What does `[1, 2, 3][-1]` return?',
       language: 'python',
@@ -229,7 +229,7 @@ export const pythonFlashcards: FlashcardSeed[] = [
   },
   {
     sectionSlug: 'py-lists-tuples',
-    questionType: 'true-false',
+    questionType: 'free_recall',
     front: {
       prompt: 'True or False: Tuples are mutable in Python.',
     },
@@ -245,7 +245,7 @@ export const pythonFlashcards: FlashcardSeed[] = [
   },
   {
     sectionSlug: 'py-lists-tuples',
-    questionType: 'code-completion',
+    questionType: 'code_completion',
     front: {
       prompt: 'Unpack a tuple (1, 2, 3) into variables a, b, c in a single statement.',
       language: 'python',
@@ -262,7 +262,7 @@ export const pythonFlashcards: FlashcardSeed[] = [
   },
   {
     sectionSlug: 'py-lists-tuples',
-    questionType: 'code-completion',
+    questionType: 'code_completion',
     front: {
       prompt: 'Use the * operator to unpack the first element and capture the rest of a list [1, 2, 3, 4, 5].',
       language: 'python',
@@ -281,7 +281,7 @@ export const pythonFlashcards: FlashcardSeed[] = [
   // ── Dictionaries & Sets ───────────────────────────────────────────────────
   {
     sectionSlug: 'py-dicts-sets',
-    questionType: 'code-completion',
+    questionType: 'code_completion',
     front: {
       prompt: 'Create a dictionary comprehension that maps numbers 1–5 to their squares.',
       language: 'python',
@@ -298,7 +298,7 @@ export const pythonFlashcards: FlashcardSeed[] = [
   },
   {
     sectionSlug: 'py-dicts-sets',
-    questionType: 'fill-in-blank',
+    questionType: 'fill_blank',
     front: {
       prompt: 'What method safely gets a value from a dict, returning a default if the key is missing?',
       language: 'python',
@@ -315,7 +315,7 @@ export const pythonFlashcards: FlashcardSeed[] = [
   },
   {
     sectionSlug: 'py-dicts-sets',
-    questionType: 'code-completion',
+    questionType: 'code_completion',
     front: {
       prompt: 'Compute the intersection of two sets: {1, 2, 3} and {2, 3, 4}.',
       language: 'python',
@@ -332,7 +332,7 @@ export const pythonFlashcards: FlashcardSeed[] = [
   },
   {
     sectionSlug: 'py-dicts-sets',
-    questionType: 'true-false',
+    questionType: 'free_recall',
     front: {
       prompt: 'True or False: Python dicts preserve insertion order as of Python 3.7+.',
     },
@@ -348,7 +348,7 @@ export const pythonFlashcards: FlashcardSeed[] = [
   },
   {
     sectionSlug: 'py-dicts-sets',
-    questionType: 'code-completion',
+    questionType: 'code_completion',
     front: {
       prompt: 'Merge two dicts: d1 = {"a": 1} and d2 = {"b": 2} using the merge operator (Python 3.9+).',
       language: 'python',
@@ -367,7 +367,7 @@ export const pythonFlashcards: FlashcardSeed[] = [
   // ── Control Flow ──────────────────────────────────────────────────────────
   {
     sectionSlug: 'py-control-flow',
-    questionType: 'code-completion',
+    questionType: 'code_completion',
     front: {
       prompt: 'Write a match/case statement (Python 3.10+) that matches the variable `command` against "quit", "go north", and a default case.',
       language: 'python',
@@ -384,7 +384,7 @@ export const pythonFlashcards: FlashcardSeed[] = [
   },
   {
     sectionSlug: 'py-control-flow',
-    questionType: 'fill-in-blank',
+    questionType: 'fill_blank',
     front: {
       prompt: 'What does the walrus operator (:=) do?',
       language: 'python',
@@ -401,7 +401,7 @@ export const pythonFlashcards: FlashcardSeed[] = [
   },
   {
     sectionSlug: 'py-control-flow',
-    questionType: 'true-false',
+    questionType: 'free_recall',
     front: {
       prompt: 'True or False: A for loop in Python can have an else clause.',
     },
@@ -419,7 +419,7 @@ export const pythonFlashcards: FlashcardSeed[] = [
   // ── Functions ─────────────────────────────────────────────────────────────
   {
     sectionSlug: 'py-functions',
-    questionType: 'code-completion',
+    questionType: 'code_completion',
     front: {
       prompt: 'Define a function `greet` that takes a name (str) and an optional greeting with default "Hello", and returns a formatted string.',
       language: 'python',
@@ -436,7 +436,7 @@ export const pythonFlashcards: FlashcardSeed[] = [
   },
   {
     sectionSlug: 'py-functions',
-    questionType: 'fill-in-blank',
+    questionType: 'fill_blank',
     front: {
       prompt: 'What is the difference between *args and **kwargs in a function signature?',
       language: 'python',
@@ -453,7 +453,7 @@ export const pythonFlashcards: FlashcardSeed[] = [
   },
   {
     sectionSlug: 'py-functions',
-    questionType: 'code-completion',
+    questionType: 'code_completion',
     front: {
       prompt: 'Write a lambda that takes two arguments and returns their sum.',
       language: 'python',
@@ -472,7 +472,7 @@ export const pythonFlashcards: FlashcardSeed[] = [
   // ── Error Handling ────────────────────────────────────────────────────────
   {
     sectionSlug: 'py-error-handling',
-    questionType: 'code-completion',
+    questionType: 'code_completion',
     front: {
       prompt: 'Write a try/except block that catches ValueError, with an else clause (runs on success) and finally clause.',
       language: 'python',
@@ -489,7 +489,7 @@ export const pythonFlashcards: FlashcardSeed[] = [
   },
   {
     sectionSlug: 'py-error-handling',
-    questionType: 'code-completion',
+    questionType: 'code_completion',
     front: {
       prompt: 'Define a custom exception class called InsufficientFundsError that includes an amount attribute.',
       language: 'python',
@@ -508,7 +508,7 @@ export const pythonFlashcards: FlashcardSeed[] = [
   // ── Classes & OOP ─────────────────────────────────────────────────────────
   {
     sectionSlug: 'py-classes-oop',
-    questionType: 'code-completion',
+    questionType: 'code_completion',
     front: {
       prompt: 'Create a dataclass `Point` with x and y float fields.',
       language: 'python',
@@ -525,7 +525,7 @@ export const pythonFlashcards: FlashcardSeed[] = [
   },
   {
     sectionSlug: 'py-classes-oop',
-    questionType: 'code-completion',
+    questionType: 'code_completion',
     front: {
       prompt: 'Add a read-only property `area` to a Circle class that computes π × r².',
       language: 'python',
@@ -542,7 +542,7 @@ export const pythonFlashcards: FlashcardSeed[] = [
   },
   {
     sectionSlug: 'py-classes-oop',
-    questionType: 'fill-in-blank',
+    questionType: 'fill_blank',
     front: {
       prompt: 'What does super().__init__() do inside a child class __init__?',
       language: 'python',
@@ -561,7 +561,7 @@ export const pythonFlashcards: FlashcardSeed[] = [
   // ── Decorators & Closures ─────────────────────────────────────────────────
   {
     sectionSlug: 'py-decorators-closures',
-    questionType: 'code-completion',
+    questionType: 'code_completion',
     front: {
       prompt: 'Write a simple timing decorator that prints how long a function takes to execute.',
       language: 'python',
@@ -580,7 +580,7 @@ export const pythonFlashcards: FlashcardSeed[] = [
   // ── Iterators & Generators ────────────────────────────────────────────────
   {
     sectionSlug: 'py-iterators-generators',
-    questionType: 'code-completion',
+    questionType: 'code_completion',
     front: {
       prompt: 'Write a generator function that yields the Fibonacci sequence indefinitely.',
       language: 'python',
@@ -599,7 +599,7 @@ export const pythonFlashcards: FlashcardSeed[] = [
   // ── Async & Concurrency ───────────────────────────────────────────────────
   {
     sectionSlug: 'py-async-concurrency',
-    questionType: 'code-completion',
+    questionType: 'code_completion',
     front: {
       prompt: 'Write an async function that fetches data from two URLs concurrently using asyncio.gather.',
       language: 'python',

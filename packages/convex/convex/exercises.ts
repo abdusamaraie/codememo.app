@@ -1,15 +1,18 @@
 import { mutation } from './_generated/server';
 import { v } from 'convex/values';
+import { requireAuth } from './auth';
 
 export const recordExerciseAttempt = mutation({
   args: {
-    userId:      v.id('users'),
     exerciseId:  v.id('exercises'),
     answer:      v.any(),
     isCorrect:   v.boolean(),
     timeTakenMs: v.optional(v.number()),
   },
-  handler: async (ctx, { userId, exerciseId, answer, isCorrect, timeTakenMs }) => {
+  handler: async (ctx, { exerciseId, answer, isCorrect, timeTakenMs }) => {
+    const user = await requireAuth(ctx);
+    const userId = user._id;
+
     // Verify exercise exists
     const exercise = await ctx.db.get(exerciseId);
     if (!exercise) throw new Error('Exercise not found');
@@ -18,7 +21,8 @@ export const recordExerciseAttempt = mutation({
     if (isCorrect) {
       const progress = await ctx.db
         .query('sectionProgress')
-        .withIndex('by_user_section', (q) =>
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        .withIndex('by_user_section', (q: any) =>
           q.eq('userId', userId).eq('sectionId', exercise.sectionId),
         )
         .first();
@@ -28,6 +32,10 @@ export const recordExerciseAttempt = mutation({
       }
     }
 
-    return { userId, exerciseId, answer, isCorrect, timeTakenMs, attemptedAt: Date.now() };
+    const attemptedAt = Date.now();
+    await ctx.db.insert('exerciseAttempts', {
+      userId, exerciseId, answer, isCorrect, timeTakenMs, attemptedAt,
+    });
+    return { userId, exerciseId, answer, isCorrect, timeTakenMs, attemptedAt };
   },
 });

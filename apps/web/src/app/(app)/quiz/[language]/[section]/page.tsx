@@ -30,7 +30,7 @@ export default async function QuizPage({
 }: {
   params: Promise<{ language: string; section: string }>;
 }) {
-  const { language, section } = await params;
+  const { section } = await params;
   const sectionDoc = await getSectionBySlug(section);
 
   let exercises: PracticeExercise[] = [];
@@ -40,12 +40,15 @@ export default async function QuizPage({
     exercises = mcOnly.map(toExercise);
   }
 
-  // Pad to 12 questions by cycling if needed
+  // Pad to 12 questions by cycling if needed. Preserve original IDs for the first
+  // exercises.length entries; only rewrite IDs for the duplicated tail.
   if (exercises.length > 0 && exercises.length < 12) {
-    const padded = Array.from({ length: 12 }, (_, i) => ({
-      ...exercises[i % exercises.length],
-      id: `${exercises[i % exercises.length].id}-${i + 1}`,
-    }));
+    const padded = Array.from({ length: 12 }, (_, i) => {
+      const source = exercises[i % exercises.length]!;
+      return i < exercises.length
+        ? source
+        : { ...source, id: `${source.id}-dup${Math.floor(i / exercises.length)}` };
+    });
     exercises = padded;
   }
 

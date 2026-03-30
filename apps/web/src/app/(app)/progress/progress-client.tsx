@@ -1,5 +1,6 @@
 'use client';
 
+import { useMemo } from 'react';
 import { TrendingUp, BookOpen, Target, Flame } from 'lucide-react';
 import { FeedWrapper, RightSidebar } from '@/components/layout';
 import { useGamificationStats } from '@/hooks/useGamificationStats.hook';
@@ -15,21 +16,23 @@ function generateCalendarSkeleton() {
   return cells;
 }
 
-const calendarCells = generateCalendarSkeleton();
 const HEATMAP_COLORS = ['bg-[--secondary]', 'bg-blue-900/60', 'bg-blue-700/70', 'bg-blue-500/80', 'bg-[--primary]'];
 
 const LANGUAGE_PROGRESS = [
-  { name: 'Python', color: '#3B82F6', done: 4, total: 14, accuracy: 78 },
-  { name: 'TypeScript', color: '#7C6AF6', done: 1, total: 10, accuracy: 65 },
+  { name: 'Python', color: '#3B82F6', done: 4, total: 14 },
+  { name: 'TypeScript', color: '#7C6AF6', done: 1, total: 10 },
 ];
 
 export function ProgressClientPage() {
   const { activityMap, streak, daily } = useGamificationStats();
   const daysStudied = Object.values(activityMap).filter((n) => n > 0).length;
 
+  // Regenerated each render so dates stay current (no stale module-level constant)
+  const calendarCells = useMemo(() => generateCalendarSkeleton(), []);
+
   const stats = [
     { Icon: BookOpen, value: String(daily.reviews), label: 'Cards reviewed', color: 'text-blue-400' },
-    { Icon: Target, value: `${Math.min(100, Math.round(daily.quiz > 0 ? 80 : 70))}%`, label: 'Accuracy', color: 'text-green-400' },
+    { Icon: Target, value: '—', label: 'Accuracy', color: 'text-green-400' },
     { Icon: TrendingUp, value: String(daysStudied), label: 'Days studied', color: 'text-purple-400' },
     { Icon: Flame, value: String(streak.best), label: 'Best streak', color: 'text-orange-500' },
   ];
@@ -97,7 +100,6 @@ export function ProgressClientPage() {
                     </div>
                     <div className="flex items-center gap-3 text-xs text-[--muted-foreground]">
                       <span>{lang.done}/{lang.total} sections</span>
-                      <span className="text-green-400">{lang.accuracy}% accuracy</span>
                     </div>
                   </div>
                   <div className="h-2 bg-[--secondary] rounded-full overflow-hidden">

@@ -2,7 +2,7 @@
 
 module.exports = {
   preset: 'jest-expo',
-  setupFilesAfterSetup: ['<rootDir>/jest.setup.js'],
+  setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
   roots: ['<rootDir>/src/__tests__'],
   testMatch: ['**/?(*.)+(spec|test).[jt]s?(x)'],
   transform: {

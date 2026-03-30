@@ -15,7 +15,7 @@ export const jsFlashcards: FlashcardSeed[] = [
   // ── Variables & Data Types ────────────────────────────────────────────────
   {
     sectionSlug: 'js-variables-data-types',
-    questionType: 'fill-in-blank',
+    questionType: 'fill_blank',
     front: {
       prompt: 'What are the 7 primitive types in JavaScript?',
       language: 'javascript',
@@ -32,7 +32,7 @@ export const jsFlashcards: FlashcardSeed[] = [
   },
   {
     sectionSlug: 'js-variables-data-types',
-    questionType: 'multiple-choice',
+    questionType: 'multiple_choice',
     front: {
       prompt: 'What is the key difference between let and const?',
     },
@@ -48,7 +48,7 @@ export const jsFlashcards: FlashcardSeed[] = [
   },
   {
     sectionSlug: 'js-variables-data-types',
-    questionType: 'true-false',
+    questionType: 'free_recall',
     front: {
       prompt: 'True or False: `typeof null` returns "null" in JavaScript.',
     },
@@ -64,7 +64,7 @@ export const jsFlashcards: FlashcardSeed[] = [
   },
   {
     sectionSlug: 'js-variables-data-types',
-    questionType: 'fill-in-blank',
+    questionType: 'fill_blank',
     front: {
       prompt: 'What is the Temporal Dead Zone (TDZ)?',
       language: 'javascript',
@@ -83,7 +83,7 @@ export const jsFlashcards: FlashcardSeed[] = [
   // ── Strings & Template Literals ───────────────────────────────────────────
   {
     sectionSlug: 'js-strings-template-literals',
-    questionType: 'code-completion',
+    questionType: 'code_completion',
     front: {
       prompt: 'Write a tagged template function `highlight` that wraps interpolated values in <strong> tags.',
       language: 'javascript',
@@ -100,7 +100,7 @@ export const jsFlashcards: FlashcardSeed[] = [
   },
   {
     sectionSlug: 'js-strings-template-literals',
-    questionType: 'code-completion',
+    questionType: 'code_completion',
     front: {
       prompt: 'Use template literals to create a multi-line string with embedded expression.',
       language: 'javascript',
@@ -119,7 +119,7 @@ export const jsFlashcards: FlashcardSeed[] = [
   // ── Arrays ────────────────────────────────────────────────────────────────
   {
     sectionSlug: 'js-arrays',
-    questionType: 'code-completion',
+    questionType: 'code_completion',
     front: {
       prompt: 'Use map() and filter() to get the squares of only even numbers from [1, 2, 3, 4, 5].',
       language: 'javascript',
@@ -136,7 +136,7 @@ export const jsFlashcards: FlashcardSeed[] = [
   },
   {
     sectionSlug: 'js-arrays',
-    questionType: 'code-completion',
+    questionType: 'code_completion',
     front: {
       prompt: 'Use reduce() to sum all numbers in the array [10, 20, 30].',
       language: 'javascript',
@@ -153,7 +153,7 @@ export const jsFlashcards: FlashcardSeed[] = [
   },
   {
     sectionSlug: 'js-arrays',
-    questionType: 'fill-in-blank',
+    questionType: 'fill_blank',
     front: {
       prompt: 'What does Array.prototype.at(-1) return?',
       language: 'javascript',
@@ -170,7 +170,7 @@ export const jsFlashcards: FlashcardSeed[] = [
   },
   {
     sectionSlug: 'js-arrays',
-    questionType: 'code-completion',
+    questionType: 'code_completion',
     front: {
       prompt: 'Flatten the nested array [[1, 2], [3, [4, 5]]] completely using flat().',
       language: 'javascript',
@@ -187,7 +187,7 @@ export const jsFlashcards: FlashcardSeed[] = [
   },
   {
     sectionSlug: 'js-arrays',
-    questionType: 'code-completion',
+    questionType: 'code_completion',
     front: {
       prompt: 'Use destructuring to swap two variables a and b without a temp variable.',
       language: 'javascript',
@@ -206,7 +206,7 @@ export const jsFlashcards: FlashcardSeed[] = [
   // ── Objects ───────────────────────────────────────────────────────────────
   {
     sectionSlug: 'js-objects',
-    questionType: 'code-completion',
+    questionType: 'code_completion',
     front: {
       prompt: 'Use optional chaining to safely access a deeply nested property user.address.city that might not exist.',
       language: 'javascript',
@@ -223,7 +223,7 @@ export const jsFlashcards: FlashcardSeed[] = [
   },
   {
     sectionSlug: 'js-objects',
-    questionType: 'code-completion',
+    questionType: 'code_completion',
     front: {
       prompt: 'Use the nullish coalescing operator to provide a default value when a variable is null or undefined.',
       language: 'javascript',
@@ -240,7 +240,7 @@ export const jsFlashcards: FlashcardSeed[] = [
   },
   {
     sectionSlug: 'js-objects',
-    questionType: 'code-completion',
+    questionType: 'code_completion',
     front: {
       prompt: 'Use Object.entries() and destructuring to iterate over {a: 1, b: 2}.',
       language: 'javascript',
@@ -259,7 +259,7 @@ export const jsFlashcards: FlashcardSeed[] = [
   // ── Functions ─────────────────────────────────────────────────────────────
   {
     sectionSlug: 'js-functions',
-    questionType: 'fill-in-blank',
+    questionType: 'fill_blank',
     front: {
       prompt: 'What is the key difference between arrow functions and regular functions regarding `this`?',
       language: 'javascript',
@@ -276,7 +276,7 @@ export const jsFlashcards: FlashcardSeed[] = [
   },
   {
     sectionSlug: 'js-functions',
-    questionType: 'code-completion',
+    questionType: 'code_completion',
     front: {
       prompt: 'Write a function with default parameters and rest parameters.',
       language: 'javascript',
@@ -293,7 +293,7 @@ export const jsFlashcards: FlashcardSeed[] = [
   },
   {
     sectionSlug: 'js-functions',
-    questionType: 'code-completion',
+    questionType: 'code_completion',
     front: {
       prompt: 'Create a closure that maintains a private counter.',
       language: 'javascript',
@@ -312,7 +312,7 @@ export const jsFlashcards: FlashcardSeed[] = [
   // ── Destructuring & Spread ────────────────────────────────────────────────
   {
     sectionSlug: 'js-destructuring-spread',
-    questionType: 'code-completion',
+    questionType: 'code_completion',
     front: {
       prompt: 'Use nested object destructuring with default values and renaming.',
       language: 'javascript',
@@ -329,7 +329,7 @@ export const jsFlashcards: FlashcardSeed[] = [
   },
   {
     sectionSlug: 'js-destructuring-spread',
-    questionType: 'code-completion',
+    questionType: 'code_completion',
     front: {
       prompt: 'Create a shallow clone of an object with one property overridden using the spread operator.',
       language: 'javascript',
@@ -348,7 +348,7 @@ export const jsFlashcards: FlashcardSeed[] = [
   // ── Error Handling ────────────────────────────────────────────────────────
   {
     sectionSlug: 'js-error-handling',
-    questionType: 'code-completion',
+    questionType: 'code_completion',
     front: {
       prompt: 'Create a custom error class with an error cause chain (ES2022).',
       language: 'javascript',
@@ -367,7 +367,7 @@ export const jsFlashcards: FlashcardSeed[] = [
   // ── Promises & Async/Await ────────────────────────────────────────────────
   {
     sectionSlug: 'js-promises-async-await',
-    questionType: 'code-completion',
+    questionType: 'code_completion',
     front: {
       prompt: 'Use Promise.allSettled() to run multiple promises and handle both successes and failures.',
       language: 'javascript',
@@ -384,7 +384,7 @@ export const jsFlashcards: FlashcardSeed[] = [
   },
   {
     sectionSlug: 'js-promises-async-await',
-    questionType: 'code-completion',
+    questionType: 'code_completion',
     front: {
       prompt: 'Write an async function with proper error handling using try/catch.',
       language: 'javascript',
@@ -403,7 +403,7 @@ export const jsFlashcards: FlashcardSeed[] = [
   // ── Classes & Prototypes ──────────────────────────────────────────────────
   {
     sectionSlug: 'js-classes-prototypes',
-    questionType: 'code-completion',
+    questionType: 'code_completion',
     front: {
       prompt: 'Create a class with private fields (#) and a static factory method.',
       language: 'javascript',
@@ -422,7 +422,7 @@ export const jsFlashcards: FlashcardSeed[] = [
   // ── Iterators & Generators ────────────────────────────────────────────────
   {
     sectionSlug: 'js-iterators-generators',
-    questionType: 'code-completion',
+    questionType: 'code_completion',
     front: {
       prompt: 'Make an object iterable by implementing Symbol.iterator.',
       language: 'javascript',
@@ -439,7 +439,7 @@ export const jsFlashcards: FlashcardSeed[] = [
   },
   {
     sectionSlug: 'js-iterators-generators',
-    questionType: 'code-completion',
+    questionType: 'code_completion',
     front: {
       prompt: 'Write a generator function that yields values from a binary tree in-order.',
       language: 'javascript',
@@ -458,7 +458,7 @@ export const jsFlashcards: FlashcardSeed[] = [
   // ── Map, Set & WeakRef ────────────────────────────────────────────────────
   {
     sectionSlug: 'js-map-set-weakref',
-    questionType: 'fill-in-blank',
+    questionType: 'fill_blank',
     front: {
       prompt: 'What advantage does Map have over a plain object for key-value storage?',
       language: 'javascript',
@@ -477,7 +477,7 @@ export const jsFlashcards: FlashcardSeed[] = [
   // ── Proxies & Reflect ─────────────────────────────────────────────────────
   {
     sectionSlug: 'js-proxies-reflect',
-    questionType: 'code-completion',
+    questionType: 'code_completion',
     front: {
       prompt: 'Create a Proxy that logs all property accesses on an object.',
       language: 'javascript',

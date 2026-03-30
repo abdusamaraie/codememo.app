@@ -38,14 +38,14 @@ export default async function LanguagePathPage({
   const cardCounts = await getFlashcardCounts(cmsSections.map((s) => s.id));
 
   // Until user progress is wired, all sections default to 'available'
-  const sections: Section[] = cmsSections.map((s, i) => ({
+  const sections: Section[] = cmsSections.map((s) => ({
     order: s.order,
     slug: s.slug,
     title: s.title,
     description: s.description ?? `Master the key syntax patterns for ${s.title.toLowerCase()}.`,
     cardCount: cardCounts.get(s.id) ?? 0,
     masteryPct: 0,
-    status: i === 0 ? 'available' : 'available',
+    status: 'available' as SectionStatus, // TODO: derive from user progress once Convex progress query is wired
   }));
 
   const completedCount = sections.filter((s) => s.status === 'completed').length;

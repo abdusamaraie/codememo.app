@@ -1,15 +1,30 @@
-import { httpAction } from './_generated/server';
+import { httpAction, mutation } from './_generated/server';
 import { api } from './_generated/api';
+import { v } from 'convex/values';
+
+type SyncPayload = {
+  collection: 'languages' | 'sections' | 'flashcards' | 'exercises' | 'cheatSheetEntries';
+  operation:  'create' | 'update' | 'delete';
+  data:       Record<string, unknown>;
+};
 
 /** Receives PayloadCMS webhook and upserts content into Convex */
 export const syncFromPayload = httpAction(async (ctx, request) => {
-  // Verify shared secret
+  // Verify shared secret — reject empty/missing secrets explicitly
   const secret = request.headers.get('x-sync-secret');
-  if (secret !== process.env.CONVEX_SYNC_SECRET) {
+  if (!process.env.CONVEX_SYNC_SECRET) {
+    return new Response('Sync secret not configured on server', { status: 503 });
+  }
+  if (!secret || secret !== process.env.CONVEX_SYNC_SECRET) {
     return new Response('Unauthorized', { status: 401 });
   }
 
   const body = await request.json() as SyncPayload;
+
+  // Delete operations are not yet implemented — reject early
+  if (body.operation === 'delete') {
+    return new Response('Delete sync not yet implemented', { status: 501 });
+  }
 
   switch (body.collection) {
     case 'languages':
@@ -33,15 +48,6 @@ export const syncFromPayload = httpAction(async (ctx, request) => {
 
   return new Response('OK', { status: 200 });
 });
-
-type SyncPayload = {
-  collection: 'languages' | 'sections' | 'flashcards' | 'exercises' | 'cheatSheetEntries';
-  operation:  'create' | 'update' | 'delete';
-  data:       Record<string, unknown>;
-};
-
-import { mutation } from './_generated/server';
-import { v } from 'convex/values';
 
 export const upsertLanguage = mutation({
   args: { data: v.any() },
@@ -110,31 +116,39 @@ export const upsertFlashcard = mutation({
   args: { data: v.any() },
   handler: async (ctx, { data }) => {
     const d = data as Record<string, unknown>;
+    const front = (d.front ?? {}) as Record<string, unknown>;
+    const back  = (d.back  ?? {}) as Record<string, unknown>;
 
+    // Payload relationship fields send the ID directly (depth: 0)
+    const sectionPayloadId = String(d.section);
     const section = await ctx.db
       .query('sections')
-      .withIndex('by_payload_id', (q) => q.eq('payloadId', d.sectionId as string))
+      .withIndex('by_payload_id', (q) => q.eq('payloadId', sectionPayloadId))
       .first();
 
-    if (!section) throw new Error(`Section not found for payloadId: ${d.sectionId}`);
+    if (!section) throw new Error(`Section not found for payloadId: ${sectionPayloadId}`);
 
     const existing = await ctx.db
       .query('flashcards')
-      .withIndex('by_payload_id', (q) => q.eq('payloadId', d.id as string))
+      .withIndex('by_payload_id', (q) => q.eq('payloadId', String(d.id)))
       .first();
 
+    // Payload tags are [{id, value}] — flatten to string[]
+    const rawTags = (d.tags as Array<{ value?: string }> | undefined) ?? [];
+    const tags = rawTags.map((t) => t.value ?? '').filter(Boolean);
+
     const record = {
-      payloadId:      d.id as string,
+      payloadId:      String(d.id),
       sectionId:      section._id,
-      question:       d.question as string,
+      question:       (front.prompt as string) ?? '',
       questionType:   (d.questionType as 'free_recall') ?? 'free_recall',
-      answer:         d.answer as string,
-      answerCode:     d.answerCode as string | undefined,
-      explanation:    d.explanation as string | undefined,
-      hint:           d.hint as string | undefined,
+      answer:         (back.prompt as string) ?? '',
+      answerCode:     (back.code as string | undefined) || undefined,
+      explanation:    (d.explanation as string | undefined) || undefined,
+      hint:           (d.hint as string | undefined) || undefined,
       commonMistakes: (d.commonMistakes as string[]) ?? [],
       difficulty:     (d.difficulty as 'beginner') ?? 'beginner',
-      tags:           (d.tags as string[]) ?? [],
+      tags,
       order:          (d.order as number) ?? 0,
     };
 
@@ -151,27 +165,30 @@ export const upsertExercise = mutation({
   handler: async (ctx, { data }) => {
     const d = data as Record<string, unknown>;
 
+    // Payload relationship fields send the ID directly (depth: 0)
+    const sectionPayloadId = String(d.section);
     const section = await ctx.db
       .query('sections')
-      .withIndex('by_payload_id', (q) => q.eq('payloadId', d.sectionId as string))
+      .withIndex('by_payload_id', (q) => q.eq('payloadId', sectionPayloadId))
       .first();
 
-    if (!section) throw new Error(`Section not found for payloadId: ${d.sectionId}`);
+    if (!section) throw new Error(`Section not found for payloadId: ${sectionPayloadId}`);
 
     const existing = await ctx.db
       .query('exercises')
-      .withIndex('by_payload_id', (q) => q.eq('payloadId', d.id as string))
+      .withIndex('by_payload_id', (q) => q.eq('payloadId', String(d.id)))
       .first();
 
+    // Payload options are [{id, value}] — pass through as-is (v.any())
     const record = {
-      payloadId:     d.id as string,
+      payloadId:     String(d.id),
       sectionId:     section._id,
       type:          (d.type as 'fill_blank') ?? 'fill_blank',
-      prompt:        d.prompt as string,
-      codeTemplate:  d.codeTemplate as string | undefined,
+      prompt:        (d.question as string) ?? '',   // Payload field is "question"
+      codeTemplate:  (d.code as string | undefined) || undefined, // Payload field is "code"
       options:       d.options,
       correctAnswer: d.correctAnswer,
-      explanation:   d.explanation as string | undefined,
+      explanation:   (d.explanation as string | undefined) || undefined,
       order:         (d.order as number) ?? 0,
     };
 

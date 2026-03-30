@@ -5,6 +5,7 @@ export default defineSchema({
   // ── Users ─────────────────────────────────────────────────────────────────
   users: defineTable({
     authProvider:      v.union(v.literal('anonymous'), v.literal('email'), v.literal('github')),
+    clerkId:           v.optional(v.string()),
     email:             v.optional(v.string()),
     githubId:          v.optional(v.string()),
     displayName:       v.optional(v.string()),
@@ -15,7 +16,8 @@ export default defineSchema({
     aiRequestsDate:    v.string(), // ISO date YYYY-MM-DD
   })
     .index('by_email', ['email'])
-    .index('by_github_id', ['githubId']),
+    .index('by_github_id', ['githubId'])
+    .index('by_clerk_id', ['clerkId']),
 
   // ── Content (synced from PayloadCMS) ──────────────────────────────────────
   languages: defineTable({
@@ -50,6 +52,7 @@ export default defineSchema({
     question:       v.string(),
     questionType:   v.union(
       v.literal('free_recall'),
+      v.literal('multiple_choice'),
       v.literal('code_completion'),
       v.literal('explain_output'),
       v.literal('spot_error'),
@@ -168,6 +171,18 @@ export default defineSchema({
   })
     .index('by_user', ['userId'])
     .index('by_user_date', ['userId', 'startedAt']),
+
+  // ── Exercise Attempts ─────────────────────────────────────────────────────
+  exerciseAttempts: defineTable({
+    userId:      v.id('users'),
+    exerciseId:  v.id('exercises'),
+    answer:      v.any(),
+    isCorrect:   v.boolean(),
+    timeTakenMs: v.optional(v.number()),
+    attemptedAt: v.number(),
+  })
+    .index('by_user', ['userId'])
+    .index('by_user_exercise', ['userId', 'exerciseId']),
 
   // ── Quiz Attempts ──────────────────────────────────────────────────────────
   quizAttempts: defineTable({

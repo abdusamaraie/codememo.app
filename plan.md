@@ -91,7 +91,7 @@ packages/convex/
     content.ts         # listLanguages, getSection, getFlashcards, getExercises
     progress.ts        # getUserProgress, updateSectionProgress
     flashcards.ts      # getStudySession (due cards + new cards), recordReview
-    spaced-repetition.ts  # SM-2 mutations using @repo/domain/logic/sm2
+    spacedRepetition.ts   # SM-2 mutations using @repo/domain/logic/sm2
     streaks.ts         # updateStreak, getStreakData, checkDailyGoal
     exercises.ts       # recordExerciseAttempt
     quizzes.ts         # startQuiz, submitQuizAnswer, completeQuiz

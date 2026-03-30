@@ -37,16 +37,20 @@ export async function POST(req: Request) {
     const name = [first_name, last_name].filter(Boolean).join(' ') || email;
 
     const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
-    if (convexUrl) {
-      // Fire-and-forget: provision user in Convex (never block the response)
-      fetch(`${convexUrl.replace('.cloud', '.cloud')}/api/mutation`, {
+    if (convexUrl && process.env.CONVEX_SYNC_SECRET) {
+      const httpUrl = convexUrl.replace('.convex.cloud', '.convex.site');
+      const response = await fetch(`${httpUrl}/webhooks/clerk`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          path: 'users:createFromClerk',
-          args: { clerkId: id, email, name, avatarUrl: image_url ?? '' },
-        }),
-      }).catch((err) => console.error('[clerk-webhook] Convex sync failed:', err));
+        headers: {
+          'Content-Type': 'application/json',
+          'x-webhook-secret': process.env.CONVEX_SYNC_SECRET,
+        },
+        body: JSON.stringify({ clerkId: id, email, name, avatarUrl: image_url ?? '' }),
+      });
+      if (!response.ok) {
+        console.error('[clerk-webhook] Convex user provisioning failed:', await response.text());
+        return new Response('Failed to provision user', { status: 500 });
+      }
     }
   }
 

@@ -30,6 +30,7 @@ export const resetDailyCounters = internalMutation({
       const last     = new Date(streak.lastActiveDate);
       const now      = new Date(today);
       const diffDays = Math.round((now.getTime() - last.getTime()) / (24 * 60 * 60 * 1000));
+      const frozeUsed = diffDays > 1 && streak.freezesAvailable > 0;
       const broken   = diffDays > 1 && streak.freezesAvailable === 0;
 
       await ctx.db.patch(streak._id, {
@@ -38,6 +39,8 @@ export const resetDailyCounters = internalMutation({
         minutesStudiedToday:  0,
         todayCompleted:       false,
         currentStreak:        broken ? 0 : streak.currentStreak,
+        freezesAvailable:     frozeUsed ? streak.freezesAvailable - 1 : streak.freezesAvailable,
+        freezesUsed:          frozeUsed ? streak.freezesUsed + 1 : streak.freezesUsed,
       });
     }
   },

@@ -2,6 +2,7 @@ import { mutation, query } from './_generated/server';
 import { v } from 'convex/values';
 import { calculateNextReview } from '@repo/domain';
 import { NEW_CARD_SM2 } from '@repo/domain';
+import { requireAuth } from './auth';
 
 const NEW_CARDS_PER_SESSION = 10;
 
@@ -49,15 +50,18 @@ export const getStudySession = query({
 /** Record a card review with quality rating, updates SM-2 */
 export const recordReview = mutation({
   args: {
-    userId:      v.id('users'),
     flashcardId: v.id('flashcards'),
     quality:     v.union(v.literal(1), v.literal(3), v.literal(4), v.literal(5)),
     sessionId:   v.optional(v.id('studySessions')),
   },
-  handler: async (ctx, { userId, flashcardId, quality, sessionId }) => {
+  handler: async (ctx, { flashcardId, quality }) => {
+    const user = await requireAuth(ctx);
+    const userId = user._id;
+
     const existing = await ctx.db
       .query('cardProgress')
-      .withIndex('by_user_card', (q) =>
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .withIndex('by_user_card', (q: any) =>
         q.eq('userId', userId).eq('flashcardId', flashcardId),
       )
       .first();

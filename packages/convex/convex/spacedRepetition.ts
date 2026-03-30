@@ -15,7 +15,8 @@ export const applySpacedRepetition = mutation({
   handler: async (ctx, { userId, flashcardId, quality }) => {
     const existing = await ctx.db
       .query('cardProgress')
-      .withIndex('by_user_card', (q) =>
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .withIndex('by_user_card', (q: any) =>
         q.eq('userId', userId).eq('flashcardId', flashcardId),
       )
       .first();

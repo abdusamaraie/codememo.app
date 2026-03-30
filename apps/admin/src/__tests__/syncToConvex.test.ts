@@ -23,7 +23,7 @@ beforeEach(() => {
   process.env = {
     ...ORIGINAL_ENV,
     CONVEX_HTTP_URL: 'https://example-convex.site',
-    CONVEX_SYNC_SECRET: 'test-secret-abc',
+    CONVEX_SYNC_SECRET: 'test-secret-abcdefgh',  // ≥ 16 chars
   };
 });
 
@@ -56,12 +56,13 @@ describe('syncToConvex', () => {
     // Headers
     const headers = init.headers as Record<string, string>;
     expect(headers['Content-Type']).toBe('application/json');
-    expect(headers['x-sync-secret']).toBe('test-secret-abc');
+    expect(headers['x-sync-secret']).toBe('test-secret-abcdefgh');
 
-    // Body
+    // Body — new shape: { collection, operation, data }
     expect(JSON.parse(init.body as string)).toEqual({
-      entityType: 'language',
-      doc,
+      collection: 'language',
+      operation:  'update',
+      data:        doc,
     });
   });
 

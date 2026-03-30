@@ -13,7 +13,7 @@ export const jcrExercises: ExerciseSeed[] = [
   // ── Core Syntax ───────────────────────────────────────────────────────────
   {
     sectionSlug: 'jcr-core-syntax',
-    type: 'fill-blank',
+    type: 'fill_blank',
     question: 'Complete the JCR-SQL2 query to select all columns from nt:base nodes.',
     code: '___ * FROM [nt:base] AS s\nWHERE ISDESCENDANTNODE(s, \'/content\')',
     language: 'sql',
@@ -25,7 +25,7 @@ export const jcrExercises: ExerciseSeed[] = [
   },
   {
     sectionSlug: 'jcr-core-syntax',
-    type: 'fill-blank',
+    type: 'fill_blank',
     question: 'Complete the FROM clause to query AEM page nodes.',
     code: 'SELECT * FROM [___] AS p\nWHERE ISDESCENDANTNODE(p, \'/content\')',
     language: 'sql',
@@ -39,7 +39,7 @@ export const jcrExercises: ExerciseSeed[] = [
   // ── Node Types ────────────────────────────────────────────────────────────
   {
     sectionSlug: 'jcr-node-types',
-    type: 'multiple-choice',
+    type: 'multiple_choice',
     question: 'Which node type should you use to find file nodes in the DAM?',
     language: 'sql',
     options: ['[nt:file]', '[dam:Asset]', '[nt:resource]', '[nt:base]'],
@@ -51,7 +51,7 @@ export const jcrExercises: ExerciseSeed[] = [
   },
   {
     sectionSlug: 'jcr-node-types',
-    type: 'multiple-choice',
+    type: 'multiple_choice',
     question: 'Which node type matches ALL nodes in the repository?',
     language: 'sql',
     options: ['[nt:base]', '[nt:unstructured]', '[cq:Page]', '[sling:Folder]'],
@@ -63,7 +63,7 @@ export const jcrExercises: ExerciseSeed[] = [
   },
   {
     sectionSlug: 'jcr-node-types',
-    type: 'multiple-choice',
+    type: 'multiple_choice',
     question: 'Which node type holds page-level metadata like cq:template and cq:lastModified?',
     language: 'sql',
     options: ['[cq:PageContent]', '[cq:Page]', '[nt:unstructured]', '[cq:Component]'],
@@ -77,7 +77,7 @@ export const jcrExercises: ExerciseSeed[] = [
   // ── Path Functions ────────────────────────────────────────────────────────
   {
     sectionSlug: 'jcr-path-functions',
-    type: 'fill-blank',
+    type: 'fill_blank',
     question: 'Complete the path function to find all nodes at any depth under /content/we-retail.',
     code: 'SELECT * FROM [cq:Page] AS p\nWHERE ___(p, \'/content/we-retail\')',
     language: 'sql',
@@ -89,7 +89,7 @@ export const jcrExercises: ExerciseSeed[] = [
   },
   {
     sectionSlug: 'jcr-path-functions',
-    type: 'fill-blank',
+    type: 'fill_blank',
     question: 'Complete the path function to find only direct children (one level) of /content/dam.',
     code: 'SELECT * FROM [nt:base] AS n\nWHERE ___(n, \'/content/dam\')',
     language: 'sql',
@@ -103,7 +103,7 @@ export const jcrExercises: ExerciseSeed[] = [
   // ── Text & Search ─────────────────────────────────────────────────────────
   {
     sectionSlug: 'jcr-text-search',
-    type: 'fill-blank',
+    type: 'fill_blank',
     question: 'Complete the full-text search to find nodes containing "welcome" in any property.',
     code: 'SELECT * FROM [nt:base] AS n\nWHERE ___(*, \'welcome\')',
     language: 'sql',
@@ -115,7 +115,7 @@ export const jcrExercises: ExerciseSeed[] = [
   },
   {
     sectionSlug: 'jcr-text-search',
-    type: 'fill-blank',
+    type: 'fill_blank',
     question: 'Complete the query to find files whose name ends with ".png".',
     code: 'SELECT * FROM [nt:file] AS f\nWHERE ___(f) LIKE \'%.png\'',
     language: 'sql',
@@ -129,7 +129,7 @@ export const jcrExercises: ExerciseSeed[] = [
   // ── Operators & Conditions ────────────────────────────────────────────────
   {
     sectionSlug: 'jcr-operators',
-    type: 'spot-error',
+    type: 'spot_error',
     question: 'Find and fix the error in this query that checks if a property does NOT exist:',
     code: 'SELECT * FROM [cq:Page] AS p\nWHERE p.[jcr:description] = NULL',
     language: 'sql',
@@ -141,7 +141,7 @@ export const jcrExercises: ExerciseSeed[] = [
   },
   {
     sectionSlug: 'jcr-operators',
-    type: 'spot-error',
+    type: 'spot_error',
     question: 'Find and fix the precedence error in this query:',
     code: 'SELECT * FROM [cq:Page] AS p\nWHERE p.[a] = 1 OR p.[b] = 2 AND p.[c] = 3',
     language: 'sql',
@@ -155,7 +155,7 @@ export const jcrExercises: ExerciseSeed[] = [
   // ── Ordering & Pseudo Columns ─────────────────────────────────────────────
   {
     sectionSlug: 'jcr-ordering-pseudo',
-    type: 'arrange-lines',
+    type: 'arrange_code',
     question: 'Arrange the clauses to build a full-text search query sorted by relevance.',
     language: 'sql',
     correctAnswer: "SELECT [jcr:path], [jcr:score]\nFROM [nt:base] AS n\nWHERE CONTAINS(*, 'term')\nORDER BY [jcr:score] DESC",
@@ -168,7 +168,7 @@ export const jcrExercises: ExerciseSeed[] = [
   // ── Common Properties ─────────────────────────────────────────────────────
   {
     sectionSlug: 'jcr-common-properties',
-    type: 'multiple-choice',
+    type: 'multiple_choice',
     question: 'Which property stores the Sling component resource type?',
     language: 'sql',
     options: ['[sling:resourceType]', '[jcr:primaryType]', '[cq:template]', '[sling:resourceSuperType]'],
@@ -180,7 +180,7 @@ export const jcrExercises: ExerciseSeed[] = [
   },
   {
     sectionSlug: 'jcr-common-properties',
-    type: 'multiple-choice',
+    type: 'multiple_choice',
     question: 'Which property holds the MIME type of a DAM asset?',
     language: 'sql',
     options: ['[dc:format]', '[jcr:mimeType]', '[dam:mimeType]', '[dc:type]'],
@@ -194,7 +194,7 @@ export const jcrExercises: ExerciseSeed[] = [
   // ── CAST & Type Conversion ────────────────────────────────────────────────
   {
     sectionSlug: 'jcr-cast-types',
-    type: 'fill-blank',
+    type: 'fill_blank',
     question: 'Complete the CAST to filter pages modified after January 1, 2024.',
     code: "SELECT * FROM [cq:PageContent] AS c\nWHERE c.[cq:lastModified] >= CAST('2024-01-01T00:00:00.000Z' AS ___)",
     language: 'sql',
@@ -208,7 +208,7 @@ export const jcrExercises: ExerciseSeed[] = [
   // ── JOINs ─────────────────────────────────────────────────────────────────
   {
     sectionSlug: 'jcr-joins',
-    type: 'fill-blank',
+    type: 'fill_blank',
     question: 'Complete the JOIN condition to match child nodes of the parent.',
     code: 'SELECT parent.* FROM [cq:Page] AS parent\nINNER JOIN [nt:base] AS child\n  ON ___(child, parent)',
     language: 'sql',
@@ -222,7 +222,7 @@ export const jcrExercises: ExerciseSeed[] = [
   // ── Real-World Practice ───────────────────────────────────────────────────
   {
     sectionSlug: 'jcr-real-world',
-    type: 'arrange-lines',
+    type: 'arrange_code',
     question: 'Arrange the clauses to find all cq:Page nodes that are descendants of /content/we-retail.',
     language: 'sql',
     correctAnswer: "SELECT * FROM [cq:Page] AS p\nWHERE ISDESCENDANTNODE(p, '/content/we-retail')",
@@ -233,7 +233,7 @@ export const jcrExercises: ExerciseSeed[] = [
   },
   {
     sectionSlug: 'jcr-real-world',
-    type: 'arrange-lines',
+    type: 'arrange_code',
     question: 'Arrange the clauses to find all dam:Asset nodes under /content/dam with dc:format of image/png.',
     language: 'sql',
     correctAnswer: "SELECT * FROM [dam:Asset] AS a\nWHERE ISDESCENDANTNODE(a, '/content/dam')\n  AND a.[dc:format] = 'image/png'",
@@ -244,7 +244,7 @@ export const jcrExercises: ExerciseSeed[] = [
   },
   {
     sectionSlug: 'jcr-real-world',
-    type: 'arrange-lines',
+    type: 'arrange_code',
     question: 'Arrange the clauses to perform a full-text search for "welcome" under /content, including path and score, ordered by relevance.',
     language: 'sql',
     correctAnswer: "SELECT [jcr:path], [jcr:score]\nFROM [nt:base] AS n\nWHERE ISDESCENDANTNODE(n, '/content')\n  AND CONTAINS(n.*, 'welcome')\nORDER BY [jcr:score] DESC",
@@ -255,7 +255,7 @@ export const jcrExercises: ExerciseSeed[] = [
   },
   {
     sectionSlug: 'jcr-real-world',
-    type: 'arrange-lines',
+    type: 'arrange_code',
     question: 'Arrange the clauses to find components with a specific sling:resourceType under /content/we-retail.',
     language: 'sql',
     correctAnswer: "SELECT * FROM [nt:unstructured] AS c\nWHERE ISDESCENDANTNODE(c, '/content/we-retail')\n  AND c.[sling:resourceType] = 'weretail/components/content/text'",
@@ -266,7 +266,7 @@ export const jcrExercises: ExerciseSeed[] = [
   },
   {
     sectionSlug: 'jcr-real-world',
-    type: 'fill-blank',
+    type: 'fill_blank',
     question: 'Complete the query to find direct children (not descendants) of /content/dam/we-retail.',
     code: 'SELECT * FROM [nt:base] AS n\nWHERE ___(n, \'/content/dam/we-retail\')',
     language: 'sql',

@@ -8,10 +8,10 @@ const DIFFICULTY_OPTIONS = [
 ] satisfies Option[];
 
 const EXERCISE_TYPE_OPTIONS = [
-  { label: 'Fill in the Blank', value: 'fill-blank' },
-  { label: 'Multiple Choice', value: 'multiple-choice' },
-  { label: 'Arrange Lines', value: 'arrange-lines' },
-  { label: 'Spot the Error', value: 'spot-error' },
+  { label: 'Fill in the Blank', value: 'fill_blank' },
+  { label: 'Multiple Choice',   value: 'multiple_choice' },
+  { label: 'Arrange Lines',     value: 'arrange_code' },
+  { label: 'Spot the Error',    value: 'spot_error' },
 ] satisfies Option[];
 
 export const Exercises: CollectionConfig = {
@@ -25,7 +25,7 @@ export const Exercises: CollectionConfig = {
   hooks: {
     afterChange: [
       async ({ doc }) => {
-        await syncToConvex('exercise', doc);
+        await syncToConvex('exercises', doc);
       },
     ],
   },
@@ -70,7 +70,7 @@ export const Exercises: CollectionConfig = {
       label: 'Answer Options',
       admin: {
         description: 'Provide choices for multiple-choice exercises.',
-        condition: (_, siblingData) => siblingData?.type === 'multiple-choice',
+        condition: (_, siblingData) => siblingData?.type === 'multiple_choice',
       },
       fields: [
         {

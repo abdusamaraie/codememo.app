@@ -1,17 +1,20 @@
 import { mutation, query } from './_generated/server';
 import { v } from 'convex/values';
 import { calculateQuizScore } from '@repo/domain';
+import { requireAuth } from './auth';
 
 export const startQuiz = mutation({
-  args: { userId: v.id('users'), sectionId: v.id('sections') },
-  handler: async (ctx, { userId, sectionId }) => {
+  args: { sectionId: v.id('sections') },
+  handler: async (ctx, { sectionId }) => {
+    const user = await requireAuth(ctx);
+
     const quizId = await ctx.db.insert('quizAttempts', {
-      userId,
+      userId:    user._id,
       sectionId,
-      answers:     [],
-      score:       0,
-      passed:      false,
-      startedAt:   Date.now(),
+      answers:   [],
+      score:     0,
+      passed:    false,
+      startedAt: Date.now(),
     });
     return quizId;
   },
@@ -26,9 +29,14 @@ export const submitQuizAnswer = mutation({
     timeTakenMs: v.optional(v.number()),
   },
   handler: async (ctx, { quizId, exerciseId, answer, isCorrect, timeTakenMs }) => {
+    const user = await requireAuth(ctx);
+
     const quiz = await ctx.db.get(quizId);
     if (!quiz) throw new Error('Quiz not found');
     if (quiz.completedAt) throw new Error('Quiz already completed');
+
+    // Ownership check: the quiz must belong to the authenticated user
+    if (quiz.userId !== user._id) throw new Error('Forbidden');
 
     await ctx.db.patch(quizId, {
       answers: [...quiz.answers, { exerciseId, answer, isCorrect, timeTakenMs }],
@@ -41,9 +49,11 @@ export const completeQuiz = mutation({
   handler: async (ctx, { quizId }) => {
     const quiz = await ctx.db.get(quizId);
     if (!quiz) throw new Error('Quiz not found');
+    if (quiz.completedAt) throw new Error('Quiz already completed');
 
     const { score, passed, breakdown } = calculateQuizScore(
-      quiz.answers.map((a) => ({
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      quiz.answers.map((a: any) => ({
         exerciseId: a.exerciseId,
         answer:     a.answer,
         isCorrect:  a.isCorrect,
@@ -66,7 +76,8 @@ export const getQuizHistory = query({
   handler: async (ctx, { userId, sectionId }) => {
     return ctx.db
       .query('quizAttempts')
-      .withIndex('by_user_section', (q) =>
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .withIndex('by_user_section', (q: any) =>
         q.eq('userId', userId).eq('sectionId', sectionId),
       )
       .collect();

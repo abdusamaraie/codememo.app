@@ -32,7 +32,7 @@ export const Sections: CollectionConfig = {
     ],
     afterChange: [
       async ({ doc }) => {
-        await syncToConvex('section', doc);
+        await syncToConvex('sections', doc);
       },
     ],
   },

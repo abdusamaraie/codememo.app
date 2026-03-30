@@ -210,7 +210,7 @@ export interface Section {
 export interface Flashcard {
   id: number;
   section: number | Section;
-  questionType: 'fill-in-blank' | 'multiple-choice' | 'code-completion' | 'true-false';
+  questionType: 'free_recall' | 'multiple_choice' | 'code_completion' | 'fill_blank' | 'spot_error' | 'explain_output';
   front: {
     /**
      * The question or hint shown on this face.
@@ -261,7 +261,7 @@ export interface Flashcard {
 export interface Exercise {
   id: number;
   section: number | Section;
-  type: 'fill-blank' | 'multiple-choice' | 'arrange-lines' | 'spot-error';
+  type: 'fill_blank' | 'multiple_choice' | 'arrange_code' | 'spot_error';
   question: string;
   /**
    * Optional code block shown alongside the question.

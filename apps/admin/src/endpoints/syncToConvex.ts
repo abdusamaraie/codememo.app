@@ -6,7 +6,11 @@
 
 let warnedMissingUrl = false;
 
-export async function syncToConvex(entityType: string, doc: unknown): Promise<void> {
+export async function syncToConvex(
+  entityType: string,
+  doc: unknown,
+  operation: 'create' | 'update' | 'delete' = 'update',
+): Promise<void> {
   const baseUrl = process.env.CONVEX_HTTP_URL;
   const secret = process.env.CONVEX_SYNC_SECRET;
 
@@ -18,19 +22,26 @@ export async function syncToConvex(entityType: string, doc: unknown): Promise<vo
     return;
   }
 
+  // Require a non-empty secret — never send an empty string that could match
+  // an unset CONVEX_SYNC_SECRET on the Convex side
+  if (!secret || secret.length < 16) {
+    console.error('[syncToConvex] CONVEX_SYNC_SECRET is missing or too short — aborting sync');
+    return;
+  }
+
   try {
     const response = await fetch(`${baseUrl}/sync`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-sync-secret': secret ?? '',
+        'x-sync-secret': secret,
       },
-      body: JSON.stringify({ entityType, doc }),
+      body: JSON.stringify({ collection: entityType, operation, data: doc }),
     });
 
     if (!response.ok) {
       console.error(
-        `[syncToConvex] Sync failed: ${response.status} ${response.statusText} (entityType=${entityType})`,
+        `[syncToConvex] Sync failed: ${response.status} ${response.statusText} (collection=${entityType})`,
       );
     }
   } catch (error) {

@@ -8,10 +8,12 @@ const DIFFICULTY_OPTIONS = [
 ] satisfies Option[];
 
 const QUESTION_TYPE_OPTIONS = [
-  { label: 'Fill in the Blank', value: 'fill-in-blank' },
-  { label: 'Multiple Choice', value: 'multiple-choice' },
-  { label: 'Code Completion', value: 'code-completion' },
-  { label: 'True / False', value: 'true-false' },
+  { label: 'Free Recall',      value: 'free_recall' },
+  { label: 'Multiple Choice',  value: 'multiple_choice' },
+  { label: 'Code Completion',  value: 'code_completion' },
+  { label: 'Fill in the Blank', value: 'fill_blank' },
+  { label: 'Spot the Error',   value: 'spot_error' },
+  { label: 'Explain Output',   value: 'explain_output' },
 ] satisfies Option[];
 
 /** Shared field group for a flashcard face (front or back). */
@@ -54,7 +56,7 @@ export const Flashcards: CollectionConfig = {
   hooks: {
     afterChange: [
       async ({ doc }) => {
-        await syncToConvex('flashcard', doc);
+        await syncToConvex('flashcards', doc);
       },
     ],
   },

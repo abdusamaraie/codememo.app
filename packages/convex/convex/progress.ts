@@ -1,12 +1,14 @@
 import { mutation, query } from './_generated/server';
 import { v } from 'convex/values';
+import { requireAuth } from './auth';
 
 export const getUserProgress = query({
   args: { userId: v.id('users') },
   handler: async (ctx, { userId }) => {
     return ctx.db
       .query('sectionProgress')
-      .withIndex('by_user', (q) => q.eq('userId', userId))
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .withIndex('by_user', (q: any) => q.eq('userId', userId))
       .collect();
   },
 });
@@ -16,7 +18,8 @@ export const getSectionProgress = query({
   handler: async (ctx, { userId, sectionId }) => {
     return ctx.db
       .query('sectionProgress')
-      .withIndex('by_user_section', (q) =>
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .withIndex('by_user_section', (q: any) =>
         q.eq('userId', userId).eq('sectionId', sectionId),
       )
       .first();
@@ -25,7 +28,6 @@ export const getSectionProgress = query({
 
 export const updateSectionProgress = mutation({
   args: {
-    userId:        v.id('users'),
     sectionId:     v.id('sections'),
     status:        v.optional(v.union(
       v.literal('locked'),
@@ -38,10 +40,14 @@ export const updateSectionProgress = mutation({
     cardsNew:      v.optional(v.number()),
     cardsMastered: v.optional(v.number()),
   },
-  handler: async (ctx, { userId, sectionId, ...patch }) => {
+  handler: async (ctx, { sectionId, ...patch }) => {
+    const user = await requireAuth(ctx);
+    const userId = user._id;
+
     const existing = await ctx.db
       .query('sectionProgress')
-      .withIndex('by_user_section', (q) =>
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .withIndex('by_user_section', (q: any) =>
         q.eq('userId', userId).eq('sectionId', sectionId),
       )
       .first();

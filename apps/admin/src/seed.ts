@@ -10,6 +10,7 @@
  *
  * Requires DATABASE_URL and PAYLOAD_SECRET in .env.local.
  */
+import pg from 'pg';
 import { getPayload } from 'payload';
 import config from './payload.config';
 import { languages } from '../../../packages/mock-data/seed/languages';
@@ -20,10 +21,53 @@ import { jcrFlashcards } from '../../../packages/mock-data/seed/flashcards-jcr-s
 import { exercises } from '../../../packages/mock-data/seed/exercises';
 import { jcrExercises } from '../../../packages/mock-data/seed/exercises-jcr-sql2';
 
+/**
+ * Rename legacy hyphenated enum values to underscore equivalents.
+ * Must run BEFORE getPayload() triggers pushDevSchema, otherwise the
+ * ALTER COLUMN migration fails because existing rows have old values.
+ */
+async function migrateEnums() {
+  const client = new pg.Client({ connectionString: process.env.DATABASE_URL });
+  await client.connect();
+
+  const renames: Array<{ type: string; from: string; to: string }> = [
+    // flashcards.question_type
+    { type: 'enum_flashcards_question_type', from: 'fill-in-blank',   to: 'fill_blank' },
+    { type: 'enum_flashcards_question_type', from: 'multiple-choice', to: 'multiple_choice' },
+    { type: 'enum_flashcards_question_type', from: 'code-completion', to: 'code_completion' },
+    { type: 'enum_flashcards_question_type', from: 'true-false',      to: 'free_recall' },
+    // exercises.type
+    { type: 'enum_exercises_type', from: 'fill-blank',    to: 'fill_blank' },
+    { type: 'enum_exercises_type', from: 'multiple-choice', to: 'multiple_choice' },
+    { type: 'enum_exercises_type', from: 'arrange-lines', to: 'arrange_code' },
+    { type: 'enum_exercises_type', from: 'spot-error',    to: 'spot_error' },
+  ];
+
+  for (const { type, from, to } of renames) {
+    try {
+      await client.query(`ALTER TYPE "${type}" RENAME VALUE '${from}' TO '${to}'`);
+      console.log(`  ✔ ${type}: '${from}' → '${to}'`);
+    } catch (err: unknown) {
+      // "invalid value" = the old label doesn't exist (already migrated or never existed)
+      if (err instanceof Error && err.message.includes('does not exist')) {
+        // already renamed or never existed — skip silently
+      } else {
+        throw err;
+      }
+    }
+  }
+
+  await client.end();
+}
+
 async function seed() {
   console.log('🌱 Starting seed…\n');
 
+  console.log('🔧 Migrating enum values…');
+  await migrateEnums();
+
   const payload = await getPayload({ config });
+
 
   // ── 1. Languages ────────────────────────────────────────────────────────────
   console.log('📚 Seeding languages…');
@@ -110,7 +154,7 @@ async function seed() {
       continue;
     }
 
-    const doc = await payload.create({
+    await payload.create({
       collection: 'flashcards',
       data: {
         section: sectionId,
@@ -152,11 +196,19 @@ async function seed() {
       continue;
     }
 
-    const doc = await payload.create({
+    // Coerce hyphenated mock-data types to the underscore values used by PayloadCMS schema
+    const exerciseType = (ex.type as string)
+      .replace('fill-blank',     'fill_blank')
+      .replace('multiple-choice','multiple_choice')
+      .replace('arrange-lines',  'arrange_code')
+      .replace('spot-error',     'spot_error') as
+        'fill_blank' | 'multiple_choice' | 'arrange_code' | 'spot_error';
+
+    await payload.create({
       collection: 'exercises',
       data: {
         section: sectionId,
-        type: ex.type,
+        type: exerciseType,
         question: ex.question,
         code: ex.code ?? undefined,
         language: ex.language,

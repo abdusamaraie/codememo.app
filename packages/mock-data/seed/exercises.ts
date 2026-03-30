@@ -10,7 +10,7 @@
 
 export interface ExerciseSeed {
   sectionSlug: string;
-  type: 'fill-blank' | 'multiple-choice' | 'arrange-lines' | 'spot-error';
+  type: 'fill_blank' | 'multiple_choice' | 'arrange_code' | 'spot_error';
   question: string;
   code?: string;
   language: string;
@@ -28,7 +28,7 @@ export const pythonExercises: ExerciseSeed[] = [
   // Variables & Data Types
   {
     sectionSlug: 'py-variables-data-types',
-    type: 'multiple-choice',
+    type: 'multiple_choice',
     question: 'What is the result of `bool("")` in Python?',
     language: 'python',
     options: ['True', 'False', 'None', 'TypeError'],
@@ -40,9 +40,9 @@ export const pythonExercises: ExerciseSeed[] = [
   },
   {
     sectionSlug: 'py-variables-data-types',
-    type: 'fill-blank',
+    type: 'fill_blank',
     question: 'Complete the expression to convert the string "42" to an integer.',
-    code: 'result = ___(\"42\")',
+    code: 'result = ___("42")',
     language: 'python',
     correctAnswer: 'int',
     explanation: 'The int() constructor parses a string and returns an integer. int("42") returns 42.',
@@ -52,11 +52,11 @@ export const pythonExercises: ExerciseSeed[] = [
   },
   {
     sectionSlug: 'py-variables-data-types',
-    type: 'spot-error',
+    type: 'spot_error',
     question: 'Find and fix the error in this code:',
-    code: 'x = 10\ny = \"20\"\nresult = x + y\nprint(result)',
+    code: 'x = 10\ny = "20"\nresult = x + y\nprint(result)',
     language: 'python',
-    correctAnswer: 'x = 10\ny = \"20\"\nresult = x + int(y)\nprint(result)',
+    correctAnswer: 'x = 10\ny = "20"\nresult = x + int(y)\nprint(result)',
     explanation: 'Python does not implicitly convert types. Adding int + str raises TypeError. Convert y to int first with int(y), or convert x to str with str(x) for concatenation.',
     difficulty: 'beginner',
     order: 3,
@@ -66,9 +66,9 @@ export const pythonExercises: ExerciseSeed[] = [
   // Strings & Formatting
   {
     sectionSlug: 'py-strings-formatting',
-    type: 'fill-blank',
+    type: 'fill_blank',
     question: 'Complete the f-string to display the variable `name` in uppercase.',
-    code: 'name = \"alice\"\nprint(f\"Hello, {name.___()}\")',
+    code: 'name = "alice"\nprint(f"Hello, {name.___()}")',
     language: 'python',
     correctAnswer: 'upper',
     explanation: 'str.upper() returns a new string with all characters converted to uppercase. F-strings can call methods inside the braces.',
@@ -78,11 +78,11 @@ export const pythonExercises: ExerciseSeed[] = [
   },
   {
     sectionSlug: 'py-strings-formatting',
-    type: 'multiple-choice',
+    type: 'multiple_choice',
     question: 'What does `"hello world".title()` return?',
     language: 'python',
-    options: ['\"Hello World\"', '\"HELLO WORLD\"', '\"hello world\"', '\"Hello world\"'],
-    correctAnswer: '\"Hello World\"',
+    options: ['"Hello World"', '"HELLO WORLD"', '"hello world"', '"Hello world"'],
+    correctAnswer: '"Hello World"',
     explanation: 'str.title() returns a titlecased version where the first character of each word is uppercase and the rest are lowercase.',
     difficulty: 'beginner',
     order: 2,
@@ -90,7 +90,7 @@ export const pythonExercises: ExerciseSeed[] = [
   },
   {
     sectionSlug: 'py-strings-formatting',
-    type: 'arrange-lines',
+    type: 'arrange_code',
     question: 'Arrange the lines to create a function that reverses a string using slicing.',
     language: 'python',
     correctAnswer: 'def reverse_string(s):\n    return s[::-1]',
@@ -103,7 +103,7 @@ export const pythonExercises: ExerciseSeed[] = [
   // Lists & Tuples
   {
     sectionSlug: 'py-lists-tuples',
-    type: 'multiple-choice',
+    type: 'multiple_choice',
     question: 'What is the output of `len([1, [2, 3], 4])`?',
     language: 'python',
     options: ['3', '4', '5', '2'],
@@ -115,7 +115,7 @@ export const pythonExercises: ExerciseSeed[] = [
   },
   {
     sectionSlug: 'py-lists-tuples',
-    type: 'spot-error',
+    type: 'spot_error',
     question: 'Find and fix the error in this code that tries to sort a list in-place:',
     code: 'numbers = [3, 1, 4, 1, 5]\nsorted_numbers = numbers.sort()\nprint(sorted_numbers)',
     language: 'python',
@@ -127,7 +127,7 @@ export const pythonExercises: ExerciseSeed[] = [
   },
   {
     sectionSlug: 'py-lists-tuples',
-    type: 'fill-blank',
+    type: 'fill_blank',
     question: 'Complete the code to add the element 4 to the end of the list.',
     code: 'nums = [1, 2, 3]\nnums.___(4)',
     language: 'python',
@@ -141,16 +141,16 @@ export const pythonExercises: ExerciseSeed[] = [
   // Dictionaries & Sets
   {
     sectionSlug: 'py-dicts-sets',
-    type: 'multiple-choice',
+    type: 'multiple_choice',
     question: 'Which of these is NOT a valid way to create a dictionary in Python?',
     language: 'python',
     options: [
       'dict(a=1, b=2)',
-      '{\"a\": 1, \"b\": 2}',
-      'dict([(\"a\", 1), (\"b\", 2)])',
-      '[\"a\": 1, \"b\": 2]',
+      '{"a": 1, "b": 2}',
+      'dict([("a", 1), ("b", 2)])',
+      '["a": 1, "b": 2]',
     ],
-    correctAnswer: '[\"a\": 1, \"b\": 2]',
+    correctAnswer: '["a": 1, "b": 2]',
     explanation: 'Square brackets with colon notation is not valid Python syntax. Dicts use curly braces {}, the dict() constructor, or dict comprehensions.',
     difficulty: 'beginner',
     order: 1,
@@ -158,9 +158,9 @@ export const pythonExercises: ExerciseSeed[] = [
   },
   {
     sectionSlug: 'py-dicts-sets',
-    type: 'fill-blank',
+    type: 'fill_blank',
     question: 'Complete the code to iterate over both keys and values of a dictionary.',
-    code: 'data = {\"x\": 1, \"y\": 2}\nfor key, value in data.___():\n    print(key, value)',
+    code: 'data = {"x": 1, "y": 2}\nfor key, value in data.___():\n    print(key, value)',
     language: 'python',
     correctAnswer: 'items',
     explanation: 'dict.items() returns a view of (key, value) tuples. dict.keys() returns only keys, dict.values() returns only values.',
@@ -172,10 +172,10 @@ export const pythonExercises: ExerciseSeed[] = [
   // Control Flow
   {
     sectionSlug: 'py-control-flow',
-    type: 'arrange-lines',
+    type: 'arrange_code',
     question: 'Arrange these lines to create a function that returns "fizz" for multiples of 3, "buzz" for multiples of 5, "fizzbuzz" for both, or the number as a string.',
     language: 'python',
-    correctAnswer: 'def fizzbuzz(n):\n    if n % 15 == 0:\n        return \"fizzbuzz\"\n    elif n % 3 == 0:\n        return \"fizz\"\n    elif n % 5 == 0:\n        return \"buzz\"\n    else:\n        return str(n)',
+    correctAnswer: 'def fizzbuzz(n):\n    if n % 15 == 0:\n        return "fizzbuzz"\n    elif n % 3 == 0:\n        return "fizz"\n    elif n % 5 == 0:\n        return "buzz"\n    else:\n        return str(n)',
     explanation: 'Check divisibility by 15 first (both 3 and 5), then 3, then 5. Order matters — checking 3 or 5 first would match before 15.',
     difficulty: 'beginner',
     order: 1,
@@ -183,7 +183,7 @@ export const pythonExercises: ExerciseSeed[] = [
   },
   {
     sectionSlug: 'py-control-flow',
-    type: 'spot-error',
+    type: 'spot_error',
     question: 'Find and fix the error in this code:',
     code: 'for i in range(5)\n    print(i)',
     language: 'python',
@@ -197,7 +197,7 @@ export const pythonExercises: ExerciseSeed[] = [
   // Functions
   {
     sectionSlug: 'py-functions',
-    type: 'spot-error',
+    type: 'spot_error',
     question: 'Find and fix the bug with the mutable default argument:',
     code: 'def add_item(item, items=[]):\n    items.append(item)\n    return items',
     language: 'python',
@@ -209,7 +209,7 @@ export const pythonExercises: ExerciseSeed[] = [
   },
   {
     sectionSlug: 'py-functions',
-    type: 'fill-blank',
+    type: 'fill_blank',
     question: 'Complete the code to create a function that accepts any number of positional arguments.',
     code: 'def total(___args):\n    return sum(args)',
     language: 'python',
@@ -223,10 +223,10 @@ export const pythonExercises: ExerciseSeed[] = [
   // Classes & OOP
   {
     sectionSlug: 'py-classes-oop',
-    type: 'arrange-lines',
+    type: 'arrange_code',
     question: 'Arrange these lines to create a class Dog that inherits from Animal and overrides speak().',
     language: 'python',
-    correctAnswer: 'class Animal:\n    def __init__(self, name):\n        self.name = name\n\nclass Dog(Animal):\n    def speak(self):\n        return f\"{self.name} says Woof!\"',
+    correctAnswer: 'class Animal:\n    def __init__(self, name):\n        self.name = name\n\nclass Dog(Animal):\n    def speak(self):\n        return f"{self.name} says Woof!"',
     explanation: 'Python inheritance uses ParentClass in parentheses. The child class accesses inherited attributes via self. super().__init__() can be used when the child has its own __init__.',
     difficulty: 'advanced',
     order: 1,
@@ -236,7 +236,7 @@ export const pythonExercises: ExerciseSeed[] = [
   // Decorators & Closures
   {
     sectionSlug: 'py-decorators-closures',
-    type: 'fill-blank',
+    type: 'fill_blank',
     question: 'Complete the decorator to preserve the wrapped function\'s metadata.',
     code: 'from functools import ___\n\ndef my_decorator(func):\n    @___(func)\n    def wrapper(*args, **kwargs):\n        return func(*args, **kwargs)\n    return wrapper',
     language: 'python',
@@ -254,7 +254,7 @@ export const jsExercises: ExerciseSeed[] = [
   // Variables & Data Types
   {
     sectionSlug: 'js-variables-data-types',
-    type: 'multiple-choice',
+    type: 'multiple_choice',
     question: 'What does `typeof []` return in JavaScript?',
     language: 'javascript',
     options: ['"array"', '"object"', '"Array"', '"undefined"'],
@@ -266,7 +266,7 @@ export const jsExercises: ExerciseSeed[] = [
   },
   {
     sectionSlug: 'js-variables-data-types',
-    type: 'spot-error',
+    type: 'spot_error',
     question: 'Find and fix the error in this code:',
     code: 'const PI = 3.14159;\nPI = 3.14;\nconsole.log(PI);',
     language: 'javascript',
@@ -278,7 +278,7 @@ export const jsExercises: ExerciseSeed[] = [
   },
   {
     sectionSlug: 'js-variables-data-types',
-    type: 'multiple-choice',
+    type: 'multiple_choice',
     question: 'What is the result of `0.1 + 0.2 === 0.3` in JavaScript?',
     language: 'javascript',
     options: ['true', 'false', 'TypeError', 'NaN'],
@@ -292,9 +292,9 @@ export const jsExercises: ExerciseSeed[] = [
   // Strings & Template Literals
   {
     sectionSlug: 'js-strings-template-literals',
-    type: 'fill-blank',
+    type: 'fill_blank',
     question: 'Complete the template literal to embed the expression.',
-    code: 'const name = \"World\";\nconst greeting = `Hello, ___!`;',
+    code: 'const name = "World";\nconst greeting = `Hello, ___!`;',
     language: 'javascript',
     correctAnswer: '${name}',
     explanation: 'Template literals use ${expression} for interpolation inside backtick strings. Any valid JS expression works inside ${}.',
@@ -304,7 +304,7 @@ export const jsExercises: ExerciseSeed[] = [
   },
   {
     sectionSlug: 'js-strings-template-literals',
-    type: 'multiple-choice',
+    type: 'multiple_choice',
     question: 'Which method checks if a string starts with a given substring?',
     language: 'javascript',
     options: ['startsWith()', 'beginsWith()', 'hasPrefix()', 'indexOf() === 0'],
@@ -318,7 +318,7 @@ export const jsExercises: ExerciseSeed[] = [
   // Arrays
   {
     sectionSlug: 'js-arrays',
-    type: 'fill-blank',
+    type: 'fill_blank',
     question: 'Complete the code to find the first element greater than 10.',
     code: 'const nums = [3, 7, 12, 5, 18];\nconst result = nums.___(n => n > 10);',
     language: 'javascript',
@@ -330,7 +330,7 @@ export const jsExercises: ExerciseSeed[] = [
   },
   {
     sectionSlug: 'js-arrays',
-    type: 'spot-error',
+    type: 'spot_error',
     question: 'Find and fix the error — this code tries to remove duplicates from an array:',
     code: 'const arr = [1, 2, 2, 3, 3];\nconst unique = arr.filter((v, i) => arr.indexOf(v) === i);\nconsole.log(unique);',
     language: 'javascript',
@@ -342,7 +342,7 @@ export const jsExercises: ExerciseSeed[] = [
   },
   {
     sectionSlug: 'js-arrays',
-    type: 'arrange-lines',
+    type: 'arrange_code',
     question: 'Arrange these lines to group an array of objects by a key using reduce.',
     language: 'javascript',
     correctAnswer: 'function groupBy(arr, key) {\n  return arr.reduce((groups, item) => {\n    const val = item[key];\n    groups[val] = groups[val] || [];\n    groups[val].push(item);\n    return groups;\n  }, {});\n}',
@@ -355,7 +355,7 @@ export const jsExercises: ExerciseSeed[] = [
   // Objects
   {
     sectionSlug: 'js-objects',
-    type: 'fill-blank',
+    type: 'fill_blank',
     question: 'Complete the code to safely access a nested property using optional chaining.',
     code: 'const city = user___address___city;',
     language: 'javascript',
@@ -367,7 +367,7 @@ export const jsExercises: ExerciseSeed[] = [
   },
   {
     sectionSlug: 'js-objects',
-    type: 'multiple-choice',
+    type: 'multiple_choice',
     question: 'What does Object.freeze() do?',
     language: 'javascript',
     options: [
@@ -386,7 +386,7 @@ export const jsExercises: ExerciseSeed[] = [
   // Functions
   {
     sectionSlug: 'js-functions',
-    type: 'spot-error',
+    type: 'spot_error',
     question: 'Find and fix the error with `this` in the setTimeout callback:',
     code: 'const timer = {\n  seconds: 0,\n  start() {\n    setInterval(function() {\n      this.seconds++;\n      console.log(this.seconds);\n    }, 1000);\n  }\n};',
     language: 'javascript',
@@ -400,7 +400,7 @@ export const jsExercises: ExerciseSeed[] = [
   // Promises & Async/Await
   {
     sectionSlug: 'js-promises-async-await',
-    type: 'fill-blank',
+    type: 'fill_blank',
     question: 'Complete the code to wait for all promises and get results, even if some fail.',
     code: 'const results = await Promise.___([\n  fetchUsers(),\n  fetchPosts(),\n]);',
     language: 'javascript',
@@ -412,7 +412,7 @@ export const jsExercises: ExerciseSeed[] = [
   },
   {
     sectionSlug: 'js-promises-async-await',
-    type: 'multiple-choice',
+    type: 'multiple_choice',
     question: 'What happens when you await a non-Promise value like `await 42`?',
     language: 'javascript',
     options: [
@@ -431,7 +431,7 @@ export const jsExercises: ExerciseSeed[] = [
   // Classes & Prototypes
   {
     sectionSlug: 'js-classes-prototypes',
-    type: 'fill-blank',
+    type: 'fill_blank',
     question: 'Complete the code to define a private field in a JavaScript class.',
     code: 'class Counter {\n  ___count = 0;\n  increment() { this.___count++; }\n  get value() { return this.___count; }\n}',
     language: 'javascript',

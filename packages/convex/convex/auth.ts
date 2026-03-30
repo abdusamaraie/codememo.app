@@ -1,5 +1,24 @@
 import { mutation } from './_generated/server';
+import type { MutationCtx, QueryCtx } from './_generated/server';
 import { v } from 'convex/values';
+
+// ── Auth helper ───────────────────────────────────────────────────────────────
+
+/** Gets the authenticated user's Convex record from Clerk JWT. Throws if unauthenticated. */
+export async function requireAuth(ctx: MutationCtx | QueryCtx) {
+  const identity = await ctx.auth.getUserIdentity();
+  if (!identity) throw new Error('Unauthenticated');
+
+  const user = await ctx.db
+    .query('users')
+    .withIndex('by_clerk_id', (q) => q.eq('clerkId', identity.subject))
+    .first();
+
+  if (!user) throw new Error('User not found — please sign in again');
+  return user;
+}
+
+// ── Mutations ─────────────────────────────────────────────────────────────────
 
 /** Create a new anonymous user (called on first app load) */
 export const createAnonymousUser = mutation({
@@ -33,22 +52,23 @@ export const createAnonymousUser = mutation({
   },
 });
 
-/** Upgrade anonymous user to email auth */
+/** Upgrade anonymous user to email auth — requires Clerk session */
 export const upgradeToEmail = mutation({
   args: {
-    userId:      v.id('users'),
     email:       v.string(),
     displayName: v.optional(v.string()),
   },
-  handler: async (ctx, { userId, email, displayName }) => {
+  handler: async (ctx, { email, displayName }) => {
+    const user = await requireAuth(ctx);
+
     const existing = await ctx.db
       .query('users')
       .withIndex('by_email', (q) => q.eq('email', email))
       .first();
 
-    if (existing) throw new Error('Email already in use');
+    if (existing && existing._id !== user._id) throw new Error('Email already in use');
 
-    await ctx.db.patch(userId, {
+    await ctx.db.patch(user._id, {
       authProvider: 'email',
       email,
       displayName,
@@ -56,24 +76,25 @@ export const upgradeToEmail = mutation({
   },
 });
 
-/** Upgrade anonymous user to GitHub auth */
+/** Upgrade anonymous user to GitHub auth — requires Clerk session */
 export const upgradeToGitHub = mutation({
   args: {
-    userId:      v.id('users'),
     githubId:    v.string(),
     email:       v.optional(v.string()),
     displayName: v.optional(v.string()),
     avatarUrl:   v.optional(v.string()),
   },
-  handler: async (ctx, { userId, githubId, email, displayName, avatarUrl }) => {
+  handler: async (ctx, { githubId, email, displayName, avatarUrl }) => {
+    const user = await requireAuth(ctx);
+
     const existing = await ctx.db
       .query('users')
       .withIndex('by_github_id', (q) => q.eq('githubId', githubId))
       .first();
 
-    if (existing) throw new Error('GitHub account already linked');
+    if (existing && existing._id !== user._id) throw new Error('GitHub account already linked');
 
-    await ctx.db.patch(userId, {
+    await ctx.db.patch(user._id, {
       authProvider: 'github',
       githubId,
       email,

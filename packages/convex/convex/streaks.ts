@@ -1,6 +1,7 @@
 import { mutation, query } from './_generated/server';
 import { v } from 'convex/values';
 import { incrementStreak, calculateStreak } from '@repo/domain';
+import { requireAuth } from './auth';
 
 export const getStreakData = query({
   args: { userId: v.id('users') },
@@ -15,11 +16,13 @@ export const getStreakData = query({
 /** Called after each card review — updates streak + daily goal counters */
 export const updateStreak = mutation({
   args: {
-    userId:          v.id('users'),
     isPerfectRecall: v.boolean(),
     durationMs:      v.optional(v.number()),
   },
-  handler: async (ctx, { userId, isPerfectRecall, durationMs }) => {
+  handler: async (ctx, { isPerfectRecall, durationMs }) => {
+    const user = await requireAuth(ctx);
+    const userId = user._id;
+
     const streak = await ctx.db
       .query('streaks')
       .withIndex('by_user', (q) => q.eq('userId', userId))
@@ -83,11 +86,13 @@ export const checkDailyGoal = query({
 
 /** Use a streak freeze when user misses a day */
 export const useStreakFreeze = mutation({
-  args: { userId: v.id('users') },
-  handler: async (ctx, { userId }) => {
+  args: {},
+  handler: async (ctx) => {
+    const user = await requireAuth(ctx);
+
     const streak = await ctx.db
       .query('streaks')
-      .withIndex('by_user', (q) => q.eq('userId', userId))
+      .withIndex('by_user', (q) => q.eq('userId', user._id))
       .first();
 
     if (!streak || streak.freezesAvailable <= 0) {

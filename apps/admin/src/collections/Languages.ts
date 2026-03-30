@@ -36,7 +36,7 @@ export const Languages: CollectionConfig = {
     ],
     afterChange: [
       async ({ doc }) => {
-        await syncToConvex('language', doc);
+        await syncToConvex('languages', doc);
       },
     ],
   },

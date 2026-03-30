@@ -13,7 +13,7 @@ export const jcrFlashcards: FlashcardSeed[] = [
   // ── Core Syntax ───────────────────────────────────────────────────────────
   {
     sectionSlug: 'jcr-core-syntax',
-    questionType: 'code-completion',
+    questionType: 'code_completion',
     front: {
       prompt: 'What is the basic JCR-SQL2 query skeleton?',
       language: 'sql',
@@ -30,7 +30,7 @@ export const jcrFlashcards: FlashcardSeed[] = [
   },
   {
     sectionSlug: 'jcr-core-syntax',
-    questionType: 'code-completion',
+    questionType: 'code_completion',
     front: {
       prompt: 'How do you use an alias in a JCR-SQL2 query to select all columns from a cq:Page?',
       language: 'sql',
@@ -47,7 +47,7 @@ export const jcrFlashcards: FlashcardSeed[] = [
   },
   {
     sectionSlug: 'jcr-core-syntax',
-    questionType: 'code-completion',
+    questionType: 'code_completion',
     front: {
       prompt: 'How do you select only the path and title columns from cq:Page nodes?',
       language: 'sql',
@@ -66,7 +66,7 @@ export const jcrFlashcards: FlashcardSeed[] = [
   // ── Node Types ────────────────────────────────────────────────────────────
   {
     sectionSlug: 'jcr-node-types',
-    questionType: 'fill-in-blank',
+    questionType: 'fill_blank',
     front: {
       prompt: 'What node type matches ALL nodes in the JCR repository? (Use sparingly for performance)',
       language: 'sql',
@@ -83,7 +83,7 @@ export const jcrFlashcards: FlashcardSeed[] = [
   },
   {
     sectionSlug: 'jcr-node-types',
-    questionType: 'fill-in-blank',
+    questionType: 'fill_blank',
     front: {
       prompt: 'What node type do you query for AEM page nodes?',
       language: 'sql',
@@ -100,7 +100,7 @@ export const jcrFlashcards: FlashcardSeed[] = [
   },
   {
     sectionSlug: 'jcr-node-types',
-    questionType: 'fill-in-blank',
+    questionType: 'fill_blank',
     front: {
       prompt: 'What node type represents the jcr:content child of an AEM page, containing properties like cq:lastModified and cq:template?',
       language: 'sql',
@@ -117,7 +117,7 @@ export const jcrFlashcards: FlashcardSeed[] = [
   },
   {
     sectionSlug: 'jcr-node-types',
-    questionType: 'fill-in-blank',
+    questionType: 'fill_blank',
     front: {
       prompt: 'What node type is used for DAM assets (images, PDFs, etc.) in AEM?',
       language: 'sql',
@@ -134,7 +134,7 @@ export const jcrFlashcards: FlashcardSeed[] = [
   },
   {
     sectionSlug: 'jcr-node-types',
-    questionType: 'multiple-choice',
+    questionType: 'multiple_choice',
     front: {
       prompt: 'Which node type would you use to find component definition nodes in /apps?',
     },
@@ -150,7 +150,7 @@ export const jcrFlashcards: FlashcardSeed[] = [
   },
   {
     sectionSlug: 'jcr-node-types',
-    questionType: 'multiple-choice',
+    questionType: 'multiple_choice',
     front: {
       prompt: 'Which node type represents generic content nodes and components (the most common node type for content)?',
     },
@@ -166,7 +166,7 @@ export const jcrFlashcards: FlashcardSeed[] = [
   },
   {
     sectionSlug: 'jcr-node-types',
-    questionType: 'fill-in-blank',
+    questionType: 'fill_blank',
     front: {
       prompt: 'What node type do you query to find user nodes in /home/users?',
       language: 'sql',
@@ -183,7 +183,7 @@ export const jcrFlashcards: FlashcardSeed[] = [
   },
   {
     sectionSlug: 'jcr-node-types',
-    questionType: 'fill-in-blank',
+    questionType: 'fill_blank',
     front: {
       prompt: 'What node type is used for client library folders in AEM?',
       language: 'sql',
@@ -202,7 +202,7 @@ export const jcrFlashcards: FlashcardSeed[] = [
   // ── Path Functions ────────────────────────────────────────────────────────
   {
     sectionSlug: 'jcr-path-functions',
-    questionType: 'code-completion',
+    questionType: 'code_completion',
     front: {
       prompt: 'Which path function matches nodes at any depth beneath a given path?',
       language: 'sql',
@@ -219,7 +219,7 @@ export const jcrFlashcards: FlashcardSeed[] = [
   },
   {
     sectionSlug: 'jcr-path-functions',
-    questionType: 'code-completion',
+    questionType: 'code_completion',
     front: {
       prompt: 'Which path function matches only direct children (one level deep) of a given path?',
       language: 'sql',
@@ -236,7 +236,7 @@ export const jcrFlashcards: FlashcardSeed[] = [
   },
   {
     sectionSlug: 'jcr-path-functions',
-    questionType: 'code-completion',
+    questionType: 'code_completion',
     front: {
       prompt: 'Which path function matches an exact node path?',
       language: 'sql',
@@ -255,7 +255,7 @@ export const jcrFlashcards: FlashcardSeed[] = [
   // ── Text & Search Functions ───────────────────────────────────────────────
   {
     sectionSlug: 'jcr-text-search',
-    questionType: 'code-completion',
+    questionType: 'code_completion',
     front: {
       prompt: 'How do you perform a full-text search across all indexed properties of a node?',
       language: 'sql',
@@ -272,7 +272,7 @@ export const jcrFlashcards: FlashcardSeed[] = [
   },
   {
     sectionSlug: 'jcr-text-search',
-    questionType: 'code-completion',
+    questionType: 'code_completion',
     front: {
       prompt: 'How do you perform a full-text search on a specific property only?',
       language: 'sql',
@@ -289,7 +289,7 @@ export const jcrFlashcards: FlashcardSeed[] = [
   },
   {
     sectionSlug: 'jcr-text-search',
-    questionType: 'code-completion',
+    questionType: 'code_completion',
     front: {
       prompt: 'What does the LIKE operator do and what are its wildcard characters?',
       language: 'sql',
@@ -306,7 +306,7 @@ export const jcrFlashcards: FlashcardSeed[] = [
   },
   {
     sectionSlug: 'jcr-text-search',
-    questionType: 'code-completion',
+    questionType: 'code_completion',
     front: {
       prompt: 'How do you use the NAME() function to match node names?',
       language: 'sql',
@@ -323,7 +323,7 @@ export const jcrFlashcards: FlashcardSeed[] = [
   },
   {
     sectionSlug: 'jcr-text-search',
-    questionType: 'fill-in-blank',
+    questionType: 'fill_blank',
     front: {
       prompt: 'What function returns a node name WITHOUT its namespace prefix?',
       language: 'sql',
@@ -342,7 +342,7 @@ export const jcrFlashcards: FlashcardSeed[] = [
   // ── Operators & Conditions ────────────────────────────────────────────────
   {
     sectionSlug: 'jcr-operators',
-    questionType: 'true-false',
+    questionType: 'free_recall',
     front: {
       prompt: 'In JCR-SQL2, IS NULL checks whether a property does not exist on a node.',
     },
@@ -358,7 +358,7 @@ export const jcrFlashcards: FlashcardSeed[] = [
   },
   {
     sectionSlug: 'jcr-operators',
-    questionType: 'code-completion',
+    questionType: 'code_completion',
     front: {
       prompt: 'How do you combine conditions so BOTH must be true?',
       language: 'sql',
@@ -375,7 +375,7 @@ export const jcrFlashcards: FlashcardSeed[] = [
   },
   {
     sectionSlug: 'jcr-operators',
-    questionType: 'code-completion',
+    questionType: 'code_completion',
     front: {
       prompt: 'How do you group conditions with parentheses in JCR-SQL2?',
       language: 'sql',
@@ -394,7 +394,7 @@ export const jcrFlashcards: FlashcardSeed[] = [
   // ── Ordering & Pseudo Columns ─────────────────────────────────────────────
   {
     sectionSlug: 'jcr-ordering-pseudo',
-    questionType: 'code-completion',
+    questionType: 'code_completion',
     front: {
       prompt: 'How do you sort JCR-SQL2 results by creation date, newest first?',
       language: 'sql',
@@ -411,7 +411,7 @@ export const jcrFlashcards: FlashcardSeed[] = [
   },
   {
     sectionSlug: 'jcr-ordering-pseudo',
-    questionType: 'code-completion',
+    questionType: 'code_completion',
     front: {
       prompt: 'How do you sort results by full-text relevance score?',
       language: 'sql',
@@ -428,7 +428,7 @@ export const jcrFlashcards: FlashcardSeed[] = [
   },
   {
     sectionSlug: 'jcr-ordering-pseudo',
-    questionType: 'multiple-choice',
+    questionType: 'multiple_choice',
     front: {
       prompt: 'Which of these is NOT a JCR pseudo column?',
     },
@@ -444,7 +444,7 @@ export const jcrFlashcards: FlashcardSeed[] = [
   // ── Common Properties ─────────────────────────────────────────────────────
   {
     sectionSlug: 'jcr-common-properties',
-    questionType: 'fill-in-blank',
+    questionType: 'fill_blank',
     front: {
       prompt: 'What property stores the page template path in AEM page content nodes?',
       language: 'sql',
@@ -461,7 +461,7 @@ export const jcrFlashcards: FlashcardSeed[] = [
   },
   {
     sectionSlug: 'jcr-common-properties',
-    questionType: 'fill-in-blank',
+    questionType: 'fill_blank',
     front: {
       prompt: 'What property identifies the component resource type of a content node?',
       language: 'sql',
@@ -478,7 +478,7 @@ export const jcrFlashcards: FlashcardSeed[] = [
   },
   {
     sectionSlug: 'jcr-common-properties',
-    questionType: 'fill-in-blank',
+    questionType: 'fill_blank',
     front: {
       prompt: 'What property stores the MIME type for DAM assets?',
       language: 'sql',
@@ -495,7 +495,7 @@ export const jcrFlashcards: FlashcardSeed[] = [
   },
   {
     sectionSlug: 'jcr-common-properties',
-    questionType: 'multiple-choice',
+    questionType: 'multiple_choice',
     front: {
       prompt: 'What does the [cq:lastReplicationAction] property indicate?',
     },
@@ -513,7 +513,7 @@ export const jcrFlashcards: FlashcardSeed[] = [
   // ── CAST & Type Conversion ────────────────────────────────────────────────
   {
     sectionSlug: 'jcr-cast-types',
-    questionType: 'code-completion',
+    questionType: 'code_completion',
     front: {
       prompt: 'How do you filter nodes by a date property (e.g. modified after Jan 1, 2024)?',
       language: 'sql',
@@ -530,7 +530,7 @@ export const jcrFlashcards: FlashcardSeed[] = [
   },
   {
     sectionSlug: 'jcr-cast-types',
-    questionType: 'code-completion',
+    questionType: 'code_completion',
     front: {
       prompt: 'How do you cast a numeric property to a LONG for comparison?',
       language: 'sql',
@@ -549,7 +549,7 @@ export const jcrFlashcards: FlashcardSeed[] = [
   // ── JOINs ─────────────────────────────────────────────────────────────────
   {
     sectionSlug: 'jcr-joins',
-    questionType: 'code-completion',
+    questionType: 'code_completion',
     front: {
       prompt: 'How do you write an INNER JOIN in JCR-SQL2 to join a page with its child nodes?',
       language: 'sql',
@@ -566,7 +566,7 @@ export const jcrFlashcards: FlashcardSeed[] = [
   },
   {
     sectionSlug: 'jcr-joins',
-    questionType: 'code-completion',
+    questionType: 'code_completion',
     front: {
       prompt: 'How do you write a LEFT OUTER JOIN to get pages with their optional content nodes?',
       language: 'sql',
@@ -585,7 +585,7 @@ export const jcrFlashcards: FlashcardSeed[] = [
   // ── Real-World AEM Queries ────────────────────────────────────────────────
   {
     sectionSlug: 'jcr-real-world',
-    questionType: 'code-completion',
+    questionType: 'code_completion',
     front: {
       prompt: 'Write a query to find all pages using a specific template.',
       language: 'sql',
@@ -602,7 +602,7 @@ export const jcrFlashcards: FlashcardSeed[] = [
   },
   {
     sectionSlug: 'jcr-real-world',
-    questionType: 'code-completion',
+    questionType: 'code_completion',
     front: {
       prompt: 'Write a query to find all PNG images in the DAM.',
       language: 'sql',
@@ -619,7 +619,7 @@ export const jcrFlashcards: FlashcardSeed[] = [
   },
   {
     sectionSlug: 'jcr-real-world',
-    questionType: 'code-completion',
+    questionType: 'code_completion',
     front: {
       prompt: 'Write a query to find all components of a specific resource type under /content.',
       language: 'sql',
@@ -636,7 +636,7 @@ export const jcrFlashcards: FlashcardSeed[] = [
   },
   {
     sectionSlug: 'jcr-real-world',
-    questionType: 'code-completion',
+    questionType: 'code_completion',
     front: {
       prompt: 'Write a query to find all published (activated) pages.',
       language: 'sql',
@@ -653,7 +653,7 @@ export const jcrFlashcards: FlashcardSeed[] = [
   },
   {
     sectionSlug: 'jcr-real-world',
-    questionType: 'code-completion',
+    questionType: 'code_completion',
     front: {
       prompt: 'Write a full-text search query that returns results sorted by relevance.',
       language: 'sql',
@@ -670,7 +670,7 @@ export const jcrFlashcards: FlashcardSeed[] = [
   },
   {
     sectionSlug: 'jcr-real-world',
-    questionType: 'code-completion',
+    questionType: 'code_completion',
     front: {
       prompt: 'Write a query to find pages modified after a specific date, sorted by most recently modified.',
       language: 'sql',
