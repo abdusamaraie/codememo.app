@@ -186,6 +186,21 @@ async function seed() {
   let fcCreated = 0;
   let fcSkipped = 0;
 
+  // Pre-fetch existing prompts per section to avoid one query per flashcard (N+1).
+  const existingPromptsPerSection = new Map<number, Set<string>>();
+  for (const sectionId of sectionIdBySlug.values()) {
+    const existing = await payload.find({
+      collection: 'flashcards',
+      where: { section: { equals: sectionId } },
+      limit: 500,
+    });
+    existingPromptsPerSection.set(
+      sectionId,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      new Set(existing.docs.map((d: any) => d.front?.prompt ?? '')),
+    );
+  }
+
   for (const fc of allFlashcards) {
     const sectionId = sectionIdBySlug.get(fc.sectionSlug);
     if (!sectionId) {
@@ -194,18 +209,7 @@ async function seed() {
       continue;
     }
 
-    const existingFc = await payload.find({
-      collection: 'flashcards',
-      where: {
-        and: [
-          { section: { equals: sectionId } },
-          { 'front.prompt': { equals: fc.front.prompt } },
-        ],
-      },
-      limit: 1,
-    });
-
-    if (existingFc.docs.length > 0) {
+    if (existingPromptsPerSection.get(sectionId)?.has(fc.front.prompt)) {
       fcSkipped++;
       continue;
     }
