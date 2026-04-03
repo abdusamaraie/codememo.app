@@ -8,8 +8,9 @@ const NEW_CARDS_PER_SESSION = 10;
 
 /** Returns cards due for review + new cards for a study session */
 export const getStudySession = query({
-  args: { userId: v.id('users'), sectionId: v.id('sections') },
-  handler: async (ctx, { userId, sectionId }) => {
+  args: { sectionId: v.id('sections') },
+  handler: async (ctx, { sectionId }) => {
+    const user = await requireAuth(ctx);
     const now = Date.now();
 
     // All flashcards in section
@@ -21,7 +22,7 @@ export const getStudySession = query({
     // Cards with existing progress for this user
     const progressRecords = await ctx.db
       .query('cardProgress')
-      .withIndex('by_user', (q) => q.eq('userId', userId))
+      .withIndex('by_user', (q) => q.eq('userId', user._id))
       .collect();
 
     const progressByCardId = new Map(progressRecords.map((p) => [p.flashcardId, p]));
@@ -60,8 +61,7 @@ export const recordReview = mutation({
 
     const existing = await ctx.db
       .query('cardProgress')
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      .withIndex('by_user_card', (q: any) =>
+      .withIndex('by_user_card', (q) =>
         q.eq('userId', userId).eq('flashcardId', flashcardId),
       )
       .first();
@@ -108,8 +108,9 @@ export const recordReview = mutation({
 
 /** Get all card progress for a user in a section */
 export const getCardProgressForSection = query({
-  args: { userId: v.id('users'), sectionId: v.id('sections') },
-  handler: async (ctx, { userId, sectionId }) => {
+  args: { sectionId: v.id('sections') },
+  handler: async (ctx, { sectionId }) => {
+    const user = await requireAuth(ctx);
     const cards = await ctx.db
       .query('flashcards')
       .withIndex('by_section', (q) => q.eq('sectionId', sectionId))
@@ -119,7 +120,7 @@ export const getCardProgressForSection = query({
 
     const progress = await ctx.db
       .query('cardProgress')
-      .withIndex('by_user', (q) => q.eq('userId', userId))
+      .withIndex('by_user', (q) => q.eq('userId', user._id))
       .collect();
 
     return progress.filter((p) => cardIds.has(p.flashcardId));

@@ -20,12 +20,33 @@ export function QuizRunner({ exercises }: Props) {
   const [selected, setSelected] = useState<string | null>(null);
   const [answers, setAnswers] = useState<QuizAnswer[]>([]);
   const [done, setDone] = useState(false);
+  const result = useMemo(() => calculateQuizScore(answers as never), [answers]);
   const totalQuestions = Math.min(exercises.length, 15);
   const quizItems = exercises.slice(0, totalQuestions);
+  if (quizItems.length === 0) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>No quiz questions yet</CardTitle>
+          <CardDescription>This section does not have quiz content yet. Please check back soon.</CardDescription>
+        </CardHeader>
+      </Card>
+    );
+  }
 
   const current = quizItems[index];
+  if (!current) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Quiz unavailable</CardTitle>
+          <CardDescription>We could not load the current question. Please refresh and try again.</CardDescription>
+        </CardHeader>
+      </Card>
+    );
+  }
+
   const progress = totalQuestions === 0 ? 0 : Math.round((index / totalQuestions) * 100);
-  const result = useMemo(() => calculateQuizScore(answers as never), [answers]);
 
   function submitCurrent() {
     if (!selected || !current || done) return;

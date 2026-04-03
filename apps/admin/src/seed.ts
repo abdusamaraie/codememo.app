@@ -13,46 +13,72 @@
 import pg from 'pg';
 import { getPayload } from 'payload';
 import config from './payload.config';
-import { languages } from '../../../packages/mock-data/seed/languages';
-import { sections } from '../../../packages/mock-data/seed/sections';
-import { pythonFlashcards } from '../../../packages/mock-data/seed/flashcards-python';
-import { jsFlashcards } from '../../../packages/mock-data/seed/flashcards-javascript';
-import { jcrFlashcards } from '../../../packages/mock-data/seed/flashcards-jcr-sql2';
-import { exercises } from '../../../packages/mock-data/seed/exercises';
-import { jcrExercises } from '../../../packages/mock-data/seed/exercises-jcr-sql2';
+import { syncToConvex } from './endpoints';
+import {
+  exercises,
+  jcrExercises,
+  jcrFlashcards,
+  jsFlashcards,
+  languages,
+  pythonFlashcards,
+  sections,
+} from '@repo/mock-data';
 
 /**
- * Rename legacy hyphenated enum values to underscore equivalents.
- * Must run BEFORE getPayload() triggers pushDevSchema, otherwise the
- * ALTER COLUMN migration fails because existing rows have old values.
+ * Migrate legacy hyphenated text values to underscore equivalents.
+ * Only runs when the column is still TEXT — once Payload has migrated
+ * the column to an enum type this step is a no-op.
  */
 async function migrateEnums() {
   const client = new pg.Client({ connectionString: process.env.DATABASE_URL });
   await client.connect();
 
-  const renames: Array<{ type: string; from: string; to: string }> = [
-    // flashcards.question_type
-    { type: 'enum_flashcards_question_type', from: 'fill-in-blank',   to: 'fill_blank' },
-    { type: 'enum_flashcards_question_type', from: 'multiple-choice', to: 'multiple_choice' },
-    { type: 'enum_flashcards_question_type', from: 'code-completion', to: 'code_completion' },
-    { type: 'enum_flashcards_question_type', from: 'true-false',      to: 'free_recall' },
-    // exercises.type
-    { type: 'enum_exercises_type', from: 'fill-blank',    to: 'fill_blank' },
-    { type: 'enum_exercises_type', from: 'multiple-choice', to: 'multiple_choice' },
-    { type: 'enum_exercises_type', from: 'arrange-lines', to: 'arrange_code' },
-    { type: 'enum_exercises_type', from: 'spot-error',    to: 'spot_error' },
+  const migrations: Array<{
+    table: string;
+    column: string;
+    updates: Array<[string, string]>;
+  }> = [
+    {
+      table: 'flashcards',
+      column: 'question_type',
+      updates: [
+        ['fill-in-blank',   'fill_blank'],
+        ['multiple-choice', 'multiple_choice'],
+        ['code-completion', 'code_completion'],
+        ['true-false',      'free_recall'],
+      ],
+    },
+    {
+      table: 'exercises',
+      column: 'type',
+      updates: [
+        ['fill-blank',     'fill_blank'],
+        ['multiple-choice','multiple_choice'],
+        ['arrange-lines',  'arrange_code'],
+        ['spot-error',     'spot_error'],
+      ],
+    },
   ];
 
-  for (const { type, from, to } of renames) {
-    try {
-      await client.query(`ALTER TYPE "${type}" RENAME VALUE '${from}' TO '${to}'`);
-      console.log(`  ✔ ${type}: '${from}' → '${to}'`);
-    } catch (err: unknown) {
-      // "invalid value" = the old label doesn't exist (already migrated or never existed)
-      if (err instanceof Error && err.message.includes('does not exist')) {
-        // already renamed or never existed — skip silently
-      } else {
-        throw err;
+  for (const { table, column, updates } of migrations) {
+    // Skip if the column has already been converted to an enum type
+    const { rows } = await client.query<{ data_type: string }>(
+      `SELECT data_type FROM information_schema.columns
+       WHERE table_name = $1 AND column_name = $2`,
+      [table, column],
+    );
+    if (!rows[0] || rows[0].data_type !== 'text') {
+      console.log(`  ⏭ ${table}.${column} is already an enum — skipping`);
+      continue;
+    }
+
+    for (const [from, to] of updates) {
+      const { rowCount } = await client.query(
+        `UPDATE "${table}" SET "${column}" = $1 WHERE "${column}" = $2`,
+        [to, from],
+      );
+      if (rowCount && rowCount > 0) {
+        console.log(`  ✔ ${table}.${column}: '${from}' → '${to}' (${rowCount} rows)`);
       }
     }
   }
@@ -74,6 +100,8 @@ async function seed() {
   const langIdBySlug = new Map<string, number>();
 
   for (const lang of languages) {
+    let docToSync: Record<string, unknown>;
+
     const existing = await payload.find({
       collection: 'languages',
       where: { slug: { equals: lang.slug } },
@@ -84,6 +112,7 @@ async function seed() {
       const doc = existing.docs[0]!;
       langIdBySlug.set(lang.slug, Number(doc.id));
       console.log(`  ✓ ${lang.name} (exists — ${doc.id})`);
+      docToSync = doc as unknown as Record<string, unknown>;
     } else {
       const doc = await payload.create({
         collection: 'languages',
@@ -98,7 +127,11 @@ async function seed() {
       });
       langIdBySlug.set(lang.slug, Number(doc.id));
       console.log(`  + ${lang.name} → ${doc.id}`);
+      docToSync = doc as unknown as Record<string, unknown>;
     }
+
+    // Ensure Convex has the latest language records even when Payload entries already exist.
+    await syncToConvex('languages', docToSync, 'update');
   }
 
   // ── 2. Sections ─────────────────────────────────────────────────────────────
@@ -106,6 +139,8 @@ async function seed() {
   const sectionIdBySlug = new Map<string, number>();
 
   for (const sec of sections) {
+    let docToSync: Record<string, unknown>;
+
     const langId = langIdBySlug.get(sec.languageSlug);
     if (!langId) {
       console.warn(`  ⚠ Skipping section "${sec.title}" — language "${sec.languageSlug}" not found`);
@@ -122,6 +157,7 @@ async function seed() {
       const doc = existing.docs[0]!;
       sectionIdBySlug.set(sec.slug, Number(doc.id));
       console.log(`  ✓ ${sec.title} (exists — ${doc.id})`);
+      docToSync = doc as unknown as Record<string, unknown>;
     } else {
       const doc = await payload.create({
         collection: 'sections',
@@ -137,7 +173,11 @@ async function seed() {
       });
       sectionIdBySlug.set(sec.slug, Number(doc.id));
       console.log(`  + ${sec.title} → ${doc.id}`);
+      docToSync = doc as unknown as Record<string, unknown>;
     }
+
+    // Ensure Convex has section records required by flashcards/exercises sync.
+    await syncToConvex('sections', docToSync, 'update');
   }
 
   // ── 3. Flashcards ──────────────────────────────────────────────────────────
@@ -150,6 +190,22 @@ async function seed() {
     const sectionId = sectionIdBySlug.get(fc.sectionSlug);
     if (!sectionId) {
       console.warn(`  ⚠ Skipping flashcard for section "${fc.sectionSlug}" — not found`);
+      fcSkipped++;
+      continue;
+    }
+
+    const existingFc = await payload.find({
+      collection: 'flashcards',
+      where: {
+        and: [
+          { section: { equals: sectionId } },
+          { 'front.prompt': { equals: fc.front.prompt } },
+        ],
+      },
+      limit: 1,
+    });
+
+    if (existingFc.docs.length > 0) {
       fcSkipped++;
       continue;
     }

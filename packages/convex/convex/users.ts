@@ -3,9 +3,9 @@ import { v } from 'convex/values';
 import { requireAuth } from './auth';
 
 export const getUser = query({
-  args: { userId: v.id('users') },
-  handler: async (ctx, { userId }) => {
-    return ctx.db.get(userId);
+  args: {},
+  handler: async (ctx) => {
+    return requireAuth(ctx);
   },
 });
 

@@ -1,4 +1,10 @@
-export type QuestionType = 'free_recall' | 'code_completion' | 'explain_output' | 'spot_error' | 'fill_blank';
+export type QuestionType =
+  | 'free_recall'
+  | 'multiple_choice'
+  | 'code_completion'
+  | 'explain_output'
+  | 'spot_error'
+  | 'fill_blank';
 
 export type FlashcardFace = {
   type: 'front' | 'back';

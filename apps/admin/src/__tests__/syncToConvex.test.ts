@@ -78,6 +78,21 @@ describe('syncToConvex', () => {
     expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('Sync failed'));
   });
 
+  it('sends delete operation in payload when explicitly requested', async () => {
+    const mockFetch = makeFetchMock(200, true);
+    global.fetch = mockFetch as unknown as typeof fetch;
+
+    const doc = { id: 'lang-1' };
+    await syncToConvex('language', doc, 'delete');
+
+    const [, init] = mockFetch.mock.calls[0] as [string, RequestInit];
+    expect(JSON.parse(init.body as string)).toEqual({
+      collection: 'language',
+      operation: 'delete',
+      data: doc,
+    });
+  });
+
   it('does NOT throw when fetch rejects with a network error', async () => {
     const networkError = new Error('Network failure');
     global.fetch = jest.fn().mockRejectedValue(networkError) as unknown as typeof fetch;

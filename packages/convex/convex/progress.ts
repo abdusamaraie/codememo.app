@@ -3,24 +3,24 @@ import { v } from 'convex/values';
 import { requireAuth } from './auth';
 
 export const getUserProgress = query({
-  args: { userId: v.id('users') },
-  handler: async (ctx, { userId }) => {
+  args: {},
+  handler: async (ctx) => {
+    const user = await requireAuth(ctx);
     return ctx.db
       .query('sectionProgress')
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      .withIndex('by_user', (q: any) => q.eq('userId', userId))
+      .withIndex('by_user', (q) => q.eq('userId', user._id))
       .collect();
   },
 });
 
 export const getSectionProgress = query({
-  args: { userId: v.id('users'), sectionId: v.id('sections') },
-  handler: async (ctx, { userId, sectionId }) => {
+  args: { sectionId: v.id('sections') },
+  handler: async (ctx, { sectionId }) => {
+    const user = await requireAuth(ctx);
     return ctx.db
       .query('sectionProgress')
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      .withIndex('by_user_section', (q: any) =>
-        q.eq('userId', userId).eq('sectionId', sectionId),
+      .withIndex('by_user_section', (q) =>
+        q.eq('userId', user._id).eq('sectionId', sectionId),
       )
       .first();
   },
@@ -46,8 +46,7 @@ export const updateSectionProgress = mutation({
 
     const existing = await ctx.db
       .query('sectionProgress')
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      .withIndex('by_user_section', (q: any) =>
+      .withIndex('by_user_section', (q) =>
         q.eq('userId', userId).eq('sectionId', sectionId),
       )
       .first();

@@ -47,8 +47,11 @@ export const submitQuizAnswer = mutation({
 export const completeQuiz = mutation({
   args: { quizId: v.id('quizAttempts') },
   handler: async (ctx, { quizId }) => {
+    const user = await requireAuth(ctx);
+
     const quiz = await ctx.db.get(quizId);
     if (!quiz) throw new Error('Quiz not found');
+    if (quiz.userId !== user._id) throw new Error('Forbidden');
     if (quiz.completedAt) throw new Error('Quiz already completed');
 
     const { score, passed, breakdown } = calculateQuizScore(
@@ -72,13 +75,13 @@ export const completeQuiz = mutation({
 });
 
 export const getQuizHistory = query({
-  args: { userId: v.id('users'), sectionId: v.id('sections') },
-  handler: async (ctx, { userId, sectionId }) => {
+  args: { sectionId: v.id('sections') },
+  handler: async (ctx, { sectionId }) => {
+    const user = await requireAuth(ctx);
     return ctx.db
       .query('quizAttempts')
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      .withIndex('by_user_section', (q: any) =>
-        q.eq('userId', userId).eq('sectionId', sectionId),
+      .withIndex('by_user_section', (q) =>
+        q.eq('userId', user._id).eq('sectionId', sectionId),
       )
       .collect();
   },

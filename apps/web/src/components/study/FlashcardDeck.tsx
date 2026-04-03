@@ -12,6 +12,13 @@ import { StudyTopBar } from './StudyTopBar';
 import { StudyBottomBar } from './StudyBottomBar';
 import { CheatSheetPanel } from './CheatSheetPanel';
 
+const SESSION_SIZE = 10;
+
+function pickSession(cards: StudyCard[]): StudyCard[] {
+  const shuffled = [...cards].sort(() => Math.random() - 0.5);
+  return shuffled.slice(0, SESSION_SIZE);
+}
+
 export type StudyCard = {
   id: string;
   question: string;
@@ -35,11 +42,17 @@ export function FlashcardDeck({ cards, sectionTitle, language, backHref }: Props
   const { collapsed } = useSidebar();
   const [userAttempt, setUserAttempt] = useState('');
   const [cheatSheetOpen, setCheatSheetOpen] = useState(false);
+  const [sessionCards, setSessionCards] = useState<StudyCard[]>(() => pickSession(cards));
 
   const sidebarOffset = collapsed ? 'lg:left-[72px]' : 'lg:left-[256px]';
 
-  const { currentCard, currentIndex, flipped, completed, xpEarned, ratings, reveal, rate, restart } =
-    useStudySession(cards);
+  const { currentCard, currentIndex, flipped, completed, xpEarned, ratings, reveal, rate, restart: resetSession } =
+    useStudySession(sessionCards);
+
+  const restart = useCallback(() => {
+    setSessionCards(pickSession(cards));
+    resetSession();
+  }, [cards, resetSession]);
 
   // Enter key shortcut: reveal if front, continue (rate Good) if back
   useEffect(() => {
@@ -81,8 +94,8 @@ export function FlashcardDeck({ cards, sectionTitle, language, backHref }: Props
     <div className={`fixed inset-0 ${sidebarOffset} z-[70] bg-background flex flex-col transition-[left] duration-300`}>
       {/* Top bar — progress segments */}
       <StudyTopBar
-        current={completed ? cards.length : currentIndex}
-        total={cards.length}
+        current={completed ? sessionCards.length : currentIndex}
+        total={sessionCards.length}
         sectionTitle={sectionTitle}
         onExit={() => router.push(backHref)}
         onQuickRef={() => setCheatSheetOpen(true)}
@@ -102,7 +115,7 @@ export function FlashcardDeck({ cards, sectionTitle, language, backHref }: Props
             <SessionComplete
               sectionTitle={sectionTitle}
               language={language}
-              totalCards={cards.length}
+              totalCards={sessionCards.length}
               xpEarned={xpEarned}
               ratings={ratings}
               onRestart={restart}

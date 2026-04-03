@@ -4,11 +4,12 @@ import { incrementStreak, calculateStreak } from '@repo/domain';
 import { requireAuth } from './auth';
 
 export const getStreakData = query({
-  args: { userId: v.id('users') },
-  handler: async (ctx, { userId }) => {
+  args: {},
+  handler: async (ctx) => {
+    const user = await requireAuth(ctx);
     return ctx.db
       .query('streaks')
-      .withIndex('by_user', (q) => q.eq('userId', userId))
+      .withIndex('by_user', (q) => q.eq('userId', user._id))
       .first();
   },
 });
@@ -58,11 +59,12 @@ export const updateStreak = mutation({
 
 /** Check if a streak is still active (called on app open) */
 export const checkDailyGoal = query({
-  args: { userId: v.id('users') },
-  handler: async (ctx, { userId }) => {
+  args: {},
+  handler: async (ctx) => {
+    const user = await requireAuth(ctx);
     const streak = await ctx.db
       .query('streaks')
-      .withIndex('by_user', (q) => q.eq('userId', userId))
+      .withIndex('by_user', (q) => q.eq('userId', user._id))
       .first();
 
     if (!streak) return null;

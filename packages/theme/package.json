@@ -4,6 +4,7 @@
   "private": true,
   "main": "./index.ts",
   "types": "./index.ts",
+  "type": "module",
   "exports": {
     ".": "./index.ts",
     "./components": "./components/index.ts",
@@ -11,7 +12,6 @@
     "./motion": "./motion/index.ts",
     "./tokens": "./tokens/index.ts",
     "./tokens/colors": "./tokens/colors/index.ts",
-    "./tokens/typography": "./tokens/typography/index.ts",
     "./types": "./types.ts"
   },
   "scripts": {

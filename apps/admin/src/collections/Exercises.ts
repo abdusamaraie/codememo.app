@@ -28,6 +28,11 @@ export const Exercises: CollectionConfig = {
         await syncToConvex('exercises', doc);
       },
     ],
+    afterDelete: [
+      async ({ doc }) => {
+        await syncToConvex('exercises', doc, 'delete');
+      },
+    ],
   },
   fields: [
     {

@@ -35,6 +35,11 @@ export const Sections: CollectionConfig = {
         await syncToConvex('sections', doc);
       },
     ],
+    afterDelete: [
+      async ({ doc }) => {
+        await syncToConvex('sections', doc, 'delete');
+      },
+    ],
   },
   fields: [
     {

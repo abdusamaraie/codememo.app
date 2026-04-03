@@ -59,6 +59,11 @@ export const Flashcards: CollectionConfig = {
         await syncToConvex('flashcards', doc);
       },
     ],
+    afterDelete: [
+      async ({ doc }) => {
+        await syncToConvex('flashcards', doc, 'delete');
+      },
+    ],
   },
   fields: [
     {

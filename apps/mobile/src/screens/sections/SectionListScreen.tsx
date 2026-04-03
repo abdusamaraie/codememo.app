@@ -11,22 +11,6 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RouteProp } from '@react-navigation/native';
 import type { RootStackParamList } from '@/navigation/routes';
 
-const SECTION_STATUS_COLORS: Record<string, string> = {
-  available:   '#7C6AF6',
-  in_progress: '#FBBF24',
-  completed:   '#34D399',
-  mastered:    '#34D399',
-  locked:      '#2A3349',
-};
-
-const SECTION_STATUS_ICONS: Record<string, string> = {
-  available:   '○',
-  in_progress: '◑',
-  completed:   '✓',
-  mastered:    '★',
-  locked:      '🔒',
-};
-
 type Section = {
   id: string;
   slug: string;
@@ -34,6 +18,22 @@ type Section = {
   order: number;
   cardCount: number;
   status: 'locked' | 'available' | 'in_progress' | 'completed' | 'mastered';
+};
+
+const SECTION_STATUS_COLORS: Record<Section['status'], string> = {
+  available:   '#7C6AF6',
+  in_progress: '#FBBF24',
+  completed:   '#34D399',
+  mastered:    '#34D399',
+  locked:      '#2A3349',
+};
+
+const SECTION_STATUS_ICONS: Record<Section['status'], string> = {
+  available:   '○',
+  in_progress: '◑',
+  completed:   '✓',
+  mastered:    '★',
+  locked:      '🔒',
 };
 
 const MOCK_SECTIONS: Section[] = [
@@ -77,8 +77,8 @@ export function SectionListScreen({ navigation, route }: Props) {
         contentContainerStyle={styles.list}
         renderItem={({ item }) => {
           const isLocked = item.status === 'locked';
-          const color = SECTION_STATUS_COLORS[item.status] ?? '#7C6AF6';
-          const icon  = SECTION_STATUS_ICONS[item.status] ?? '○';
+          const color = SECTION_STATUS_COLORS[item.status];
+          const icon  = SECTION_STATUS_ICONS[item.status];
 
           return (
             <TouchableOpacity

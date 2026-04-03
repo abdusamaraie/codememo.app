@@ -22,9 +22,36 @@ export function ExerciseRunner({ language, section, exercises }: Props) {
   const [index, setIndex] = useState(0);
   const [attempts, setAttempts] = useState<Attempt[]>([]);
   const [done, setDone] = useState(false);
-  const current = exercises[index];
-  const progress = Math.round((index / exercises.length) * 100);
   const correctCount = useMemo(() => attempts.filter((a) => a.isCorrect).length, [attempts]);
+
+  if (exercises.length === 0) {
+    return (
+      <Card>
+        <CardContent className="p-6 space-y-3">
+          <h3 className="text-lg font-bold">No practice exercises yet</h3>
+          <p className="text-sm text-[--muted-foreground]">
+            This section does not have practice content yet. Please check back soon.
+          </p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  const current = exercises[index];
+  if (!current) {
+    return (
+      <Card>
+        <CardContent className="p-6 space-y-3">
+          <h3 className="text-lg font-bold">Practice session unavailable</h3>
+          <p className="text-sm text-[--muted-foreground]">
+            We could not load the current exercise. Please refresh and try again.
+          </p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  const progress = Math.round((index / exercises.length) * 100);
 
   function nextAnswer(isCorrect: boolean, answer: unknown) {
     incrementDailyMetric('practice');

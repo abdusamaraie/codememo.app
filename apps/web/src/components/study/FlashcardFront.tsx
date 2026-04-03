@@ -53,15 +53,24 @@ export function FlashcardFront({
   const requestAiHint = useCallback(async () => {
     if (loadingAiHint) return;
     setLoadingAiHint(true);
-    const result = await getProgressiveHint({
-      question,
-      curatedHint: hintVisible ? hint : undefined,
-      language,
-      userAttempt: attempt,
-    });
-    setAiHint(result);
-    setAiHintOpen(true);
-    setLoadingAiHint(false);
+    try {
+      const result = await getProgressiveHint({
+        question,
+        curatedHint: hintVisible ? hint : undefined,
+        language,
+        userAttempt: attempt,
+      });
+      setAiHint(result);
+      setAiHintOpen(true);
+    } catch {
+      setAiHint({
+        source: 'ai',
+        text: 'Could not generate a hint right now. Check your connection and try again in a moment.',
+      });
+      setAiHintOpen(true);
+    } finally {
+      setLoadingAiHint(false);
+    }
   }, [loadingAiHint, question, hintVisible, hint, language, attempt]);
 
   return (

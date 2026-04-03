@@ -3,6 +3,7 @@ import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-nati
 import { SafeAreaView } from 'react-native-safe-area-context';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '@/navigation/routes';
+import { HOME_CONTINUE_LANGUAGES } from '@/constants';
 
 type Props = {
   navigation: NativeStackNavigationProp<RootStackParamList>;
@@ -32,10 +33,7 @@ export function HomeScreen({ navigation }: Props) {
 
         {/* Continue Learning */}
         <Text style={styles.sectionLabel}>Continue Learning</Text>
-        {[
-          { slug: 'python',     name: 'Python',     emoji: '🐍', color: '#3572A5', pct: 42 },
-          { slug: 'javascript', name: 'JavaScript', emoji: '⚡', color: '#F7DF1E', pct: 17 },
-        ].map((lang) => (
+        {HOME_CONTINUE_LANGUAGES.map((lang) => (
           <TouchableOpacity
             key={lang.slug}
             style={[styles.langCard, { borderLeftColor: lang.color }]}
@@ -231,4 +229,3 @@ const styles = StyleSheet.create({
   },
   goalBarDone: { backgroundColor: '#34D399' },
 });
-

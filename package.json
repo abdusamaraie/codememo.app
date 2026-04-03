@@ -6,6 +6,7 @@
     "dev": "turbo dev",
     "lint": "turbo lint",
     "typecheck": "turbo typecheck",
+    "test": "turbo test --continue",
     "dev:admin": "npm --workspace @repo/admin run dev --",
     "build:admin": "npm --workspace @repo/admin run build --",
     "start:admin": "npm --workspace @repo/admin run start --",

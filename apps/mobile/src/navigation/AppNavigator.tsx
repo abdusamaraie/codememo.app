@@ -15,7 +15,7 @@ import type { RootStackParamList, TabParamList } from './routes';
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const Tab   = createBottomTabNavigator<TabParamList>();
 
-const TAB_ICONS: Record<string, string> = {
+const TAB_ICONS: Record<keyof TabParamList, string> = {
   Home:    '🏠',
   Learn:   '📚',
   Profile: '👤',

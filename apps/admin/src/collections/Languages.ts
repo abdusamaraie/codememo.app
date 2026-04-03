@@ -39,6 +39,11 @@ export const Languages: CollectionConfig = {
         await syncToConvex('languages', doc);
       },
     ],
+    afterDelete: [
+      async ({ doc }) => {
+        await syncToConvex('languages', doc, 'delete');
+      },
+    ],
   },
   fields: [
     {

@@ -1,24 +1,23 @@
 import type { Metadata } from 'next';
+import { notFound } from 'next/navigation';
 import { FeedWrapper, RightSidebar } from '@/components/layout';
 import { QuizRunner } from '@/components/exercises/QuizRunner';
-import { getSectionBySlug, getExercises } from '@/lib/api/payload';
+import { getSectionBySlug, getExercises, normalizeExerciseType } from '@/lib/api/payload';
 import type { CMSExercise } from '@/lib/api/payload';
 import type { PracticeExercise } from '@/components/exercises/types';
 
 export const metadata: Metadata = { title: 'Quiz — CodeMemo' };
 
 function toExercise(ex: CMSExercise): PracticeExercise {
+  const normalizedType = normalizeExerciseType(ex.type);
   return {
     id: String(ex.id),
-    type: ex.type === 'fill-blank' ? 'fill_blank'
-      : ex.type === 'multiple-choice' ? 'multiple_choice'
-      : ex.type === 'spot-error' ? 'spot_error'
-      : 'arrange_code',
+    type: normalizedType,
     prompt: ex.question,
     codeTemplate: ex.code ?? undefined,
     language: ex.language ?? undefined,
     options: ex.options?.map((o) => o.value),
-    correctAnswer: ex.type === 'arrange-lines'
+    correctAnswer: normalizedType === 'arrange_code'
       ? ex.correctAnswer.split('\n')
       : ex.correctAnswer,
     explanation: ex.explanation,
@@ -30,13 +29,21 @@ export default async function QuizPage({
 }: {
   params: Promise<{ language: string; section: string }>;
 }) {
-  const { section } = await params;
+  const { language, section } = await params;
   const sectionDoc = await getSectionBySlug(section);
+  if (sectionDoc) {
+    const sectionLanguageSlug = typeof sectionDoc.language === 'object'
+      ? sectionDoc.language.slug
+      : null;
+    if (sectionLanguageSlug && sectionLanguageSlug !== language) {
+      notFound();
+    }
+  }
 
   let exercises: PracticeExercise[] = [];
   if (sectionDoc) {
     const cmsExercises = await getExercises(sectionDoc.id);
-    const mcOnly = cmsExercises.filter((e) => e.type === 'multiple-choice');
+    const mcOnly = cmsExercises.filter((e) => normalizeExerciseType(e.type) === 'multiple_choice');
     exercises = mcOnly.map(toExercise);
   }
 

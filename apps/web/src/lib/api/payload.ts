@@ -60,7 +60,15 @@ export interface CMSFlashcard {
 export interface CMSExercise {
   id: number;
   section: number | CMSSection;
-  type: 'fill-blank' | 'multiple-choice' | 'arrange-lines' | 'spot-error';
+  type:
+    | 'fill_blank'
+    | 'multiple_choice'
+    | 'arrange_code'
+    | 'spot_error'
+    | 'fill-blank'
+    | 'multiple-choice'
+    | 'arrange-lines'
+    | 'spot-error';
   question: string;
   code?: string | null;
   language?: string | null;
@@ -70,6 +78,31 @@ export interface CMSExercise {
   difficulty: 'beginner' | 'intermediate' | 'advanced';
   order?: number | null;
   isPublished?: boolean | null;
+}
+
+export type NormalizedExerciseType =
+  | 'fill_blank'
+  | 'multiple_choice'
+  | 'arrange_code'
+  | 'spot_error';
+
+export function normalizeExerciseType(type: CMSExercise['type']): NormalizedExerciseType {
+  switch (type) {
+    case 'fill_blank':
+    case 'fill-blank':
+      return 'fill_blank';
+    case 'multiple_choice':
+    case 'multiple-choice':
+      return 'multiple_choice';
+    case 'spot_error':
+    case 'spot-error':
+      return 'spot_error';
+    case 'arrange_code':
+    case 'arrange-lines':
+      return 'arrange_code';
+    default:
+      return 'arrange_code';
+  }
 }
 
 // ── Fetcher ──────────────────────────────────────────────────────────────────

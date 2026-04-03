@@ -15,6 +15,11 @@ export const CheatSheetEntries: CollectionConfig = {
         await syncToConvex('cheatSheetEntries', doc);
       },
     ],
+    afterDelete: [
+      async ({ doc }) => {
+        await syncToConvex('cheatSheetEntries', doc, 'delete');
+      },
+    ],
   },
   fields: [
     {

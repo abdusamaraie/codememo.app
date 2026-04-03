@@ -9,13 +9,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '@/navigation/routes';
-
-const LANGUAGES = [
-  { slug: 'python',     name: 'Python',     emoji: '🐍', color: '#3572A5', sections: 14 },
-  { slug: 'javascript', name: 'JavaScript', emoji: '⚡', color: '#F7DF1E', sections: 12 },
-  { slug: 'typescript', name: 'TypeScript', emoji: '🔷', color: '#3178C6', sections: 10 },
-  { slug: 'go',         name: 'Go',         emoji: '🐹', color: '#00ADD8', sections: 10 },
-] as const;
+import { LANGUAGE_GRID } from '@/constants';
 
 type Props = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'Languages'>;
@@ -30,7 +24,7 @@ export function LanguagesScreen({ navigation }: Props) {
       </View>
 
       <FlatList
-        data={LANGUAGES}
+        data={LANGUAGE_GRID}
         keyExtractor={(item) => item.slug}
         numColumns={2}
         columnWrapperStyle={styles.row}
