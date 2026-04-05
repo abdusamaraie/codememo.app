@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Lock, X } from 'lucide-react';
 import { SignUpButton } from '@clerk/nextjs';
 import { Button } from '@/components/ui/button';
@@ -11,14 +11,14 @@ const REVIEW_COUNT_KEY = 'codememo-anon-reviews';
 const NUDGE_THRESHOLD = 5;
 
 export function SaveProgressNudge() {
-  const initiallyVisible = useMemo(() => {
-    if (typeof window === 'undefined') return false;
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
     const dismissed = localStorage.getItem(STORAGE_KEY);
-    if (dismissed) return false;
+    if (dismissed) return;
     const count = parseInt(localStorage.getItem(REVIEW_COUNT_KEY) ?? '0', 10);
-    return count >= NUDGE_THRESHOLD;
+    if (count >= NUDGE_THRESHOLD) setVisible(true);
   }, []);
-  const [visible, setVisible] = useState(initiallyVisible);
 
   if (!visible) return null;
 
