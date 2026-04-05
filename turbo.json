@@ -16,7 +16,8 @@
     "CLERK_SECRET_KEY",
     "CLERK_WEBHOOK_SECRET",
     "CONVEX_HTTP_URL",
-    "CORS_ORIGINS"
+    "CORS_ORIGINS",
+    "NODE_ENV"
   ],
   "tasks": {
     "build": {

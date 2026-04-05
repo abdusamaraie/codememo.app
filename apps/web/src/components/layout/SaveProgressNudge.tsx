@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState, useSyncExternalStore } from 'react';
 import { Lock, X } from 'lucide-react';
 import { SignUpButton } from '@clerk/nextjs';
 import { Button } from '@/components/ui/button';
@@ -10,21 +10,28 @@ const STORAGE_KEY = 'codememo-nudge-dismissed';
 const REVIEW_COUNT_KEY = 'codememo-anon-reviews';
 const NUDGE_THRESHOLD = 5;
 
+function readNudgeVisible() {
+  const dismissed = localStorage.getItem(STORAGE_KEY);
+  if (dismissed) return false;
+  const count = parseInt(localStorage.getItem(REVIEW_COUNT_KEY) ?? '0', 10);
+  return count >= NUDGE_THRESHOLD;
+}
+
 export function SaveProgressNudge() {
-  const [visible, setVisible] = useState(false);
+  // useSyncExternalStore gives false on the server (getServerSnapshot)
+  // and reads localStorage on the client — no hydration mismatch, no setState-in-effect.
+  const shouldShow = useSyncExternalStore(
+    () => () => {},
+    readNudgeVisible,
+    () => false,
+  );
+  const [dismissed, setDismissed] = useState(false);
 
-  useEffect(() => {
-    const dismissed = localStorage.getItem(STORAGE_KEY);
-    if (dismissed) return;
-    const count = parseInt(localStorage.getItem(REVIEW_COUNT_KEY) ?? '0', 10);
-    if (count >= NUDGE_THRESHOLD) setVisible(true);
-  }, []);
-
-  if (!visible) return null;
+  if (!shouldShow || dismissed) return null;
 
   function dismiss() {
     localStorage.setItem(STORAGE_KEY, '1');
-    setVisible(false);
+    setDismissed(true);
   }
 
   return (

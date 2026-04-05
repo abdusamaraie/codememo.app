@@ -1,5 +1,6 @@
 import type { CollectionConfig, Option } from 'payload';
 import { syncToConvex } from '../endpoints';
+import { isAdmin } from '../access';
 
 const DIFFICULTY_OPTIONS = [
   { label: 'Beginner', value: 'beginner' },
@@ -16,7 +17,7 @@ const EXERCISE_TYPE_OPTIONS = [
 
 export const Exercises: CollectionConfig = {
   slug: 'exercises',
-  access: { read: () => true },
+  access: { read: () => true, create: isAdmin, update: isAdmin, delete: isAdmin },
   admin: {
     useAsTitle: 'question',
     group: 'Content',

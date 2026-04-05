@@ -1,5 +1,6 @@
 import type { CollectionConfig, Option } from 'payload';
 import { syncToConvex } from '../endpoints';
+import { isAdmin } from '../access';
 
 const LANGUAGE_SLUG_OPTIONS = [
   { label: 'Python', value: 'python' },
@@ -17,7 +18,7 @@ const LANGUAGE_SLUG_OPTIONS = [
 
 export const Languages: CollectionConfig = {
   slug: 'languages',
-  access: { read: () => true },
+  access: { read: () => true, create: isAdmin, update: isAdmin, delete: isAdmin },
   admin: {
     useAsTitle: 'name',
     group: 'Content',

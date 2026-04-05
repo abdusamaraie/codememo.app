@@ -1,4 +1,10 @@
+import type { Metadata } from 'next';
 import { SignIn } from '@clerk/nextjs';
+
+export const metadata: Metadata = {
+  title: 'Sign In — CodeMemo',
+  description: 'Sign in to your CodeMemo account.',
+};
 
 export default function SignInPage() {
   return (

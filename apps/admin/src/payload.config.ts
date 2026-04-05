@@ -21,16 +21,20 @@ const PRODUCTION_ORIGINS = process.env.CORS_ORIGINS
   ? process.env.CORS_ORIGINS.split(',').map((o) => o.trim())
   : [];
 
+const DEV_ORIGINS =
+  process.env.NODE_ENV !== 'production'
+    ? [
+        'http://localhost:3000',
+        'http://localhost:3002',
+        'http://localhost:3003',
+        'http://127.0.0.1:3000',
+        'http://127.0.0.1:3002',
+        'http://127.0.0.1:3003',
+      ]
+    : [];
+
 export default buildConfig({
-  cors: [
-    'http://localhost:3002',
-    'http://localhost:3003',
-    'http://localhost:3000',
-    'http://127.0.0.1:3002',
-    'http://127.0.0.1:3003',
-    'http://127.0.0.1:3000',
-    ...PRODUCTION_ORIGINS,
-  ],
+  cors: [...DEV_ORIGINS, ...PRODUCTION_ORIGINS],
   admin: {
     user: 'users',
     importMap: {

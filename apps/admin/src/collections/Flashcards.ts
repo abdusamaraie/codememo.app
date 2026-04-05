@@ -1,5 +1,6 @@
 import type { CollectionConfig, Option } from 'payload';
 import { syncToConvex } from '../endpoints';
+import { isAdmin } from '../access';
 
 const DIFFICULTY_OPTIONS = [
   { label: 'Beginner', value: 'beginner' },
@@ -47,7 +48,7 @@ const faceFields = [
 
 export const Flashcards: CollectionConfig = {
   slug: 'flashcards',
-  access: { read: () => true },
+  access: { read: () => true, create: isAdmin, update: isAdmin, delete: isAdmin },
   admin: {
     useAsTitle: 'id',
     group: 'Content',

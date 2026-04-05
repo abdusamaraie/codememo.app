@@ -1,9 +1,10 @@
 import type { CollectionConfig } from 'payload';
 import { syncToConvex } from '../endpoints';
+import { isAdmin } from '../access';
 
 export const CheatSheetEntries: CollectionConfig = {
   slug: 'cheatSheetEntries',
-  access: { read: () => true },
+  access: { read: () => true, create: isAdmin, update: isAdmin, delete: isAdmin },
   admin: {
     useAsTitle: 'title',
     group: 'Content',

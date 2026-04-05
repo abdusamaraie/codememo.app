@@ -20,11 +20,13 @@ crons.weekly(
 
 export default crons;
 
+const CRON_BATCH_SIZE = 500;
+
 export const resetDailyCounters = internalMutation({
   args: {},
   handler: async (ctx) => {
     const today      = new Date().toISOString().slice(0, 10);
-    const allStreaks  = await ctx.db.query('streaks').collect();
+    const allStreaks  = await ctx.db.query('streaks').take(CRON_BATCH_SIZE);
 
     for (const streak of allStreaks) {
       const last     = new Date(streak.lastActiveDate);
@@ -49,7 +51,7 @@ export const resetDailyCounters = internalMutation({
 export const grantWeeklyFreeze = internalMutation({
   args: {},
   handler: async (ctx) => {
-    const allStreaks = await ctx.db.query('streaks').collect();
+    const allStreaks = await ctx.db.query('streaks').take(CRON_BATCH_SIZE);
     for (const streak of allStreaks) {
       if (streak.freezesAvailable < 2) {
         await ctx.db.patch(streak._id, {
