@@ -62,15 +62,12 @@ export function SessionComplete({ sectionTitle, language, totalCards, xpEarned, 
           <RotateCcw className="h-4 w-4" />
           Retry
         </Button>
-        <Link
-          href={`/path/${language}`}
-          className="flex-1"
-        >
-          <Button className="w-full gap-2">
+        <Button asChild className="flex-1 gap-2">
+          <Link href={`/path/${language}`}>
             Next Section
             <ArrowRight className="h-4 w-4" />
-          </Button>
-        </Link>
+          </Link>
+        </Button>
       </div>
     </div>
   );
