@@ -1,0 +1,289 @@
+@import 'tailwindcss';
+
+/**
+ * Design System CSS Variables
+ *
+ * 3-layer token architecture:
+ *   Layer 1 — Accent primitives  : --accent-25 through --accent-950
+ *   Layer 2 — Semantic tokens    : --default-foreground, --default-border, etc.
+ *   Layer 3 — Component tokens   : --cmp-default-foreground, etc.
+ *
+ * To rebrand for a specific app, only swap the --accent-* values.
+ * Default accent: activated by data-accent="sky" on <html> in layout.tsx.
+ */
+
+@layer base {
+  :root {
+    /* ── Layer 1: Accent scale ──
+       No default set here. Accent comes from [data-accent] on <html>.
+       Add data-accent="sky" to <html> in layout.tsx for the global default.
+    ── */
+    --white: #ffffff;
+    --black: #000000;
+
+    /* ── Layer 2: Semantic tokens (Light mode) ── */
+    --default-foreground: #000000;
+    --default-border:     var(--accent-400);
+    --default-icon:       var(--accent-500);
+    --default-overlay:    var(--accent-200);
+    --default-ring:       var(--accent-400);
+    --default-text:       var(--accent-600);
+
+    /* ── Layer 3: Component tokens (Primary base) ── */
+    --cmp-default-foreground: var(--default-foreground);
+    --cmp-default-border:     var(--default-border);
+    --cmp-default-icon:       var(--default-icon);
+    --cmp-default-overlay:    var(--default-overlay);
+    --cmp-default-ring:       var(--default-ring);
+    --cmp-default-text:       var(--default-text);
+
+    /* ── shadcn standard variables ── */
+    --background:             var(--accent-25);
+    --foreground:             var(--accent-900);
+    --card:                   #ffffff;
+    --card-foreground:        var(--accent-900);
+    --popover:                #ffffff;
+    --popover-foreground:     var(--accent-900);
+    --primary:                var(--accent-900);
+    --primary-foreground:     var(--accent-25);
+    --secondary:              var(--accent-100);
+    --secondary-foreground:   var(--accent-900);
+    --muted:                  var(--accent-100);
+    --muted-foreground:       var(--accent-500);
+    --accent:                 var(--accent-100);
+    --accent-foreground:      var(--accent-900);
+    --destructive:            #e7000b;
+    --destructive-foreground: #ffffff;
+    --border:                 var(--accent-200);
+    --input:                  var(--accent-200);
+    --ring:                   var(--default-ring);
+    --radius:                 6px;
+
+    /* ── Sidebar ── */
+    --sidebar-foreground:           var(--accent-900);
+    --sidebar-primary:              var(--accent-900);
+    --sidebar-primary-foreground:   var(--accent-25);
+    --sidebar-accent:               var(--accent-100);
+    --sidebar-accent-foreground:    var(--accent-900);
+    --sidebar-border:               var(--accent-200);
+    --sidebar-ring:                 var(--default-ring);
+
+    /* ── Typography ── */
+    --font-sans:    'Nunito', sans-serif;
+    --font-mono:    'JetBrains Mono', 'SF Mono', Monaco, Consolas, monospace;
+    --font-heading: 'DIN Next Rounded', 'Nunito', sans-serif;
+  }
+
+  .dark {
+    /* ── Layer 2: Semantic overrides (Dark mode) ── */
+    --default-foreground: var(--accent-900);
+    --default-icon:       var(--accent-300);
+    --default-overlay:    var(--accent-800);
+    --default-ring:       var(--accent-500);
+    --default-text:       var(--accent-300);
+
+    /* ── shadcn dark overrides ── */
+    --background:           var(--accent-950);
+    --foreground:           var(--accent-25);
+    --card:                 var(--accent-900);
+    --card-foreground:      var(--accent-25);
+    --popover:              var(--accent-900);
+    --popover-foreground:   var(--accent-25);
+    --primary:              var(--accent-50);
+    --primary-foreground:   var(--accent-900);
+    --secondary:            var(--accent-800);
+    --secondary-foreground: var(--accent-50);
+    --muted:                var(--accent-800);
+    --muted-foreground:     var(--accent-400);
+    --border:               var(--accent-800);
+    --input:                var(--accent-800);
+
+    /* ── Sidebar dark ── */
+    --sidebar-foreground:           var(--accent-25);
+    --sidebar-primary:              #1447e6;
+    --sidebar-primary-foreground:   var(--accent-25);
+    --sidebar-accent:               var(--accent-800);
+    --sidebar-accent-foreground:    var(--accent-25);
+    --sidebar-border:               rgba(255, 255, 255, 0.1);
+  }
+
+  /* ── Accent modes — set data-accent="<name>" on <html> to rebrand ── */
+  /* Only Layer 1 (--accent-*) is overridden; Layers 2 & 3 cascade automatically */
+
+  [data-accent="sky"] {
+    --accent-25:  #fcfcfd; --accent-50:  #f0f9ff; --accent-100: #dff2fe;
+    --accent-200: #b8e6fe; --accent-300: #74d4ff; --accent-400: #00bcff;
+    --accent-500: #00a6f4; --accent-600: #0084d1; --accent-700: #0069a8;
+    --accent-800: #00598a; --accent-900: #024a70; --accent-950: #052f4a;
+  }
+
+  [data-accent="blue"] {
+    --accent-25:  #f5faff; --accent-50:  #eff6ff; --accent-100: #dbeafe;
+    --accent-200: #bedbff; --accent-300: #8ec5ff; --accent-400: #51a2ff;
+    --accent-500: #2b7fff; --accent-600: #155dfc; --accent-700: #1447e6;
+    --accent-800: #193cb8; --accent-900: #1c398e; --accent-950: #162456;
+  }
+
+  [data-accent="indigo"] {
+    --accent-25:  #fafaff; --accent-50:  #f4f3ff; --accent-100: #e0e7ff;
+    --accent-200: #c6d2ff; --accent-300: #a3b3ff; --accent-400: #a3b3ff;
+    --accent-500: #615fff; --accent-600: #4f39f6; --accent-700: #432dd7;
+    --accent-800: #372aac; --accent-900: #312c85; --accent-950: #1e1a4d;
+  }
+
+  [data-accent="teal"] {
+    --accent-25:  #effdfe; --accent-50:  #f0fdfa; --accent-100: #cbfbf1;
+    --accent-200: #96f7e4; --accent-300: #46ecd5; --accent-400: #00d5be;
+    --accent-500: #00bba7; --accent-600: #009689; --accent-700: #00786f;
+    --accent-800: #005f5a; --accent-900: #0b4f4a; --accent-950: #022f2e;
+  }
+
+  [data-accent="green"] {
+    --accent-25:  #f6fef9; --accent-50:  #f0fdf4; --accent-100: #dcfce7;
+    --accent-200: #b9f8cf; --accent-300: #7bf1a8; --accent-400: #05df72;
+    --accent-500: #12b76a; --accent-600: #00a63e; --accent-700: #008236;
+    --accent-800: #016630; --accent-900: #0d542b; --accent-950: #032e15;
+  }
+
+  [data-accent="yellow"] {
+    --accent-25:  #fffbf2; --accent-50:  #fefce8; --accent-100: #fef9c2;
+    --accent-200: #fff085; --accent-300: #ffdf20; --accent-400: #fdc700;
+    --accent-500: #f0b100; --accent-600: #d08700; --accent-700: #a65f00;
+    --accent-800: #894b00; --accent-900: #733e0a; --accent-950: #432004;
+  }
+
+  [data-accent="orange"] {
+    --accent-25:  #fffaf5; --accent-50:  #fff6ed; --accent-100: #ffead5;
+    --accent-200: #fddcab; --accent-300: #feb273; --accent-400: #fd853a;
+    --accent-500: #fb6514; --accent-600: #ec4a0a; --accent-700: #c4320a;
+    --accent-800: #9c2a10; --accent-900: #7e2410; --accent-950: #511c10;
+  }
+
+  [data-accent="red"] {
+    --accent-25:  #fffbfa; --accent-50:  #fef2f2; --accent-100: #ffe2e2;
+    --accent-200: #ffc9c9; --accent-300: #ffa2a2; --accent-400: #ff6467;
+    --accent-500: #fb2c36; --accent-600: #e7000b; --accent-700: #c10007;
+    --accent-800: #9f0712; --accent-900: #82181a; --accent-950: #460809;
+  }
+
+  [data-accent="rose"] {
+    --accent-25:  #fffbfa; --accent-50:  #fff1f2; --accent-100: #ffe4e6;
+    --accent-200: #ffccd3; --accent-300: #ffa1ad; --accent-400: #ff637e;
+    --accent-500: #ff2056; --accent-600: #ec003f; --accent-700: #c70036;
+    --accent-800: #a50036; --accent-900: #8b0836; --accent-950: #4d0218;
+  }
+
+  [data-accent="gray"] {
+    --accent-25:  #fdfdfd; --accent-50:  #f9fafb; --accent-100: #f3f4f6;
+    --accent-200: #e5e7eb; --accent-300: #d1d5dc; --accent-400: #99a1af;
+    --accent-500: #6a7282; --accent-600: #4a5565; --accent-700: #364153;
+    --accent-800: #1e2939; --accent-900: #101828; --accent-950: #030712;
+  }
+
+  [data-accent="purple"] {
+    --accent-25:  #faf9ff; --accent-50:  #f3f0ff; --accent-100: #e9e4ff;
+    --accent-200: #d4ccff; --accent-300: #b3a8ff; --accent-400: #8d7eff;
+    --accent-500: #7c6af6; --accent-600: #6b55e8; --accent-700: #5842d4;
+    --accent-800: #4534b0; --accent-900: #3a2d8a; --accent-950: #1e1650;
+  }
+
+  /* ── CodeMemo dark palette — applied when purple accent + dark mode ── */
+  [data-accent="purple"].dark {
+    --background:           #0B0E14;
+    --foreground:           #E2E4EC;
+    --card:                 #151A24;
+    --card-foreground:      #E2E4EC;
+    --popover:              #151A24;
+    --popover-foreground:   #E2E4EC;
+    --primary:              #7C6AF6;
+    --primary-foreground:   #ffffff;
+    --secondary:            #1A1F2B;
+    --secondary-foreground: #E2E4EC;
+    --muted:                #12161F;
+    --muted-foreground:     #7B8199;
+    --accent:               #1A1F2B;
+    --accent-foreground:    #E2E4EC;
+    --destructive:          #F87171;
+    --destructive-foreground: #ffffff;
+    --border:               #1E2636;
+    --input:                #1E2636;
+    --ring:                 #7C6AF6;
+    --font-mono:            'JetBrains Mono', 'SF Mono', monospace;
+
+    /* Sidebar */
+    --sidebar-foreground:           #E2E4EC;
+    --sidebar-primary:              #7C6AF6;
+    --sidebar-primary-foreground:   #ffffff;
+    --sidebar-accent:               #1A1F2B;
+    --sidebar-accent-foreground:    #E2E4EC;
+    --sidebar-border:               #1E2636;
+    --sidebar-ring:                 #7C6AF6;
+  }
+
+  /* ── Base=Neutral — matches pencil-shadcn Base=Neutral ── */
+  [data-base="neutral"] {
+    --default-foreground: #e5e5e5;
+    --default-overlay:    #0a0a0a;
+    --default-ring:       #e5e5e5;
+    --default-border:     #000000;
+  }
+
+  /* ── Base=Secondary — matches pencil-shadcn Base=Secondary (warm) ── */
+  [data-base="secondary"] {
+    --default-foreground: #e5e5e5;
+    --default-overlay:    #0c0a09;
+    --default-ring:       #e5e5e5;
+    --default-border:     #000000;
+  }
+
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+  }
+}
+
+@theme inline {
+  /* ── shadcn semantic colors → Tailwind utilities ── */
+  --color-background:             var(--background);
+  --color-foreground:             var(--foreground);
+  --color-card:                   var(--card);
+  --color-card-foreground:        var(--card-foreground);
+  --color-popover:                var(--popover);
+  --color-popover-foreground:     var(--popover-foreground);
+  --color-primary:                var(--primary);
+  --color-primary-foreground:     var(--primary-foreground);
+  --color-secondary:              var(--secondary);
+  --color-secondary-foreground:   var(--secondary-foreground);
+  --color-muted:                  var(--muted);
+  --color-muted-foreground:       var(--muted-foreground);
+  --color-accent:                 var(--accent);
+  --color-accent-foreground:      var(--accent-foreground);
+  --color-destructive:            var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border:                 var(--border);
+  --color-input:                  var(--input);
+  --color-ring:                   var(--ring);
+
+  /* ── Sidebar ── */
+  --color-sidebar:                    var(--sidebar-background, var(--background));
+  --color-sidebar-foreground:         var(--sidebar-foreground);
+  --color-sidebar-primary:            var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent:             var(--sidebar-accent);
+  --color-sidebar-accent-foreground:  var(--sidebar-accent-foreground);
+  --color-sidebar-border:             var(--sidebar-border);
+  --color-sidebar-ring:               var(--sidebar-ring);
+
+  /* ── Border radius ── */
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  /* ── Typography ── */
+  --font-sans:    var(--font-sans);
+  --font-mono:    var(--font-mono);
+  --font-heading: var(--font-heading);
+}
+/* No * { border-color } rule — intentionally omitted */

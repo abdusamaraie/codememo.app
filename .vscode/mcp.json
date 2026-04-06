@@ -1,0 +1,20 @@
+{
+	"servers": {
+		"convex-mcp": {
+			"type": "stdio",
+			"command": "npx",
+			"args": [
+				"-y",
+				"convex@latest",
+				"mcp",
+				"start"
+			],
+			"cwd": "/Users/abdu/Developer/codememo.app/packages/convex"
+		},
+		"supabase": {
+			"type": "http",
+			"url": "https://mcp.supabase.com/mcp"
+		}
+	},
+	"inputs": []
+}

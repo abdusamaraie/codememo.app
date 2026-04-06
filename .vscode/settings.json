@@ -1,0 +1,21 @@
+{
+    "css.customData": [],
+    "css.lint.unknownAtRules": "ignore",
+    "jest.configPath": "jest.config.js",
+    "chat.mcp.serverSampling": {
+        "codememo.app/.vscode/mcp.json: convex-mcp": {
+            "allowedModels": [
+                "copilot/auto",
+                "copilotcli/claude-sonnet-4.5",
+                "copilot/gpt-5.3-codex"
+            ]
+        },
+        "codememo.app/.vscode/mcp.json: supabase": {
+            "allowedModels": [
+                "copilot/auto",
+                "copilotcli/claude-sonnet-4.5",
+                "copilot/gpt-5.3-codex"
+            ]
+        }
+    }
+}

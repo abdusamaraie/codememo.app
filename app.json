@@ -1,0 +1,15 @@
+{
+  "expo": {
+    "extra": {
+      "eas": {
+        "projectId": "YOUR_EAS_PROJECT_ID"
+      }
+    },
+    "ios": {
+      "bundleIdentifier": "com.company.codememo-app"
+    },
+    "android": {
+      "package": "com.company.codememo-app"
+    }
+  }
+}
