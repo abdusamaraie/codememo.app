@@ -2,7 +2,9 @@
   "compilerOptions": {
     "target": "esnext",
     "module": "esnext",
-    "types": ["jest"],
+    "types": [
+      "jest"
+    ],
     "lib": [
       "es2019",
       "es2020.bigint",
@@ -34,7 +36,9 @@
     "forceConsistentCasingInFileNames": false,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": [
+        "src/*"
+      ]
     },
     "typeRoots": [
       "./node_modules/@types",
@@ -48,5 +52,6 @@
   "exclude": [
     "node_modules",
     "**/Pods/**"
-  ]
+  ],
+  "extends": "expo/tsconfig.base"
 }

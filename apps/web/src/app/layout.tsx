@@ -4,6 +4,7 @@ import { ClerkProvider } from "@clerk/nextjs";
 import { ConvexClientProvider } from "@/components/ConvexClientProvider";
 import { getSiteSettings } from "@/lib/site-settings";
 import { getThemeFromCookie } from "@/lib/theme-cookie";
+// @ts-expect-error -- Next.js handles global CSS side-effect imports at build time
 import "./globals.css";
 
 const nunito = Nunito({
