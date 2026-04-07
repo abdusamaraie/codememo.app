@@ -7,9 +7,9 @@ export type DailyStats = {
   quiz: number;
 };
 
-const DAILY_STATS_KEY = 'codememo-daily-stats';
-const ACTIVITY_MAP_KEY = 'codememo-activity-map';
-const FREEZE_KEY = 'codememo-streak-freezes';
+export const DAILY_STATS_KEY = 'codememo-daily-stats';
+export const ACTIVITY_MAP_KEY = 'codememo-activity-map';
+export const FREEZE_KEY = 'codememo-streak-freezes';
 const MOCK_DAILY_STATS: DailyStats = { reviews: 18, practice: 2, quiz: 1 };
 const MOCK_ACTIVITY_MAP: Record<string, number> = {
   '2026-03-19': 1,
@@ -25,11 +25,11 @@ const MOCK_ACTIVITY_MAP: Record<string, number> = {
   '2026-03-29': 2,
 };
 
-function todayKey(now: Date = new Date()): string {
+export function todayKey(now: Date = new Date()): string {
   return now.toISOString().slice(0, 10);
 }
 
-function parseJson<T>(raw: string | null, fallback: T): T {
+export function parseJson<T>(raw: string | null, fallback: T): T {
   if (!raw) return fallback;
   try {
     return JSON.parse(raw) as T;
@@ -70,6 +70,10 @@ export function readActivityMap(): Record<string, number> {
   if (typeof window === 'undefined') return {};
   if (getClientAppDataSource() === 'mock') return MOCK_ACTIVITY_MAP;
   return parseJson<Record<string, number>>(localStorage.getItem(ACTIVITY_MAP_KEY), {});
+}
+
+export function calculateDailyXP(daily: DailyStats): number {
+  return daily.reviews * 10 + daily.practice * 20 + daily.quiz * 50;
 }
 
 export function readStreak(): { current: number; best: number; freezes: number } {

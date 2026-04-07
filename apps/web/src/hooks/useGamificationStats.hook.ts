@@ -1,25 +1,32 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { readActivityMap, readDailyStats, readStreak, type DailyStats } from '@/lib/gamification';
+import { useAuth } from '@clerk/nextjs';
+import { useQuery } from 'convex/react';
+import { api } from '@repo/convex';
+
+const ZERO_DAILY = { reviews: 0, practice: 0, quiz: 0 };
+const ZERO_STREAK = { current: 0, best: 0, freezes: 0 };
 
 export function useGamificationStats() {
-  const [daily, setDaily] = useState<DailyStats>({ reviews: 0, practice: 0, quiz: 0 });
-  const [activityMap, setActivityMap] = useState<Record<string, number>>({});
-  const [streak, setStreak] = useState({ current: 0, best: 0, freezes: 1 });
+  const { isSignedIn } = useAuth();
+  const convexStreak = useQuery(api.streaks.getStreakData, isSignedIn ? {} : 'skip');
 
-  useEffect(() => {
-    const refresh = () => {
-      setDaily(readDailyStats());
-      setActivityMap(readActivityMap());
-      setStreak(readStreak());
+  if (isSignedIn && convexStreak) {
+    return {
+      streak: {
+        current: convexStreak.currentStreak,
+        best:    convexStreak.longestStreak,
+        freezes: convexStreak.freezesAvailable,
+      },
+      daily: {
+        reviews:  convexStreak.cardsCompletedToday,
+        practice: convexStreak.perfectRecallsToday,
+        quiz:     0,
+      },
+      activityMap: {} as Record<string, number>,
     };
+  }
 
-    refresh();
-    window.addEventListener('codememo:stats-updated', refresh);
-    return () => window.removeEventListener('codememo:stats-updated', refresh);
-  }, []);
-
-  return { daily, activityMap, streak };
+  // Anonymous users or loading: always show zeros — never show mock seed data
+  return { daily: ZERO_DAILY, activityMap: {}, streak: ZERO_STREAK };
 }
-

@@ -2,6 +2,7 @@
 
 import { Flame, Zap, Heart } from 'lucide-react';
 import { useGamificationStats } from '@/hooks/useGamificationStats.hook';
+import { calculateDailyXP } from '@/lib/gamification';
 
 export function UserStats() {
   const { daily, streak } = useGamificationStats();
@@ -19,7 +20,7 @@ export function UserStats() {
         {/* XP */}
         <div className="flex flex-col items-center gap-1">
           <Zap className="h-5 w-5 text-yellow-400" />
-          <span className="text-2xl font-bold text-[--foreground]">{daily.reviews * 10 + daily.practice * 20 + daily.quiz * 50}</span>
+          <span className="text-2xl font-bold text-[--foreground]">{calculateDailyXP(daily)}</span>
           <span className="text-xs text-[--muted-foreground]">today</span>
         </div>
 

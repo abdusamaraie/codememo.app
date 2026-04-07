@@ -1,11 +1,22 @@
 import Link from 'next/link';
-import { BookOpen, Flame, Zap, Clock } from 'lucide-react';
+import { BookOpen } from 'lucide-react';
+import { currentUser } from '@clerk/nextjs/server';
 import { FeedWrapper, RightSidebar } from '@/components/layout';
 import { getLanguages, getSections } from '@/lib/api/payload';
+import { LearnPageStats } from './LearnPageStats';
 
 export const metadata = { title: 'Learn — CodeMemo' };
 
 export default async function LearnPage() {
+  const user = await currentUser();
+  const firstName = user?.firstName ?? 'there';
+
+  const hour = new Date().getHours();
+  const greeting =
+    hour < 12 ? 'Good morning' :
+    hour < 18 ? 'Good afternoon' :
+                'Good evening';
+
   const cmsLanguages = await getLanguages();
 
   const languages = await Promise.all(
@@ -30,27 +41,13 @@ export default async function LearnPage() {
     <div className="flex gap-8 px-6 py-6">
       <FeedWrapper>
         <div className="mb-6">
-          <h1 className="text-2xl font-bold text-[--foreground]">Good morning! 👋</h1>
+          <h1 className="text-2xl font-bold text-[--foreground]">{greeting}, {firstName}! 👋</h1>
           <p className="text-sm text-[--muted-foreground] mt-1">
             {totalDue > 0 ? `You have ${totalDue} cards due for review today.` : 'All caught up! Great work.'}
           </p>
         </div>
 
-        <div className="grid grid-cols-3 gap-3 mb-6">
-          {([
-            { Icon: Flame, value: '7',   label: 'Day streak',   color: 'text-orange-500' },
-            { Icon: Zap,   value: '340', label: 'XP this week', color: 'text-yellow-400' },
-            { Icon: Clock, value: '23',  label: 'Min today',    color: 'text-blue-400'   },
-          ] as const).map(({ Icon, value, label, color }) => (
-            <div key={label} className="bg-[--card] border border-[--primary]/40 rounded-xl p-3 flex items-center gap-3">
-              <Icon className={`h-7 w-7 shrink-0 ${color}`} />
-              <div>
-                <div className="text-lg font-bold text-[--foreground] leading-none">{value}</div>
-                <div className="text-xs text-[--muted-foreground] mt-0.5">{label}</div>
-              </div>
-            </div>
-          ))}
-        </div>
+        <LearnPageStats />
 
         {inProgress.length > 0 && (
           <section className="mb-6">

@@ -21,13 +21,32 @@ http.route({
     }
 
     const body = await request.json() as {
+      action?:   'create' | 'update' | 'delete';
       clerkId:   string;
-      email:     string;
-      name:      string;
-      avatarUrl: string;
+      email?:    string;
+      name?:     string;
+      avatarUrl?: string;
     };
 
-    await ctx.runMutation(internal.users.createFromWebhook, body);
+    if (body.action === 'create') {
+      await ctx.runMutation(internal.users.createFromWebhook, {
+        clerkId:   body.clerkId,
+        email:     body.email ?? '',
+        name:      body.name ?? '',
+        avatarUrl: body.avatarUrl ?? '',
+      });
+    } else if (body.action === 'update') {
+      await ctx.runMutation(internal.users.updateFromWebhook, {
+        clerkId:   body.clerkId,
+        email:     body.email ?? '',
+        name:      body.name ?? '',
+        avatarUrl: body.avatarUrl ?? '',
+      });
+    } else if (body.action === 'delete') {
+      await ctx.runMutation(internal.users.deleteFromWebhook, { clerkId: body.clerkId });
+    } else {
+      return new Response(`Unknown action: ${body.action}`, { status: 400 });
+    }
     return new Response('OK', { status: 200 });
   }),
 });

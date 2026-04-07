@@ -82,3 +82,42 @@ export const createFromWebhook = internalMutation({
     return userId;
   },
 });
+
+export const updateFromWebhook = internalMutation({
+  args: {
+    clerkId:   v.string(),
+    email:     v.string(),
+    name:      v.string(),
+    avatarUrl: v.string(),
+  },
+  handler: async (ctx, { clerkId, email, name, avatarUrl }) => {
+    const user = await ctx.db
+      .query('users')
+      .withIndex('by_clerk_id', (q) => q.eq('clerkId', clerkId))
+      .first();
+    if (!user) return;
+    await ctx.db.patch(user._id, {
+      email,
+      displayName: name,
+      avatarUrl: avatarUrl || undefined,
+    });
+  },
+});
+
+export const deleteFromWebhook = internalMutation({
+  args: { clerkId: v.string() },
+  handler: async (ctx, { clerkId }) => {
+    const user = await ctx.db
+      .query('users')
+      .withIndex('by_clerk_id', (q) => q.eq('clerkId', clerkId))
+      .first();
+    if (!user) return;
+    // Hard-delete: remove streak record then user (GDPR right to erasure)
+    const streak = await ctx.db
+      .query('streaks')
+      .withIndex('by_user', (q) => q.eq('userId', user._id))
+      .first();
+    if (streak) await ctx.db.delete(streak._id);
+    await ctx.db.delete(user._id);
+  },
+});

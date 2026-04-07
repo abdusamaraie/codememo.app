@@ -6,7 +6,13 @@ import { requireAuth } from './auth';
 export const getStreakData = query({
   args: {},
   handler: async (ctx) => {
-    const user = await requireAuth(ctx);
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) return null;
+    const user = await ctx.db
+      .query('users')
+      .withIndex('by_clerk_id', (q) => q.eq('clerkId', identity.subject))
+      .first();
+    if (!user) return null;
     return ctx.db
       .query('streaks')
       .withIndex('by_user', (q) => q.eq('userId', user._id))
@@ -83,6 +89,35 @@ export const checkDailyGoal = query({
       minutesTarget:         streak.minutesTarget,
       freezesAvailable:      streak.freezesAvailable,
     };
+  },
+});
+
+/** Migrate anonymous localStorage activity to Convex on first sign-in */
+export const migrateLocalProgress = mutation({
+  args: {
+    currentStreak:       v.number(),
+    longestStreak:       v.number(),
+    lastActiveDate:      v.string(),
+    cardsCompletedToday: v.number(),
+    freezesAvailable:    v.number(),
+  },
+  handler: async (ctx, args) => {
+    const user = await requireAuth(ctx);
+    const streak = await ctx.db
+      .query('streaks')
+      .withIndex('by_user', (q) => q.eq('userId', user._id))
+      .first();
+    if (!streak) return;
+    // Skip if Convex already has real activity — don't overwrite
+    if (streak.currentStreak > 0 || streak.cardsCompletedToday > 0) return;
+    await ctx.db.patch(streak._id, {
+      currentStreak:       args.currentStreak,
+      longestStreak:       args.longestStreak,
+      lastActiveDate:      args.lastActiveDate,
+      cardsCompletedToday: args.cardsCompletedToday,
+      freezesAvailable:    args.freezesAvailable,
+      todayCompleted:      args.cardsCompletedToday >= streak.cardsTarget,
+    });
   },
 });
 

@@ -11,3 +11,4 @@
 // Re-export the generated API reference for type-safe queries/mutations
 export type { GenericId as Id } from 'convex/values';
 export { ConvexProvider, useQuery, useMutation, useAction } from 'convex/react';
+export { api } from './convex/_generated/api';

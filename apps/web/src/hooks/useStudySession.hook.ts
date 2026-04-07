@@ -1,4 +1,9 @@
+'use client';
+
 import { useState, useCallback } from 'react';
+import { useAuth } from '@clerk/nextjs';
+import { useMutation } from 'convex/react';
+import { api } from '@repo/convex';
 import { calculateNextReview } from '@repo/domain';
 import type { QualityRating, SM2Params } from '@repo/domain';
 import { incrementAnonReviewCount } from '@/components/layout/SaveProgressNudge';
@@ -35,6 +40,9 @@ function saveProgress(cardId: string, params: SM2Params) {
 }
 
 export function useStudySession(cards: StudyCard[]) {
+  const { isSignedIn } = useAuth();
+  const updateStreak = useMutation(api.streaks.updateStreak);
+
   const [currentIndex, setCurrentIndex] = useState(0);
   const [flipped, setFlipped] = useState(false);
   const [xpEarned, setXpEarned] = useState(0);
@@ -68,9 +76,12 @@ export function useStudySession(cards: StudyCard[]) {
       nailed: prev.nailed + (quality === 5 ? 1 : 0),
     }));
 
-    // Track for anonymous nudge
-    incrementAnonReviewCount();
-    incrementDailyMetric('reviews');
+    if (isSignedIn) {
+      updateStreak({ isPerfectRecall: quality === 5 }).catch(() => {});
+    } else {
+      incrementAnonReviewCount();
+      incrementDailyMetric('reviews');
+    }
 
     // Advance after short delay for UX feedback
     setTimeout(() => {
@@ -81,7 +92,7 @@ export function useStudySession(cards: StudyCard[]) {
         setCurrentIndex((i) => i + 1);
       }
     }, 400);
-  }, [currentCard, isLastCard]);
+  }, [currentCard, isLastCard, isSignedIn, updateStreak]);
 
   const restart = useCallback(() => {
     setCurrentIndex(0);

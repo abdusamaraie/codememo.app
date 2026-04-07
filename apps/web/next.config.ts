@@ -1,5 +1,7 @@
 import type { NextConfig } from "next";
 
+const isDev = process.env.NODE_ENV !== 'production';
+
 const securityHeaders = [
   { key: 'X-Content-Type-Options',    value: 'nosniff' },
   { key: 'X-Frame-Options',           value: 'DENY' },
@@ -14,7 +16,8 @@ const securityHeaders = [
     key: 'Content-Security-Policy',
     value: [
       "default-src 'self'",
-      "script-src 'self' 'unsafe-inline' https://clerk.com https://*.clerk.accounts.dev https://clerk.codememo.app https://challenges.cloudflare.com",
+      // React (Turbopack) needs 'unsafe-eval' in development for call-stack reconstruction
+      `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ''} https://clerk.com https://*.clerk.accounts.dev https://clerk.codememo.app https://challenges.cloudflare.com`,
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://clerk.codememo.app",
       "font-src 'self' https://fonts.gstatic.com https://clerk.codememo.app",
       "img-src 'self' data: blob: https://img.clerk.com https://*.convex.cloud",
