@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { FlashcardDeck } from '@/components/study/FlashcardDeck';
+import { FlashcardDeckClient } from '@/components/study/FlashcardDeckClient';
 import type { StudyCard } from '@/components/study/FlashcardDeck';
 import { getSectionBySlug, getFlashcards } from '@/lib/api/payload';
 import type { CMSFlashcard } from '@/lib/api/payload';
@@ -38,7 +38,7 @@ export default async function StudyPage({
   if (cards.length === 0) return notFound();
 
   return (
-    <FlashcardDeck
+    <FlashcardDeckClient
       cards={cards}
       sectionTitle={sectionTitle}
       language={language}

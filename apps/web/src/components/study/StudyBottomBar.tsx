@@ -91,7 +91,7 @@ export function StudyBottomBar({
           >
             Check Answer
             <kbd className="hidden sm:inline-flex items-center gap-0.5 text-[10px] bg-white/20 px-1.5 py-0.5 rounded">
-              ↵
+              ␣
             </kbd>
           </Button>
         </div>

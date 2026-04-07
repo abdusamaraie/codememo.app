@@ -54,12 +54,14 @@ export function FlashcardDeck({ cards, sectionTitle, language, backHref }: Props
     resetSession();
   }, [cards, resetSession]);
 
-  // Enter key shortcut: reveal if front, continue (rate Good) if back
+  // Space shortcut: reveal card (skip when focus is inside a textarea/input)
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
-      if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
-        if (!flipped) reveal();
-      }
+      if (e.key !== ' ') return;
+      const tag = (e.target as HTMLElement).tagName;
+      if (tag === 'TEXTAREA' || tag === 'INPUT') return;
+      e.preventDefault();
+      if (!flipped) reveal();
     }
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
