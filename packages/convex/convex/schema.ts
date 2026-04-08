@@ -6,6 +6,7 @@ export default defineSchema({
   users: defineTable({
     authProvider:      v.union(v.literal('anonymous'), v.literal('email'), v.literal('github')),
     clerkId:           v.optional(v.string()),
+    tokenIdentifier:   v.optional(v.string()), // identity.tokenIdentifier — canonical stable key (issuer|subject)
     email:             v.optional(v.string()),
     githubId:          v.optional(v.string()),
     displayName:       v.optional(v.string()),
@@ -17,7 +18,8 @@ export default defineSchema({
   })
     .index('by_email', ['email'])
     .index('by_github_id', ['githubId'])
-    .index('by_clerk_id', ['clerkId']),
+    .index('by_clerk_id', ['clerkId'])
+    .index('by_token_identifier', ['tokenIdentifier']),
 
   // ── Content (synced from PayloadCMS) ──────────────────────────────────────
   languages: defineTable({
