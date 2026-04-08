@@ -35,9 +35,10 @@ type Props = {
   sectionTitle: string;
   language: string;
   backHref: string;
+  sectionPayloadId: string;
 };
 
-export function FlashcardDeck({ cards, sectionTitle, language, backHref }: Props) {
+export function FlashcardDeck({ cards, sectionTitle, language, backHref, sectionPayloadId }: Props) {
   const router = useRouter();
   const { collapsed } = useSidebar();
   const [userAttempt, setUserAttempt] = useState('');
@@ -47,7 +48,7 @@ export function FlashcardDeck({ cards, sectionTitle, language, backHref }: Props
   const sidebarOffset = collapsed ? 'lg:left-[72px]' : 'lg:left-[256px]';
 
   const { currentCard, currentIndex, flipped, completed, xpEarned, ratings, reveal, rate, restart: resetSession } =
-    useStudySession(sessionCards);
+    useStudySession(sessionCards, sectionPayloadId);
 
   const restart = useCallback(() => {
     setSessionCards(pickSession(cards));

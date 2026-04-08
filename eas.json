@@ -9,6 +9,11 @@
       "distribution": "internal",
       "ios": {
         "simulator": false
+      },
+      "env": {
+        "EXPO_PUBLIC_CONVEX_URL": "https://steady-possum-888.convex.cloud",
+        "EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY": "pk_test_dG91Y2hpbmctZmlzaC0yNi5jbGVyay5hY2NvdW50cy5kZXYk",
+        "EXPO_PUBLIC_APP_ENV": "development"
       }
     },
     "development-simulator": {
@@ -19,10 +24,20 @@
       }
     },
     "preview": {
-      "distribution": "internal"
+      "distribution": "internal",
+      "env": {
+        "EXPO_PUBLIC_CONVEX_URL": "https://staging.convex.cloud",
+        "EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY": "ppk_test_dG91Y2hpbmctZmlzaC0yNi5jbGVyay5hY2NvdW50cy5kZXYk",
+        "EXPO_PUBLIC_APP_ENV": "staging"
+      }
     },
     "production": {
-      "autoIncrement": true
+      "autoIncrement": true,
+       "env": {
+        "EXPO_PUBLIC_CONVEX_URL": "https://prod.convex.cloud",
+        "EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY": "pk_live_Y2xlcmsuY29kZW1lbW8uYXBwJA",
+        "EXPO_PUBLIC_APP_ENV": "production"
+      }
     }
   },
   "submit": {

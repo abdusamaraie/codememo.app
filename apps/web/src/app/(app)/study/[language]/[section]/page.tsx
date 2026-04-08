@@ -43,6 +43,7 @@ export default async function StudyPage({
       sectionTitle={sectionTitle}
       language={language}
       backHref={`/path/${language}`}
+      sectionPayloadId={sectionDoc ? String(sectionDoc.id) : ''}
     />
   );
 }

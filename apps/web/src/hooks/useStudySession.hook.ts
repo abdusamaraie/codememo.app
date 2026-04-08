@@ -39,9 +39,9 @@ function saveProgress(cardId: string, params: SM2Params) {
   localStorage.setItem(PROGRESS_STORAGE_KEY, JSON.stringify(all));
 }
 
-export function useStudySession(cards: StudyCard[]) {
+export function useStudySession(cards: StudyCard[], sectionPayloadId: string) {
   const { isSignedIn } = useAuth();
-  const updateStreak = useMutation(api.streaks.updateStreak);
+  const recordReview = useMutation(api.flashcards.recordReview);
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [flipped, setFlipped] = useState(false);
@@ -77,7 +77,12 @@ export function useStudySession(cards: StudyCard[]) {
     }));
 
     if (isSignedIn) {
-      updateStreak({ isPerfectRecall: quality === 5 }).catch(() => {});
+      // Single mutation: updates cardProgress + sectionProgress + streak
+      recordReview({
+        flashcardPayloadId: currentCard.id,
+        sectionPayloadId,
+        quality,
+      }).catch(() => {});
     } else {
       incrementAnonReviewCount();
       incrementDailyMetric('reviews');
@@ -92,7 +97,7 @@ export function useStudySession(cards: StudyCard[]) {
         setCurrentIndex((i) => i + 1);
       }
     }, 400);
-  }, [currentCard, isLastCard, isSignedIn, updateStreak]);
+  }, [currentCard, isLastCard, isSignedIn, recordReview, sectionPayloadId]);
 
   const restart = useCallback(() => {
     setCurrentIndex(0);
