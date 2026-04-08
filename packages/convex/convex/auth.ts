@@ -2,20 +2,62 @@ import { mutation } from './_generated/server';
 import type { MutationCtx, QueryCtx } from './_generated/server';
 import { v } from 'convex/values';
 
-// ── Auth helper ───────────────────────────────────────────────────────────────
+// ── Auth helpers ──────────────────────────────────────────────────────────────
 
-/** Gets the authenticated user's Convex record from Clerk JWT. Throws if unauthenticated. */
-export async function requireAuth(ctx: MutationCtx | QueryCtx) {
+/**
+ * For queries: returns the user or null (never throws).
+ *
+ * Looks up by `tokenIdentifier` (the canonical issuer-scoped stable key).
+ * Falls back to `clerkId` (= identity.subject) for users created before
+ * tokenIdentifier was stored.
+ */
+export async function getAuthedUser(ctx: MutationCtx | QueryCtx) {
   const identity = await ctx.auth.getUserIdentity();
-  if (!identity) throw new Error('Unauthenticated');
+  if (!identity) return null;
 
-  const user = await ctx.db
+  const byToken = await ctx.db
+    .query('users')
+    .withIndex('by_token_identifier', (q) => q.eq('tokenIdentifier', identity.tokenIdentifier))
+    .first();
+  if (byToken) return byToken;
+
+  // Legacy fallback: users provisioned before tokenIdentifier was introduced
+  return ctx.db
     .query('users')
     .withIndex('by_clerk_id', (q) => q.eq('clerkId', identity.subject))
     .first();
+}
 
-  if (!user) throw new Error('User not found — please sign in again');
-  return user;
+/**
+ * For mutations and authenticated queries: throws if unauthenticated.
+ *
+ * Looks up by `tokenIdentifier` (the canonical issuer-scoped stable key).
+ * Falls back to `clerkId` (= identity.subject) for users created before
+ * tokenIdentifier was stored, and backfills the field so future lookups use
+ * the fast path.
+ *
+ * Note: uses ctx.db — do NOT call from actions. Use a dedicated action helper
+ * (e.g. the one in ai.ts) that routes through ctx.runQuery instead.
+ */
+export async function requireAuth(ctx: MutationCtx) {
+  const identity = await ctx.auth.getUserIdentity();
+  if (!identity) throw new Error('Unauthenticated');
+
+  const byToken = await ctx.db
+    .query('users')
+    .withIndex('by_token_identifier', (q) => q.eq('tokenIdentifier', identity.tokenIdentifier))
+    .first();
+  if (byToken) return byToken;
+
+  // Legacy fallback + backfill
+  const byClerkId = await ctx.db
+    .query('users')
+    .withIndex('by_clerk_id', (q) => q.eq('clerkId', identity.subject))
+    .first();
+  if (!byClerkId) throw new Error('User not found — please sign in again');
+
+  await ctx.db.patch(byClerkId._id, { tokenIdentifier: identity.tokenIdentifier });
+  return byClerkId;
 }
 
 // ── Mutations ─────────────────────────────────────────────────────────────────

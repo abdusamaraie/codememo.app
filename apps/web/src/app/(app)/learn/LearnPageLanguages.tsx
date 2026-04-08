@@ -27,7 +27,10 @@ export function LearnPageLanguages() {
     (progressSummary ?? []).map((p) => [p.slug, p]),
   );
 
-  const languages = convexLanguages.map((lang) => {
+  // Deduplicate by slug in case CMS sync created duplicate entries
+  const uniqueLanguages = [...new Map(convexLanguages.map((l) => [l.slug, l])).values()];
+
+  const languages = uniqueLanguages.map((lang) => {
     const prog = progressBySlug.get(lang.slug);
     return {
       name:     lang.name,

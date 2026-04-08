@@ -1,12 +1,13 @@
 import { mutation, query } from './_generated/server';
 import { v } from 'convex/values';
 import type { Id } from './_generated/dataModel';
-import { requireAuth } from './auth';
+import { getAuthedUser, requireAuth } from './auth';
 
 export const getUserProgress = query({
   args: {},
   handler: async (ctx) => {
-    const user = await requireAuth(ctx);
+    const user = await getAuthedUser(ctx);
+    if (!user) return null;
     return ctx.db
       .query('sectionProgress')
       .withIndex('by_user', (q) => q.eq('userId', user._id))
@@ -17,7 +18,8 @@ export const getUserProgress = query({
 export const getSectionProgress = query({
   args: { sectionId: v.id('sections') },
   handler: async (ctx, { sectionId }) => {
-    const user = await requireAuth(ctx);
+    const user = await getAuthedUser(ctx);
+    if (!user) return null;
     return ctx.db
       .query('sectionProgress')
       .withIndex('by_user_section', (q) =>
@@ -34,7 +36,8 @@ export const getSectionProgress = query({
 export const getProgressSummary = query({
   args: {},
   handler: async (ctx) => {
-    const user = await requireAuth(ctx);
+    const user = await getAuthedUser(ctx);
+    if (!user) return null;
     const userId = user._id;
 
     const sectionProgressList = await ctx.db

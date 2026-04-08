@@ -1,17 +1,12 @@
 import { mutation, query } from './_generated/server';
 import { v } from 'convex/values';
 import { incrementStreak, calculateStreak } from '@repo/domain';
-import { requireAuth } from './auth';
+import { getAuthedUser, requireAuth } from './auth';
 
 export const getStreakData = query({
   args: {},
   handler: async (ctx) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) return null;
-    const user = await ctx.db
-      .query('users')
-      .withIndex('by_clerk_id', (q) => q.eq('clerkId', identity.subject))
-      .first();
+    const user = await getAuthedUser(ctx);
     if (!user) return null;
     return ctx.db
       .query('streaks')
@@ -67,7 +62,8 @@ export const updateStreak = mutation({
 export const checkDailyGoal = query({
   args: {},
   handler: async (ctx) => {
-    const user = await requireAuth(ctx);
+    const user = await getAuthedUser(ctx);
+    if (!user) return null;
     const streak = await ctx.db
       .query('streaks')
       .withIndex('by_user', (q) => q.eq('userId', user._id))
