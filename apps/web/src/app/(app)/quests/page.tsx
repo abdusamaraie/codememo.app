@@ -1,38 +1,10 @@
 import { CheckCircle2, Circle, Flame, Star } from 'lucide-react';
+import { mockQuests, type MockQuest } from '@repo/mock-data';
 import { FeedWrapper, RightSidebar } from '@/components/layout';
 
 export const metadata = { title: 'Quests — CodeMemo' };
 
-type Quest = {
-  id: string;
-  title: string;
-  description: string;
-  xp: number;
-  progress: number;
-  total: number;
-  done: boolean;
-  type: 'daily' | 'weekly';
-};
-
-const QUESTS: Quest[] = [
-  // Daily
-  { id: 'q1', type: 'daily', title: 'First Review',      description: 'Review at least 1 flashcard',              xp: 10,  progress: 12, total: 1,  done: true  },
-  { id: 'q2', type: 'daily', title: 'Study Session',      description: 'Review 20 flashcards today',              xp: 25,  progress: 12, total: 20, done: false },
-  { id: 'q3', type: 'daily', title: 'Perfect Recall',     description: 'Nail 5 cards in a row',                   xp: 30,  progress: 3,  total: 5,  done: false },
-  { id: 'q4', type: 'daily', title: 'Keep the Streak',    description: 'Study on 2 consecutive days',             xp: 20,  progress: 2,  total: 2,  done: true  },
-  // Weekly
-  { id: 'q5', type: 'weekly', title: 'Dedicated Learner', description: 'Study 5 days this week',                  xp: 100, progress: 3,  total: 5,  done: false },
-  { id: 'q6', type: 'weekly', title: 'Section Master',    description: 'Complete an entire section',              xp: 150, progress: 0,  total: 1,  done: false },
-  { id: 'q7', type: 'weekly', title: 'Century Club',      description: 'Review 100 cards in a week',              xp: 200, progress: 42, total: 100,done: false },
-  { id: 'q8', type: 'weekly', title: 'Accuracy King',     description: 'Achieve 80% accuracy across 30 reviews',  xp: 120, progress: 30, total: 30, done: true  },
-];
-
-const daily  = QUESTS.filter((q) => q.type === 'daily');
-const weekly = QUESTS.filter((q) => q.type === 'weekly');
-const totalXpEarned = QUESTS.filter((q) => q.done).reduce((s, q) => s + q.xp, 0);
-const totalXpAvailable = QUESTS.reduce((s, q) => s + q.xp, 0);
-
-function QuestCard({ quest }: { quest: Quest }) {
+function QuestCard({ quest }: { quest: MockQuest }) {
   const pct = Math.min(100, Math.round((quest.progress / quest.total) * 100));
   return (
     <div className={`bg-[--card] border rounded-xl p-4 flex items-center gap-4 ${quest.done ? 'border-green-800/40 opacity-70' : 'border-[--border]'}`}>
@@ -64,6 +36,11 @@ function QuestCard({ quest }: { quest: Quest }) {
 }
 
 export default function QuestsPage() {
+  const daily  = mockQuests.filter((q) => q.type === 'daily');
+  const weekly = mockQuests.filter((q) => q.type === 'weekly');
+  const totalXpEarned = mockQuests.filter((q) => q.done).reduce((s, q) => s + q.xp, 0);
+  const totalXpAvailable = mockQuests.reduce((s, q) => s + q.xp, 0);
+
   return (
     <div className="flex gap-8 px-6 py-6">
       <FeedWrapper>

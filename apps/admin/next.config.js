@@ -2,7 +2,7 @@ import { withPayload } from '@payloadcms/next/withPayload'
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  transpilePackages: ['@repo/ui', '@repo/theme', '@repo/tailwind-config'],
+  transpilePackages: ['@repo/ui', '@repo/theme', '@repo/tailwind-config', '@repo/mock-data'],
   serverExternalPackages: ['pg', 'pg-native', '@payloadcms/db-postgres'],
 };
 

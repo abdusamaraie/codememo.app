@@ -9,7 +9,7 @@
  *            back.prompt  = answer explanation, back.code = correct answer code.
  */
 
-import type { FlashcardSeed } from './flashcards-python.js';
+import type { FlashcardSeed } from './flashcards-python';
 
 export const jsFlashcards: FlashcardSeed[] = [
   // ── Variables & Data Types ────────────────────────────────────────────────

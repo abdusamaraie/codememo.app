@@ -1,4 +1,4 @@
-import { mutation, query } from './_generated/server';
+import { internalMutation, mutation, query } from './_generated/server';
 import { v } from 'convex/values';
 import { incrementStreak, calculateStreak } from '@repo/domain';
 import { getAuthedUser, requireAuth } from './auth';
@@ -137,5 +137,47 @@ export const useStreakFreeze = mutation({
       freezesUsed:      streak.freezesUsed + 1,
       lastActiveDate:   new Date().toISOString().slice(0, 10),
     });
+  },
+});
+
+/** Seeds mock streak data for a given Clerk user — local dev / admin use only */
+export const seedMockDataForUser = internalMutation({
+  args: { clerkId: v.string() },
+  handler: async (ctx, { clerkId }) => {
+    const user = await ctx.db
+      .query('users')
+      .withIndex('by_clerk_id', (q) => q.eq('clerkId', clerkId))
+      .first();
+    if (!user) throw new Error(`No user found for clerkId: ${clerkId}`);
+
+    const streak = await ctx.db
+      .query('streaks')
+      .withIndex('by_user', (q) => q.eq('userId', user._id))
+      .first();
+
+    const today = new Date().toISOString().slice(0, 10);
+    const mockPatch = {
+      currentStreak:        7,
+      longestStreak:        14,
+      lastActiveDate:       today,
+      todayCompleted:       true,
+      freezesAvailable:     2,
+      freezesUsed:          1,
+      cardsCompletedToday:  18,
+      perfectRecallsToday:  2,
+      minutesStudiedToday:  12,
+    };
+
+    if (streak) {
+      await ctx.db.patch(streak._id, mockPatch);
+    } else {
+      await ctx.db.insert('streaks', {
+        userId:               user._id,
+        cardsTarget:          20,
+        perfectRecallsTarget: 5,
+        minutesTarget:        10,
+        ...mockPatch,
+      });
+    }
   },
 });

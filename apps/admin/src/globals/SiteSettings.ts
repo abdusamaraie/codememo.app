@@ -38,8 +38,7 @@ export const SiteSettings: GlobalConfig = {
       ],
       required: true,
       admin: {
-        description:
-          'Controls web app metrics source for streak, XP/progress, activity heatmap, and AI hint usage counters.',
+        hidden: true,
       },
     },
     {

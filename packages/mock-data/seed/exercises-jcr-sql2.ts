@@ -7,7 +7,7 @@
  *   - JCR 2.0 Spec (JSR-283): https://docs.adobe.com/docs/en/spec/jcr/2.0/6_Query.html
  */
 
-import type { ExerciseSeed } from './exercises.js';
+import type { ExerciseSeed } from './exercises';
 
 export const jcrExercises: ExerciseSeed[] = [
   // ── Core Syntax ───────────────────────────────────────────────────────────

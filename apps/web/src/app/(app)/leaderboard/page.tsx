@@ -1,25 +1,12 @@
 import { Crown, Flame, Zap } from 'lucide-react';
+import { mockLeaderboard } from '@repo/mock-data';
 import { FeedWrapper, RightSidebar } from '@/components/layout';
 
 export const metadata = { title: 'Leaderboard — CodeMemo' };
 
 const TABS = ['Weekly', 'Monthly', 'All-time'] as const;
 
-const USERS = [
-  { rank: 1,  name: 'alex_codes',    xp: 2840, streak: 34, isYou: false },
-  { rank: 2,  name: 'devninja99',    xp: 2615, streak: 21, isYou: false },
-  { rank: 3,  name: 'typescript_ts', xp: 2410, streak: 18, isYou: false },
-  { rank: 4,  name: 'you',           xp: 2200, streak: 7,  isYou: true  },
-  { rank: 5,  name: 'rustacean',     xp: 1985, streak: 12, isYou: false },
-  { rank: 6,  name: 'go_gopher',     xp: 1740, streak: 9,  isYou: false },
-  { rank: 7,  name: 'pymaster',      xp: 1520, streak: 5,  isYou: false },
-  { rank: 8,  name: 'sql_wizard',    xp: 1310, streak: 3,  isYou: false },
-  { rank: 9,  name: 'bashscripter',  xp: 1100, streak: 6,  isYou: false },
-  { rank: 10, name: 'javabeans',     xp: 920,  streak: 2,  isYou: false },
-];
-
 const RANK_COLORS: Record<number, string> = { 1: 'text-yellow-400', 2: 'text-slate-300', 3: 'text-orange-400' };
-const CROWN_COLORS: Record<number, string> = { 1: 'text-yellow-400', 2: 'text-slate-300', 3: 'text-orange-400' };
 
 export default function LeaderboardPage() {
   return (
@@ -48,12 +35,12 @@ export default function LeaderboardPage() {
 
         {/* Top 3 podium */}
         <div className="grid grid-cols-3 gap-3 mb-5">
-          {[USERS[1], USERS[0], USERS[2]].map((user, i) => {
+          {[mockLeaderboard[1], mockLeaderboard[0], mockLeaderboard[2]].map((user, i) => {
             const podiumRank = [2, 1, 3][i];
             const height = ['h-20', 'h-28', 'h-16'][i];
             return (
               <div key={user.name} className="flex flex-col items-center gap-2">
-                {podiumRank <= 3 && <Crown className={`h-5 w-5 ${CROWN_COLORS[podiumRank]}`} />}
+                {podiumRank <= 3 && <Crown className={`h-5 w-5 ${RANK_COLORS[podiumRank]}`} />}
                 <div className="w-12 h-12 rounded-full bg-[--secondary] border-2 border-[--border] flex items-center justify-center text-sm font-bold text-[--foreground]">
                   {user.name[0].toUpperCase()}
                 </div>
@@ -70,10 +57,10 @@ export default function LeaderboardPage() {
 
         {/* Full list */}
         <div className="bg-[--card] border border-[--border] rounded-xl overflow-hidden">
-          {USERS.map((user, idx) => (
+          {mockLeaderboard.map((user, idx) => (
             <div
               key={user.name}
-              className={`flex items-center gap-4 px-4 py-3 ${idx < USERS.length - 1 ? 'border-b border-[--border]' : ''} ${user.isYou ? 'bg-[--primary]/10' : ''}`}
+              className={`flex items-center gap-4 px-4 py-3 ${idx < mockLeaderboard.length - 1 ? 'border-b border-[--border]' : ''} ${user.isYou ? 'bg-[--primary]/10' : ''}`}
             >
               <span className={`w-6 text-sm font-bold text-center shrink-0 ${RANK_COLORS[user.rank] ?? 'text-[--muted-foreground]'}`}>
                 {user.rank}
