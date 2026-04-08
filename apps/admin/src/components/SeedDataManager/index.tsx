@@ -10,12 +10,13 @@ export default async function SeedDataManagerView({
 }: AdminViewServerProps) {
   const { permissions } = initPageResult;
 
-  const [langResult, secResult, fcResult, exResult, csResult] = await Promise.all([
+  const [langResult, secResult, fcResult, exResult, csResult, siteSettings] = await Promise.all([
     payload.count({ collection: 'languages' }),
     payload.count({ collection: 'sections' }),
     payload.count({ collection: 'flashcards' }),
     payload.count({ collection: 'exercises' }),
     payload.count({ collection: 'cheatSheetEntries' }),
+    payload.findGlobal({ slug: 'site-settings' }).catch(() => null),
   ]);
 
   const counts = {
@@ -25,6 +26,8 @@ export default async function SeedDataManagerView({
     exercises: exResult.totalDocs,
     cheatSheetEntries: csResult.totalDocs,
   };
+
+  const appDataSource = (siteSettings as Record<string, unknown> | null)?.appDataSource as string ?? 'real';
 
   return (
     <DefaultTemplate
@@ -36,7 +39,7 @@ export default async function SeedDataManagerView({
       searchParams={searchParams}
       visibleEntities={initPageResult.visibleEntities}
     >
-      <SeedDataClient counts={counts} />
+      <SeedDataClient counts={counts} appDataSource={appDataSource} />
     </DefaultTemplate>
   );
 }

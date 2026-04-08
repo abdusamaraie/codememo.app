@@ -21,16 +21,21 @@ interface Counts {
 
 interface Props {
   counts: Counts;
+  appDataSource: string;
 }
 
-export function SeedDataClient({ counts: initialCounts }: Props) {
+export function SeedDataClient({ counts: initialCounts, appDataSource: initialAppDataSource }: Props) {
   const [counts, setCounts] = useState(initialCounts);
+  const [appDataSource, setAppDataSource] = useState(initialAppDataSource);
   const [selected, setSelected] = useState<Set<SeedCollection>>(
     new Set(COLLECTIONS.map((c) => c.key)),
   );
   const [log, setLog] = useState<string[]>([]);
   const [isRunning, setIsRunning] = useState(false);
   const [clearConfirm, setClearConfirm] = useState(false);
+  const [clerkUserId, setClerkUserId] = useState('');
+  const [userSeedStatus, setUserSeedStatus] = useState<'idle' | 'running' | 'ok' | 'error'>('idle');
+  const [userSeedError, setUserSeedError] = useState('');
   const logRef = useRef<HTMLDivElement>(null);
 
   function toggleCollection(key: SeedCollection) {
@@ -50,6 +55,19 @@ export function SeedDataClient({ counts: initialCounts }: Props) {
     }, 0);
   }
 
+  async function updateAppDataSource(value: string) {
+    try {
+      await fetch('/api/globals/site-settings', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ appDataSource: value }),
+      });
+      setAppDataSource(value);
+    } catch {
+      // Non-critical
+    }
+  }
+
   async function refreshCounts() {
     try {
       const results = await Promise.all(
@@ -57,13 +75,9 @@ export function SeedDataClient({ counts: initialCounts }: Props) {
           fetch(`/api/${c.key}?limit=0`).then((r) => r.json()),
         ),
       );
-      const next: Counts = {
-        languages: results[0]?.totalDocs ?? counts.languages,
-        sections: results[1]?.totalDocs ?? counts.sections,
-        flashcards: results[2]?.totalDocs ?? counts.flashcards,
-        exercises: results[3]?.totalDocs ?? counts.exercises,
-        cheatSheetEntries: results[4]?.totalDocs ?? counts.cheatSheetEntries,
-      };
+      const next = Object.fromEntries(
+        COLLECTIONS.map((c, i) => [c.key, results[i]?.totalDocs ?? counts[c.key]]),
+      ) as Counts;
       setCounts(next);
     } catch {
       // Non-critical — counts just won't refresh
@@ -133,6 +147,29 @@ export function SeedDataClient({ counts: initialCounts }: Props) {
     }
   }
 
+  async function seedUserData() {
+    if (!clerkUserId.trim()) return;
+    setUserSeedStatus('running');
+    setUserSeedError('');
+    try {
+      const res = await fetch('/api/seed-user-data', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ clerkUserId: clerkUserId.trim() }),
+      });
+      const json = await res.json() as { ok?: boolean; error?: string };
+      if (!res.ok) {
+        setUserSeedStatus('error');
+        setUserSeedError(json.error ?? res.statusText);
+      } else {
+        setUserSeedStatus('ok');
+      }
+    } catch (err) {
+      setUserSeedStatus('error');
+      setUserSeedError(String(err));
+    }
+  }
+
   const btnBase: React.CSSProperties = {
     padding: '8px 16px',
     borderRadius: 6,
@@ -151,6 +188,47 @@ export function SeedDataClient({ counts: initialCounts }: Props) {
       <p style={{ color: 'var(--theme-elevation-500)', marginBottom: '1.5rem', fontSize: 14 }}>
         Populate PayloadCMS with mock content and sync to Convex.
       </p>
+
+      {/* App Data Source */}
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          background: 'var(--theme-elevation-100)',
+          border: '1px solid var(--theme-elevation-200)',
+          borderRadius: 8,
+          padding: '12px 16px',
+          marginBottom: '1.5rem',
+        }}
+      >
+        <div>
+          <p style={{ fontWeight: 600, fontSize: 14, margin: 0 }}>App Data Source</p>
+          <p style={{ fontSize: 12, color: 'var(--theme-elevation-500)', margin: '2px 0 0' }}>
+            Controls streak, XP/progress, activity heatmap, and AI hint counters in the web app.
+          </p>
+        </div>
+        <div style={{ display: 'flex', gap: 6 }}>
+          {(['real', 'mock'] as const).map((val) => (
+            <button
+              key={val}
+              onClick={() => updateAppDataSource(val)}
+              style={{
+                padding: '6px 14px',
+                borderRadius: 6,
+                border: '1px solid var(--theme-elevation-300)',
+                cursor: 'pointer',
+                fontSize: 13,
+                fontWeight: 500,
+                background: appDataSource === val ? (val === 'mock' ? '#8b5cf6' : '#10b981') : 'var(--theme-elevation-50)',
+                color: appDataSource === val ? '#fff' : 'var(--theme-elevation-700)',
+              }}
+            >
+              {val === 'real' ? 'Real Data' : 'Mock Seed Data'}
+            </button>
+          ))}
+        </div>
+      </div>
 
       {/* Counts */}
       <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: '1.5rem' }}>
@@ -252,6 +330,58 @@ export function SeedDataClient({ counts: initialCounts }: Props) {
           >
             Cancel
           </button>
+        )}
+      </div>
+
+      {/* Seed User Data */}
+      <div
+        style={{
+          border: '1px solid var(--theme-elevation-200)',
+          borderRadius: 8,
+          padding: '12px 16px',
+          marginBottom: '1.5rem',
+        }}
+      >
+        <p style={{ fontWeight: 600, fontSize: 14, margin: '0 0 4px' }}>Seed Mock User Data (Convex)</p>
+        <p style={{ fontSize: 12, color: 'var(--theme-elevation-500)', margin: '0 0 10px' }}>
+          Writes mock streak data for a specific Clerk user into Convex (streak=7, best=14, reviews=18).
+          Use this to test the signed-in experience with realistic stats when App Data Source is set to Real.
+        </p>
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+          <input
+            type="text"
+            placeholder="Clerk User ID (user_xxxx)"
+            value={clerkUserId}
+            onChange={(e) => { setClerkUserId(e.target.value); setUserSeedStatus('idle'); }}
+            style={{
+              flex: 1,
+              padding: '6px 10px',
+              borderRadius: 6,
+              border: '1px solid var(--theme-elevation-300)',
+              fontSize: 13,
+              background: 'var(--theme-elevation-50)',
+              color: 'var(--theme-text)',
+            }}
+          />
+          <button
+            disabled={!clerkUserId.trim() || userSeedStatus === 'running'}
+            onClick={seedUserData}
+            style={{
+              ...btnBase,
+              background: '#f59e0b',
+              color: '#fff',
+              cursor: (!clerkUserId.trim() || userSeedStatus === 'running') ? 'not-allowed' : 'pointer',
+              opacity: (!clerkUserId.trim() || userSeedStatus === 'running') ? 0.5 : 1,
+            }}
+          >
+            {userSeedStatus === 'running' ? 'Seeding…' : 'Seed User Data'}
+          </button>
+        </div>
+        {userSeedStatus === 'ok' && (
+          <p style={{ color: '#10b981', fontSize: 12, marginTop: 6 }}>Done — mock streak data applied.</p>
+        )}
+        {userSeedStatus === 'error' && (
+          <p style={{ color: '#ef4444', fontSize: 12, marginTop: 6 }}>Error: {userSeedError}</p>
         )}
       </div>
 

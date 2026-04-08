@@ -600,10 +600,6 @@ export interface SiteSetting {
    * When enabled, the app will display a maintenance page to all users.
    */
   maintenanceMode?: boolean | null;
-  /**
-   * Controls web app metrics source for streak, XP/progress, activity heatmap, and AI hint usage counters.
-   */
-  appDataSource: 'real' | 'mock';
   announcementBanner?: {
     enabled?: boolean | null;
     message?: string | null;
@@ -618,7 +614,6 @@ export interface SiteSetting {
 export interface SiteSettingsSelect<T extends boolean = true> {
   allowThemeSwitch?: T;
   maintenanceMode?: T;
-  appDataSource?: T;
   announcementBanner?:
     | T
     | {

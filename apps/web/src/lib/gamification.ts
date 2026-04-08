@@ -10,20 +10,32 @@ export type DailyStats = {
 export const DAILY_STATS_KEY = 'codememo-daily-stats';
 export const ACTIVITY_MAP_KEY = 'codememo-activity-map';
 export const FREEZE_KEY = 'codememo-streak-freezes';
-const MOCK_DAILY_STATS: DailyStats = { reviews: 18, practice: 2, quiz: 1 };
-const MOCK_ACTIVITY_MAP: Record<string, number> = {
-  '2026-03-19': 1,
-  '2026-03-20': 2,
-  '2026-03-21': 3,
-  '2026-03-22': 1,
-  '2026-03-23': 4,
-  '2026-03-24': 2,
-  '2026-03-25': 3,
-  '2026-03-26': 2,
-  '2026-03-27': 4,
-  '2026-03-28': 3,
-  '2026-03-29': 2,
-};
+export const MOCK_STREAK = { current: 7, best: 14, freezes: 2 };
+export const MOCK_DAILY_STATS: DailyStats = { reviews: 18, practice: 2, quiz: 1 };
+
+function buildMockActivityMap(days = 112): Record<string, number> {
+  const map: Record<string, number> = {};
+  const today = new Date();
+  const intensities = [3, 4, 2, 5, 3, 4, 2];
+  const longestRunIntensities = [2, 3, 4, 2, 1, 3, 4, 2, 3, 1, 2, 4, 3, 2];
+  const scatteredDays = new Set([9, 11, 14, 18, 38, 42, 47, 51, 55, 60, 68, 75]);
+  const scatteredIntensities = [1, 2, 3, 2, 1, 2, 1, 3, 2, 1, 2, 1];
+  let scatterIdx = 0;
+  for (let i = 0; i < days; i++) {
+    const d = new Date(today);
+    d.setDate(today.getDate() - i);
+    const key = d.toISOString().slice(0, 10);
+    if (i < 7) {
+      map[key] = intensities[i]; // last 7 days = current streak
+    } else if (i >= 21 && i < 35) {
+      map[key] = longestRunIntensities[i - 21]; // 14-day run ~3 weeks ago = longestStreak
+    } else if (scatteredDays.has(i)) {
+      map[key] = scatteredIntensities[scatterIdx++ % scatteredIntensities.length];
+    }
+  }
+  return map;
+}
+export const MOCK_ACTIVITY_MAP = buildMockActivityMap();
 
 export function todayKey(now: Date = new Date()): string {
   return now.toISOString().slice(0, 10);
@@ -78,7 +90,7 @@ export function calculateDailyXP(daily: DailyStats): number {
 
 export function readStreak(): { current: number; best: number; freezes: number } {
   if (typeof window !== 'undefined' && getClientAppDataSource() === 'mock') {
-    return { current: 7, best: 14, freezes: 2 };
+    return MOCK_STREAK;
   }
   const map = readActivityMap();
   const freezes =
@@ -108,7 +120,7 @@ export function readStreak(): { current: number; best: number; freezes: number }
 
   const today = new Date(`${todayKey()}T00:00:00.000Z`);
   let cursor = today;
-  while (true) {
+  while (current < 366) {
     const key = todayKey(cursor);
     if (map[key] && map[key] > 0) {
       current += 1;
