@@ -1,7 +1,7 @@
 import { mutation, query } from './_generated/server';
 import { v } from 'convex/values';
 import { calculateQuizScore } from '@repo/domain';
-import { requireAuth } from './auth';
+import { getAuthedUser, requireAuth } from './auth';
 
 export const startQuiz = mutation({
   args: { sectionId: v.id('sections') },
@@ -77,7 +77,8 @@ export const completeQuiz = mutation({
 export const getQuizHistory = query({
   args: { sectionId: v.id('sections') },
   handler: async (ctx, { sectionId }) => {
-    const user = await requireAuth(ctx);
+    const user = await getAuthedUser(ctx);
+    if (!user) return null;
     return ctx.db
       .query('quizAttempts')
       .withIndex('by_user_section', (q) =>

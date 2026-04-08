@@ -1,11 +1,11 @@
 import { internalMutation, mutation, query } from './_generated/server';
 import { v } from 'convex/values';
-import { requireAuth } from './auth';
+import { getAuthedUser, requireAuth } from './auth';
 
 export const getUser = query({
   args: {},
   handler: async (ctx) => {
-    return requireAuth(ctx);
+    return getAuthedUser(ctx);
   },
 });
 

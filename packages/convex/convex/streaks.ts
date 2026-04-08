@@ -1,7 +1,7 @@
 import { mutation, query } from './_generated/server';
 import { v } from 'convex/values';
 import { incrementStreak, calculateStreak } from '@repo/domain';
-import { requireAuth } from './auth';
+import { getAuthedUser, requireAuth } from './auth';
 
 export const getStreakData = query({
   args: {},
@@ -67,7 +67,8 @@ export const updateStreak = mutation({
 export const checkDailyGoal = query({
   args: {},
   handler: async (ctx) => {
-    const user = await requireAuth(ctx);
+    const user = await getAuthedUser(ctx);
+    if (!user) return null;
     const streak = await ctx.db
       .query('streaks')
       .withIndex('by_user', (q) => q.eq('userId', user._id))

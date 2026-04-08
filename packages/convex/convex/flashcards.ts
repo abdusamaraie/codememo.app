@@ -1,7 +1,7 @@
 import { mutation, query } from './_generated/server';
 import { v } from 'convex/values';
 import { calculateNextReview, incrementStreak, NEW_CARD_SM2 } from '@repo/domain';
-import { requireAuth } from './auth';
+import { getAuthedUser, requireAuth } from './auth';
 
 const NEW_CARDS_PER_SESSION = 10;
 
@@ -9,7 +9,8 @@ const NEW_CARDS_PER_SESSION = 10;
 export const getStudySession = query({
   args: { sectionId: v.id('sections') },
   handler: async (ctx, { sectionId }) => {
-    const user = await requireAuth(ctx);
+    const user = await getAuthedUser(ctx);
+    if (!user) return null;
     const now = Date.now();
 
     // All flashcards in section
@@ -187,7 +188,8 @@ export const recordReview = mutation({
 export const getCardProgressForSection = query({
   args: { sectionId: v.id('sections') },
   handler: async (ctx, { sectionId }) => {
-    const user = await requireAuth(ctx);
+    const user = await getAuthedUser(ctx);
+    if (!user) return null;
     const cards = await ctx.db
       .query('flashcards')
       .withIndex('by_section', (q) => q.eq('sectionId', sectionId))

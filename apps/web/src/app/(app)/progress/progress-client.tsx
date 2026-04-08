@@ -88,7 +88,7 @@ export function ProgressClientPage() {
 
         <div className="bg-[--card] border border-[--border] rounded-xl p-4">
           <h2 className="text-sm font-semibold text-[--foreground] mb-4">By Language</h2>
-          {progressSummary === undefined ? (
+          {progressSummary == null ? (
             <div className="h-10 bg-[--secondary] rounded-lg animate-pulse" />
           ) : progressSummary.length === 0 ? (
             <p className="text-sm text-[--muted-foreground]">No sections studied yet. Start a study session to track progress.</p>

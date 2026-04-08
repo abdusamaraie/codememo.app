@@ -2,9 +2,19 @@ import { mutation } from './_generated/server';
 import type { MutationCtx, QueryCtx } from './_generated/server';
 import { v } from 'convex/values';
 
-// ── Auth helper ───────────────────────────────────────────────────────────────
+// ── Auth helpers ──────────────────────────────────────────────────────────────
 
-/** Gets the authenticated user's Convex record from Clerk JWT. Throws if unauthenticated. */
+/** For queries: returns the user or null (never throws). */
+export async function getAuthedUser(ctx: MutationCtx | QueryCtx) {
+  const identity = await ctx.auth.getUserIdentity();
+  if (!identity) return null;
+  return ctx.db
+    .query('users')
+    .withIndex('by_clerk_id', (q) => q.eq('clerkId', identity.subject))
+    .first();
+}
+
+/** For mutations/actions: throws if unauthenticated. */
 export async function requireAuth(ctx: MutationCtx | QueryCtx) {
   const identity = await ctx.auth.getUserIdentity();
   if (!identity) throw new Error('Unauthenticated');
