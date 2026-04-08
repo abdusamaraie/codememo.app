@@ -4,6 +4,7 @@ import path from 'path'
 import { buildConfig } from 'payload'
 import { fileURLToPath } from 'url'
 import { CheatSheetEntries, Exercises, Flashcards, Languages, Sections } from './collections'
+import { seedDataHandler, syncConvexHandler } from './endpoints'
 import { SiteSettings } from './globals'
 
 const filename = fileURLToPath(import.meta.url)
@@ -40,6 +41,17 @@ export default buildConfig({
     importMap: {
       baseDir: path.resolve(dirname, '..'),
     },
+    components: {
+      views: {
+        seedDataManager: {
+          Component: '/src/components/SeedDataManager/index#default',
+          path: '/seed-data-manager',
+          meta: {
+            title: 'Seed Data Manager',
+          },
+        },
+      },
+    },
   },
   routes: {
     admin: '/',
@@ -58,7 +70,18 @@ export default buildConfig({
     CheatSheetEntries,
   ],
   globals: [SiteSettings],
-  endpoints: [],
+  endpoints: [
+    {
+      path: '/seed-data',
+      method: 'post',
+      handler: seedDataHandler,
+    },
+    {
+      path: '/sync-to-convex',
+      method: 'post',
+      handler: syncConvexHandler,
+    },
+  ],
   secret: process.env.PAYLOAD_SECRET,
   typescript: {
     outputFile: path.resolve(dirname, 'payload-types.ts'),
