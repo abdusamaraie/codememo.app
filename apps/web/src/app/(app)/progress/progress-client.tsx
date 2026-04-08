@@ -1,6 +1,9 @@
 'use client';
 
 import { useMemo } from 'react';
+import { useAuth } from '@clerk/nextjs';
+import { useQuery } from 'convex/react';
+import { api } from '@repo/convex';
 import { TrendingUp, BookOpen, Target, Flame } from 'lucide-react';
 import { FeedWrapper, RightSidebar } from '@/components/layout';
 import { useGamificationStats } from '@/hooks/useGamificationStats.hook';
@@ -18,13 +21,10 @@ function generateCalendarSkeleton() {
 
 const HEATMAP_COLORS = ['bg-[--secondary]', 'bg-blue-900/60', 'bg-blue-700/70', 'bg-blue-500/80', 'bg-[--primary]'];
 
-const LANGUAGE_PROGRESS = [
-  { name: 'Python', color: '#3B82F6', done: 4, total: 14 },
-  { name: 'TypeScript', color: '#7C6AF6', done: 1, total: 10 },
-];
-
 export function ProgressClientPage() {
+  const { isSignedIn } = useAuth();
   const { activityMap, streak, daily } = useGamificationStats();
+  const progressSummary = useQuery(api.progress.getProgressSummary, isSignedIn ? {} : 'skip');
   const daysStudied = Object.values(activityMap).filter((n) => n > 0).length;
 
   // Regenerated each render so dates stay current (no stale module-level constant)
@@ -88,27 +88,35 @@ export function ProgressClientPage() {
 
         <div className="bg-[--card] border border-[--border] rounded-xl p-4">
           <h2 className="text-sm font-semibold text-[--foreground] mb-4">By Language</h2>
-          <div className="flex flex-col gap-4">
-            {LANGUAGE_PROGRESS.map((lang) => {
-              const pct = Math.round((lang.done / lang.total) * 100);
-              return (
-                <div key={lang.name}>
-                  <div className="flex items-center justify-between mb-1.5">
-                    <div className="flex items-center gap-2">
-                      <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: lang.color }} />
-                      <span className="text-sm font-medium text-[--foreground]">{lang.name}</span>
+          {progressSummary === undefined ? (
+            <div className="h-10 bg-[--secondary] rounded-lg animate-pulse" />
+          ) : progressSummary.length === 0 ? (
+            <p className="text-sm text-[--muted-foreground]">No sections studied yet. Start a study session to track progress.</p>
+          ) : (
+            <div className="flex flex-col gap-4">
+              {progressSummary.map((lang) => {
+                const done = lang.completedSections;
+                const total = lang.totalSections || 1;
+                const pct = Math.round((done / total) * 100);
+                return (
+                  <div key={lang.languageId}>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <div className="flex items-center gap-2">
+                        <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: lang.color }} />
+                        <span className="text-sm font-medium text-[--foreground]">{lang.name}</span>
+                      </div>
+                      <div className="flex items-center gap-3 text-xs text-[--muted-foreground]">
+                        <span>{done}/{lang.totalSections} sections</span>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-3 text-xs text-[--muted-foreground]">
-                      <span>{lang.done}/{lang.total} sections</span>
+                    <div className="h-2 bg-[--secondary] rounded-full overflow-hidden">
+                      <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, backgroundColor: lang.color }} />
                     </div>
                   </div>
-                  <div className="h-2 bg-[--secondary] rounded-full overflow-hidden">
-                    <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, backgroundColor: lang.color }} />
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       </FeedWrapper>
       <RightSidebar />
