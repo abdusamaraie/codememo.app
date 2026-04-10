@@ -158,6 +158,10 @@ export default defineSchema({
     cardsCompletedToday:       v.number(),
     perfectRecallsToday:       v.number(),
     minutesStudiedToday:       v.number(),
+    // Weekly tracking (optional — absent on older documents, default to 0)
+    weekStartDate:             v.optional(v.string()),  // YYYY-MM-DD of week's Monday
+    weeklyCardsCompleted:      v.optional(v.number()),
+    studyDaysThisWeek:         v.optional(v.number()),
   })
     .index('by_user', ['userId']),
 

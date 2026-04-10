@@ -27,6 +27,7 @@ interface Props {
 export function SeedDataClient({ counts: initialCounts, appDataSource: initialAppDataSource }: Props) {
   const [counts, setCounts] = useState(initialCounts);
   const [appDataSource, setAppDataSource] = useState(initialAppDataSource);
+  const [dataSourceError, setDataSourceError] = useState('');
   const [selected, setSelected] = useState<Set<SeedCollection>>(
     new Set(COLLECTIONS.map((c) => c.key)),
   );
@@ -36,6 +37,8 @@ export function SeedDataClient({ counts: initialCounts, appDataSource: initialAp
   const [clerkUserId, setClerkUserId] = useState('');
   const [userSeedStatus, setUserSeedStatus] = useState<'idle' | 'running' | 'ok' | 'error'>('idle');
   const [userSeedError, setUserSeedError] = useState('');
+  const [resetStatus, setResetStatus] = useState<'idle' | 'running' | 'ok' | 'error'>('idle');
+  const [resetError, setResetError] = useState('');
   const logRef = useRef<HTMLDivElement>(null);
 
   function toggleCollection(key: SeedCollection) {
@@ -56,15 +59,21 @@ export function SeedDataClient({ counts: initialCounts, appDataSource: initialAp
   }
 
   async function updateAppDataSource(value: string) {
+    setDataSourceError('');
     try {
-      await fetch('/api/globals/site-settings', {
-        method: 'PATCH',
+      const res = await fetch('/api/globals/site-settings', {
+        method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ appDataSource: value }),
       });
+      if (!res.ok) {
+        const text = await res.text();
+        setDataSourceError(`Failed to save: ${res.status} ${text}`);
+        return; // don't update UI if DB write failed
+      }
       setAppDataSource(value);
-    } catch {
-      // Non-critical
+    } catch (err) {
+      setDataSourceError(`Network error: ${String(err)}`);
     }
   }
 
@@ -170,6 +179,29 @@ export function SeedDataClient({ counts: initialCounts, appDataSource: initialAp
     }
   }
 
+  async function resetUserData() {
+    if (!clerkUserId.trim()) return;
+    setResetStatus('running');
+    setResetError('');
+    try {
+      const res = await fetch('/api/reset-user-data', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ clerkUserId: clerkUserId.trim() }),
+      });
+      const json = await res.json() as { ok?: boolean; error?: string };
+      if (!res.ok) {
+        setResetStatus('error');
+        setResetError(json.error ?? res.statusText);
+      } else {
+        setResetStatus('ok');
+      }
+    } catch (err) {
+      setResetStatus('error');
+      setResetError(String(err));
+    }
+  }
+
   const btnBase: React.CSSProperties = {
     padding: '8px 16px',
     borderRadius: 6,
@@ -229,6 +261,9 @@ export function SeedDataClient({ counts: initialCounts, appDataSource: initialAp
           ))}
         </div>
       </div>
+      {dataSourceError && (
+        <p style={{ color: '#ef4444', fontSize: 12, marginTop: -12, marginBottom: '1.5rem' }}>{dataSourceError}</p>
+      )}
 
       {/* Counts */}
       <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: '1.5rem' }}>
@@ -342,17 +377,16 @@ export function SeedDataClient({ counts: initialCounts, appDataSource: initialAp
           marginBottom: '1.5rem',
         }}
       >
-        <p style={{ fontWeight: 600, fontSize: 14, margin: '0 0 4px' }}>Seed Mock User Data (Convex)</p>
+        <p style={{ fontWeight: 600, fontSize: 14, margin: '0 0 4px' }}>User Progress (Convex)</p>
         <p style={{ fontSize: 12, color: 'var(--theme-elevation-500)', margin: '0 0 10px' }}>
-          Writes mock streak data for a specific Clerk user into Convex (streak=7, best=14, reviews=18).
-          Use this to test the signed-in experience with realistic stats when App Data Source is set to Real.
+          Seed mock streak data (streak=7, best=14, reviews=18) or reset progress to zero for a specific Clerk user.
         </p>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
           <input
             type="text"
             placeholder="Clerk User ID (user_xxxx)"
             value={clerkUserId}
-            onChange={(e) => { setClerkUserId(e.target.value); setUserSeedStatus('idle'); }}
+            onChange={(e) => { setClerkUserId(e.target.value); setUserSeedStatus('idle'); setResetStatus('idle'); }}
             style={{
               flex: 1,
               padding: '6px 10px',
@@ -374,7 +408,20 @@ export function SeedDataClient({ counts: initialCounts, appDataSource: initialAp
               opacity: (!clerkUserId.trim() || userSeedStatus === 'running') ? 0.5 : 1,
             }}
           >
-            {userSeedStatus === 'running' ? 'Seeding…' : 'Seed User Data'}
+            {userSeedStatus === 'running' ? 'Seeding…' : 'Seed Mock Data'}
+          </button>
+          <button
+            disabled={!clerkUserId.trim() || resetStatus === 'running'}
+            onClick={resetUserData}
+            style={{
+              ...btnBase,
+              background: '#6b7280',
+              color: '#fff',
+              cursor: (!clerkUserId.trim() || resetStatus === 'running') ? 'not-allowed' : 'pointer',
+              opacity: (!clerkUserId.trim() || resetStatus === 'running') ? 0.5 : 1,
+            }}
+          >
+            {resetStatus === 'running' ? 'Resetting…' : 'Reset to Zero'}
           </button>
         </div>
         {userSeedStatus === 'ok' && (
@@ -382,6 +429,12 @@ export function SeedDataClient({ counts: initialCounts, appDataSource: initialAp
         )}
         {userSeedStatus === 'error' && (
           <p style={{ color: '#ef4444', fontSize: 12, marginTop: 6 }}>Error: {userSeedError}</p>
+        )}
+        {resetStatus === 'ok' && (
+          <p style={{ color: '#10b981', fontSize: 12, marginTop: 6 }}>Done — progress reset to zero.</p>
+        )}
+        {resetStatus === 'error' && (
+          <p style={{ color: '#ef4444', fontSize: 12, marginTop: 6 }}>Error: {resetError}</p>
         )}
       </div>
 

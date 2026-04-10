@@ -20,7 +20,7 @@ import {
   languages,
   pythonFlashcards,
   sections,
-} from '@repo/mock-data';
+} from '@repo/data';
 
 export type SeedCollection =
   | 'languages'

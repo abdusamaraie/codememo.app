@@ -74,4 +74,27 @@ http.route({
   }),
 });
 
+http.route({
+  path:   '/reset-user-progress',
+  method: 'POST',
+  handler: httpAction(async (ctx, request) => {
+    const secret = request.headers.get('x-sync-secret');
+    if (!process.env.CONVEX_SYNC_SECRET || secret !== process.env.CONVEX_SYNC_SECRET) {
+      return new Response('Unauthorized', { status: 401 });
+    }
+
+    const body = await request.json() as { clerkUserId?: string };
+    if (!body.clerkUserId) {
+      return new Response('clerkUserId is required', { status: 400 });
+    }
+
+    try {
+      await ctx.runMutation(internal.streaks.resetProgressForUser, { clerkId: body.clerkUserId });
+      return new Response('OK', { status: 200 });
+    } catch (err) {
+      return new Response(String(err), { status: 404 });
+    }
+  }),
+});
+
 export default http;

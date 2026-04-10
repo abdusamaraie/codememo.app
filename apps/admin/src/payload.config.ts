@@ -4,7 +4,7 @@ import path from 'path'
 import { buildConfig } from 'payload'
 import { fileURLToPath } from 'url'
 import { CheatSheetEntries, Exercises, Flashcards, Languages, Sections } from './collections'
-import { seedDataHandler, syncConvexHandler, seedUserDataHandler } from './endpoints'
+import { seedDataHandler, syncConvexHandler, seedUserDataHandler, resetUserDataHandler } from './endpoints'
 import { SiteSettings } from './globals'
 
 const filename = fileURLToPath(import.meta.url)
@@ -86,6 +86,11 @@ export default buildConfig({
       path: '/seed-user-data',
       method: 'post',
       handler: seedUserDataHandler,
+    },
+    {
+      path: '/reset-user-data',
+      method: 'post',
+      handler: resetUserDataHandler,
     },
   ],
   secret: process.env.PAYLOAD_SECRET,

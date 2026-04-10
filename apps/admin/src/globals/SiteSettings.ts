@@ -38,7 +38,7 @@ export const SiteSettings: GlobalConfig = {
       ],
       required: true,
       admin: {
-        hidden: true,
+        description: 'Switch to "Mock Seed Data" to show demo stats/progress. "Real Data" shows actual user data from Convex (default for production).',
       },
     },
     {

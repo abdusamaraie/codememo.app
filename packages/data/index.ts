@@ -1,9 +1,11 @@
 /**
- * @repo/mock-data
+ * @repo/data
  *
- * Seed data, mock data, and fixture factories for development and testing.
+ * Seed data, canonical types, and data services.
+ * Services switch between mock and real API data based on appDataSource.
  */
 
+// ── Seed data (used by admin for seeding Payload CMS) ──────────────────────
 export { languages } from './seed/languages';
 export { sections, pythonSections, jsSections, jcrSections } from './seed/sections';
 export type { SectionSeed } from './seed/sections';
@@ -16,7 +18,10 @@ export { jcrExercises } from './seed/exercises-jcr-sql2';
 export type { ExerciseSeed } from './seed/exercises';
 export { cheatSheetEntries } from './seed/cheatsheet-entries';
 export type { CheatSheetEntrySeed } from './seed/cheatsheet-entries';
-export { mockLeaderboard } from './seed/leaderboard';
-export type { LeaderboardUser } from './seed/leaderboard';
-export { mockQuests } from './seed/quests';
-export type { MockQuest } from './seed/quests';
+
+// ── Services (canonical types + mock|real switching) ───────────────────────
+export { getQuests } from './service/quests';
+export type { Quest } from './service/quests';
+
+export { getLeaderboard } from './service/leaderboard';
+export type { LeaderboardEntry } from './service/leaderboard';

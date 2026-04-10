@@ -1,6 +1,7 @@
-import { Crown, Flame, Zap } from 'lucide-react';
-import { mockLeaderboard } from '@repo/mock-data';
+import { Crown, Flame, Trophy, Zap } from 'lucide-react';
+import { getLeaderboard, type LeaderboardEntry } from '@repo/data';
 import { FeedWrapper, RightSidebar } from '@/components/layout';
+import { getSiteSettings } from '@/lib/site-settings';
 
 export const metadata = { title: 'Leaderboard — CodeMemo' };
 
@@ -8,7 +9,31 @@ const TABS = ['Weekly', 'Monthly', 'All-time'] as const;
 
 const RANK_COLORS: Record<number, string> = { 1: 'text-yellow-400', 2: 'text-slate-300', 3: 'text-orange-400' };
 
-export default function LeaderboardPage() {
+export default async function LeaderboardPage() {
+  const settings = await getSiteSettings();
+  const entries = getLeaderboard(settings.appDataSource);
+
+  if (entries.length === 0) {
+    return (
+      <div className="flex gap-8 px-6 py-6">
+        <FeedWrapper>
+          <div className="mb-6">
+            <h1 className="text-2xl font-bold text-[--foreground]">Leaderboard</h1>
+            <p className="text-sm text-[--muted-foreground] mt-1">Top learners this week</p>
+          </div>
+          <div className="flex flex-col items-center justify-center py-20 text-center gap-3">
+            <Trophy className="h-10 w-10 text-[--muted-foreground]" />
+            <p className="text-[--foreground] font-semibold">Leaderboard coming soon</p>
+            <p className="text-sm text-[--muted-foreground]">Rankings will appear here once enough learners are active.</p>
+          </div>
+        </FeedWrapper>
+        <RightSidebar />
+      </div>
+    );
+  }
+
+  const top3: [LeaderboardEntry, LeaderboardEntry, LeaderboardEntry] = [entries[1]!, entries[0]!, entries[2]!];
+
   return (
     <div className="flex gap-8 px-6 py-6">
       <FeedWrapper>
@@ -35,19 +60,21 @@ export default function LeaderboardPage() {
 
         {/* Top 3 podium */}
         <div className="grid grid-cols-3 gap-3 mb-5">
-          {[mockLeaderboard[1], mockLeaderboard[0], mockLeaderboard[2]].map((user, i) => {
-            const podiumRank = [2, 1, 3][i];
+          {top3.map((user, i) => {
+            const podiumRank = [2, 1, 3][i]!;
             const height = ['h-20', 'h-28', 'h-16'][i];
             return (
-              <div key={user.name} className="flex flex-col items-center gap-2">
+              <div key={user.displayName} className="flex flex-col items-center gap-2">
                 {podiumRank <= 3 && <Crown className={`h-5 w-5 ${RANK_COLORS[podiumRank]}`} />}
                 <div className="w-12 h-12 rounded-full bg-[--secondary] border-2 border-[--border] flex items-center justify-center text-sm font-bold text-[--foreground]">
-                  {user.name[0].toUpperCase()}
+                  {user.displayName[0]!.toUpperCase()}
                 </div>
-                <div className={`w-full ${height} rounded-t-lg flex flex-col items-center justify-center bg-[--card] border border-[--border]`}
-                  style={{ borderColor: podiumRank === 1 ? 'var(--primary)' : undefined }}>
+                <div
+                  className={`w-full ${height} rounded-t-lg flex flex-col items-center justify-center bg-[--card] border border-[--border]`}
+                  style={{ borderColor: podiumRank === 1 ? 'var(--primary)' : undefined }}
+                >
                   <span className={`text-lg font-bold ${RANK_COLORS[podiumRank] ?? 'text-[--foreground]'}`}>#{podiumRank}</span>
-                  <span className="text-xs text-[--muted-foreground] truncate px-1 max-w-full">{user.name}</span>
+                  <span className="text-xs text-[--muted-foreground] truncate px-1 max-w-full">{user.displayName}</span>
                   <span className="text-xs font-semibold text-[--foreground]">{user.xp.toLocaleString()} XP</span>
                 </div>
               </div>
@@ -57,20 +84,20 @@ export default function LeaderboardPage() {
 
         {/* Full list */}
         <div className="bg-[--card] border border-[--border] rounded-xl overflow-hidden">
-          {mockLeaderboard.map((user, idx) => (
+          {entries.map((user, idx) => (
             <div
-              key={user.name}
-              className={`flex items-center gap-4 px-4 py-3 ${idx < mockLeaderboard.length - 1 ? 'border-b border-[--border]' : ''} ${user.isYou ? 'bg-[--primary]/10' : ''}`}
+              key={user.displayName}
+              className={`flex items-center gap-4 px-4 py-3 ${idx < entries.length - 1 ? 'border-b border-[--border]' : ''} ${user.isCurrentUser ? 'bg-[--primary]/10' : ''}`}
             >
               <span className={`w-6 text-sm font-bold text-center shrink-0 ${RANK_COLORS[user.rank] ?? 'text-[--muted-foreground]'}`}>
                 {user.rank}
               </span>
               <div className="w-8 h-8 rounded-full bg-[--secondary] flex items-center justify-center text-xs font-bold text-[--foreground] shrink-0">
-                {user.name[0].toUpperCase()}
+                {user.displayName[0]!.toUpperCase()}
               </div>
               <div className="flex-1 min-w-0">
-                <span className={`text-sm font-medium ${user.isYou ? 'text-[--primary]' : 'text-[--foreground]'}`}>
-                  {user.isYou ? 'You' : user.name}
+                <span className={`text-sm font-medium ${user.isCurrentUser ? 'text-[--primary]' : 'text-[--foreground]'}`}>
+                  {user.isCurrentUser ? 'You' : user.displayName}
                 </span>
               </div>
               <div className="flex items-center gap-3 text-xs text-[--muted-foreground] shrink-0">

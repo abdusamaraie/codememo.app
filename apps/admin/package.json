@@ -18,7 +18,7 @@
     "@payloadcms/db-postgres": "^3.80.0",
     "@payloadcms/next": "^3.80.0",
     "@payloadcms/richtext-lexical": "^3.80.0",
-    "@repo/mock-data": "^0.0.0",
+    "@repo/data": "^0.0.0",
     "@repo/ui": "*",
     "cross-env": "^7.0.3",
     "sass": "^1.77.4",

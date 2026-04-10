@@ -15,8 +15,8 @@ import {
   AccordionTrigger,
 } from '@/components/ui/accordion';
 import { Input } from '@/components/ui/input';
-import { cheatSheetEntries } from '@repo/mock-data/seed/cheatsheet-entries';
-import type { CheatSheetEntrySeed } from '@repo/mock-data/seed/cheatsheet-entries';
+import { cheatSheetEntries } from '@repo/data/seed/cheatsheet-entries';
+import type { CheatSheetEntrySeed } from '@repo/data/seed/cheatsheet-entries';
 
 type Props = {
   open: boolean;

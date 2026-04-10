@@ -3,6 +3,15 @@ import { v } from 'convex/values';
 import { incrementStreak, calculateStreak } from '@repo/domain';
 import { getAuthedUser, requireAuth } from './auth';
 
+/** Returns the ISO date string (YYYY-MM-DD) of the Monday of the given date's week. */
+function getWeekStart(dateStr: string): string {
+  const d = new Date(`${dateStr}T00:00:00.000Z`);
+  const day = d.getUTCDay(); // 0=Sun, 1=Mon, …
+  const diff = (day === 0 ? -6 : 1 - day); // offset to Monday
+  d.setUTCDate(d.getUTCDate() + diff);
+  return d.toISOString().slice(0, 10);
+}
+
 export const getStreakData = query({
   args: {},
   handler: async (ctx) => {
@@ -34,9 +43,9 @@ export const updateStreak = mutation({
 
     const today = new Date().toISOString().slice(0, 10);
 
-    const newCards     = streak.cardsCompletedToday + 1;
-    const newPerfect   = streak.perfectRecallsToday + (isPerfectRecall ? 1 : 0);
-    const newMinutes   = streak.minutesStudiedToday + Math.round((durationMs ?? 0) / 60000);
+    const newCards   = streak.cardsCompletedToday + 1;
+    const newPerfect = streak.perfectRecallsToday + (isPerfectRecall ? 1 : 0);
+    const newMinutes = streak.minutesStudiedToday + Math.round((durationMs ?? 0) / 60000);
 
     const goalMet =
       newCards   >= streak.cardsTarget &&
@@ -46,6 +55,20 @@ export const updateStreak = mutation({
     const newStreak = incrementStreak(streak.lastActiveDate, today, streak.currentStreak);
     const longest   = Math.max(newStreak, streak.longestStreak);
 
+    // ── Weekly tracking ──────────────────────────────────────────────────────
+    const currentWeekStart = getWeekStart(today);
+    const storedWeekStart  = streak.weekStartDate ?? '';
+    const isSameWeek       = storedWeekStart === currentWeekStart;
+
+    const weeklyCards = isSameWeek ? (streak.weeklyCardsCompleted ?? 0) + 1 : 1;
+
+    // Increment study-days-this-week only when today is a new day within the same week
+    const isNewDayThisWeek = isSameWeek && streak.lastActiveDate !== today;
+    const isFirstDayOfWeek = !isSameWeek;
+    const studyDays = isSameWeek
+      ? (streak.studyDaysThisWeek ?? 1) + (isNewDayThisWeek ? 1 : 0)
+      : 1; // reset to 1 (today) for a new week
+
     await ctx.db.patch(streak._id, {
       cardsCompletedToday:   newCards,
       perfectRecallsToday:   newPerfect,
@@ -54,6 +77,9 @@ export const updateStreak = mutation({
       currentStreak:         newStreak,
       longestStreak:         longest,
       lastActiveDate:        today,
+      weekStartDate:         currentWeekStart,
+      weeklyCardsCompleted:  weeklyCards,
+      studyDaysThisWeek:     studyDays,
     });
   },
 });
@@ -137,6 +163,50 @@ export const useStreakFreeze = mutation({
       freezesUsed:      streak.freezesUsed + 1,
       lastActiveDate:   new Date().toISOString().slice(0, 10),
     });
+  },
+});
+
+/** Resets streak data to zero for a given Clerk user — used by admin after switching back to real mode */
+export const resetProgressForUser = internalMutation({
+  args: { clerkId: v.string() },
+  handler: async (ctx, { clerkId }) => {
+    const user = await ctx.db
+      .query('users')
+      .withIndex('by_clerk_id', (q) => q.eq('clerkId', clerkId))
+      .first();
+    if (!user) throw new Error(`No user found for clerkId: ${clerkId}`);
+
+    const streak = await ctx.db
+      .query('streaks')
+      .withIndex('by_user', (q) => q.eq('userId', user._id))
+      .first();
+
+    const zeroPatch = {
+      currentStreak:        0,
+      longestStreak:        0,
+      lastActiveDate:       new Date().toISOString().slice(0, 10),
+      todayCompleted:       false,
+      freezesAvailable:     1,
+      freezesUsed:          0,
+      cardsCompletedToday:  0,
+      perfectRecallsToday:  0,
+      minutesStudiedToday:  0,
+      weeklyCardsCompleted: 0,
+      studyDaysThisWeek:    0,
+      weekStartDate:        new Date().toISOString().slice(0, 10),
+    };
+
+    if (streak) {
+      await ctx.db.patch(streak._id, zeroPatch);
+    } else {
+      await ctx.db.insert('streaks', {
+        userId:               user._id,
+        cardsTarget:          20,
+        perfectRecallsTarget: 5,
+        minutesTarget:        10,
+        ...zeroPatch,
+      });
+    }
   },
 });
 

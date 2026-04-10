@@ -17,6 +17,7 @@ import type * as exercises from "../exercises.js";
 import type * as flashcards from "../flashcards.js";
 import type * as http from "../http.js";
 import type * as progress from "../progress.js";
+import type * as quests from "../quests.js";
 import type * as quizzes from "../quizzes.js";
 import type * as spacedRepetition from "../spacedRepetition.js";
 import type * as streaks from "../streaks.js";
@@ -39,6 +40,7 @@ declare const fullApi: ApiFromModules<{
   flashcards: typeof flashcards;
   http: typeof http;
   progress: typeof progress;
+  quests: typeof quests;
   quizzes: typeof quizzes;
   spacedRepetition: typeof spacedRepetition;
   streaks: typeof streaks;
