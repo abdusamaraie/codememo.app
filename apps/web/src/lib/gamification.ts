@@ -1,3 +1,4 @@
+import { computeAnonSectionStatus } from '@repo/domain';
 import { getClientAppDataSource } from '@/lib/data-source';
 export type DailyMetric = 'reviews' | 'practice' | 'quiz';
 
@@ -113,6 +114,7 @@ export function calculateDailyXP(daily: DailyStats): number {
 }
 
 export const SECTION_PROGRESS_KEY = 'codememo-section-progress';
+export const SECTION_REVIEWED_CARDS_KEY = 'codememo-section-reviewed-cards';
 
 export type LocalSectionStatus = 'in_progress' | 'completed';
 
@@ -124,13 +126,39 @@ export function readLocalSectionProgress(): Record<string, LocalSectionStatus> {
   );
 }
 
-export function updateLocalSectionProgress(sectionSlug: string, status: LocalSectionStatus): void {
+function readReviewedCardIds(): Record<string, string[]> {
+  if (typeof window === 'undefined') return {};
+  return parseJson<Record<string, string[]>>(
+    localStorage.getItem(SECTION_REVIEWED_CARDS_KEY),
+    {},
+  );
+}
+
+/**
+ * Marks a single card as reviewed within a section for anonymous (local-only)
+ * progress. A section only flips to 'completed' once every card in it has
+ * been reviewed at least once — not just the last card of whatever random
+ * study-session sample the user happened to draw (sessions only cover a
+ * subset of a section's cards).
+ */
+export function updateLocalSectionProgress(
+  sectionSlug: string,
+  cardId: string,
+  totalCardsInSection: number,
+): void {
   if (typeof window === 'undefined') return;
-  const all = readLocalSectionProgress();
-  // Never downgrade completed → in_progress
-  if (all[sectionSlug] === 'completed') return;
-  all[sectionSlug] = status;
-  localStorage.setItem(SECTION_PROGRESS_KEY, JSON.stringify(all));
+
+  const allStatus = readLocalSectionProgress();
+  if (allStatus[sectionSlug] === 'completed') return; // never downgrade
+
+  const allReviewed = readReviewedCardIds();
+  const reviewed = new Set(allReviewed[sectionSlug] ?? []);
+  reviewed.add(cardId);
+  allReviewed[sectionSlug] = Array.from(reviewed);
+  localStorage.setItem(SECTION_REVIEWED_CARDS_KEY, JSON.stringify(allReviewed));
+
+  allStatus[sectionSlug] = computeAnonSectionStatus(reviewed.size, totalCardsInSection);
+  localStorage.setItem(SECTION_PROGRESS_KEY, JSON.stringify(allStatus));
   window.dispatchEvent(new Event('codememo:stats-updated'));
 }
 

@@ -1,3 +1,5 @@
+import type { StreakCounters, StreakUpdateInput, StreakUpdateResult } from '../types/streak';
+
 export type StreakResult = {
   current: number;
   isActive: boolean;
@@ -62,4 +64,61 @@ export function incrementStreak(
 
   // First ever activity or gap > 1 day
   return 1;
+}
+
+/** Returns the ISO date string (YYYY-MM-DD) of the Monday of the given date's week. */
+export function getWeekStart(dateStr: string): string {
+  const d = new Date(`${dateStr}T00:00:00.000Z`);
+  const day = d.getUTCDay(); // 0=Sun, 1=Mon, …
+  const diff = day === 0 ? -6 : 1 - day; // offset to Monday
+  d.setUTCDate(d.getUTCDate() + diff);
+  return d.toISOString().slice(0, 10);
+}
+
+/**
+ * Pure computation of the next streak/daily/weekly counters after one
+ * review or study event. Shared by every call site that records progress
+ * (Convex `streaks.updateStreak`, `flashcards.recordReview`, …) so the
+ * daily-goal and weekly-quest math can never drift out of sync between them.
+ *
+ * Does NOT decide `todayCompleted` — callers compare the returned daily
+ * counters against their own goal targets, since not every call site tracks
+ * every dimension (e.g. card reviews don't track studied minutes).
+ */
+export function computeStreakUpdate(
+  streak: StreakCounters,
+  input: StreakUpdateInput,
+): StreakUpdateResult {
+  const { today, isPerfectRecall, additionalMinutes = 0 } = input;
+  const isNewDay = streak.lastActiveDate !== today;
+
+  const cardsCompletedToday = isNewDay ? 1 : streak.cardsCompletedToday + 1;
+  const perfectRecallsToday = (isNewDay ? 0 : streak.perfectRecallsToday) + (isPerfectRecall ? 1 : 0);
+  const minutesStudiedToday = (isNewDay ? 0 : streak.minutesStudiedToday) + additionalMinutes;
+
+  const currentStreak = incrementStreak(streak.lastActiveDate, today, streak.currentStreak);
+  const longestStreak = Math.max(currentStreak, streak.longestStreak);
+
+  // ── Weekly tracking ────────────────────────────────────────────────────
+  const weekStartDate = getWeekStart(today);
+  const isSameWeek = (streak.weekStartDate ?? '') === weekStartDate;
+
+  const weeklyCardsCompleted = isSameWeek ? (streak.weeklyCardsCompleted ?? 0) + 1 : 1;
+
+  // Increment study-days-this-week only when today is a new day within the same week.
+  const studyDaysThisWeek = isSameWeek
+    ? (streak.studyDaysThisWeek ?? 1) + (isNewDay ? 1 : 0)
+    : 1; // reset to 1 (today) for a new week
+
+  return {
+    cardsCompletedToday,
+    perfectRecallsToday,
+    minutesStudiedToday,
+    currentStreak,
+    longestStreak,
+    lastActiveDate: today,
+    weekStartDate,
+    weeklyCardsCompleted,
+    studyDaysThisWeek,
+  };
 }

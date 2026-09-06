@@ -39,7 +39,12 @@ function saveProgress(cardId: string, params: SM2Params) {
   localStorage.setItem(PROGRESS_STORAGE_KEY, JSON.stringify(all));
 }
 
-export function useStudySession(cards: StudyCard[], sectionPayloadId: string, sectionSlug: string) {
+export function useStudySession(
+  cards: StudyCard[],
+  sectionPayloadId: string,
+  sectionSlug: string,
+  totalCardsInSection: number,
+) {
   const { isSignedIn } = useAuth();
   const recordReview = useMutation(api.flashcards.recordReview);
 
@@ -86,11 +91,7 @@ export function useStudySession(cards: StudyCard[], sectionPayloadId: string, se
     } else {
       incrementAnonReviewCount();
       incrementDailyMetric('reviews', 1, new Date(), currentCard.id);
-      if (isLastCard) {
-        updateLocalSectionProgress(sectionSlug, 'completed');
-      } else {
-        updateLocalSectionProgress(sectionSlug, 'in_progress');
-      }
+      updateLocalSectionProgress(sectionSlug, currentCard.id, totalCardsInSection);
     }
 
     // Advance after short delay for UX feedback
@@ -102,7 +103,7 @@ export function useStudySession(cards: StudyCard[], sectionPayloadId: string, se
         setCurrentIndex((i) => i + 1);
       }
     }, 400);
-  }, [currentCard, isLastCard, isSignedIn, recordReview, sectionPayloadId, sectionSlug]);
+  }, [currentCard, isLastCard, isSignedIn, recordReview, sectionPayloadId, sectionSlug, totalCardsInSection]);
 
   const restart = useCallback(() => {
     setCurrentIndex(0);

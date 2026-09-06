@@ -1,16 +1,7 @@
 import { internalMutation, mutation, query } from './_generated/server';
 import { v } from 'convex/values';
-import { incrementStreak, calculateStreak } from '@repo/domain';
+import { calculateStreak, computeStreakUpdate, getWeekStart } from '@repo/domain';
 import { getAuthedUser, requireAuth } from './auth';
-
-/** Returns the ISO date string (YYYY-MM-DD) of the Monday of the given date's week. */
-function getWeekStart(dateStr: string): string {
-  const d = new Date(`${dateStr}T00:00:00.000Z`);
-  const day = d.getUTCDay(); // 0=Sun, 1=Mon, …
-  const diff = (day === 0 ? -6 : 1 - day); // offset to Monday
-  d.setUTCDate(d.getUTCDate() + diff);
-  return d.toISOString().slice(0, 10);
-}
 
 export const getStreakData = query({
   args: {},
@@ -43,44 +34,18 @@ export const updateStreak = mutation({
 
     const today = new Date().toISOString().slice(0, 10);
 
-    const newCards   = streak.cardsCompletedToday + 1;
-    const newPerfect = streak.perfectRecallsToday + (isPerfectRecall ? 1 : 0);
-    const newMinutes = streak.minutesStudiedToday + Math.round((durationMs ?? 0) / 60000);
+    const patch = computeStreakUpdate(streak, {
+      today,
+      isPerfectRecall,
+      additionalMinutes: Math.round((durationMs ?? 0) / 60000),
+    });
 
     const goalMet =
-      newCards   >= streak.cardsTarget &&
-      newPerfect >= streak.perfectRecallsTarget &&
-      newMinutes >= streak.minutesTarget;
+      patch.cardsCompletedToday >= streak.cardsTarget &&
+      patch.perfectRecallsToday >= streak.perfectRecallsTarget &&
+      patch.minutesStudiedToday >= streak.minutesTarget;
 
-    const newStreak = incrementStreak(streak.lastActiveDate, today, streak.currentStreak);
-    const longest   = Math.max(newStreak, streak.longestStreak);
-
-    // ── Weekly tracking ──────────────────────────────────────────────────────
-    const currentWeekStart = getWeekStart(today);
-    const storedWeekStart  = streak.weekStartDate ?? '';
-    const isSameWeek       = storedWeekStart === currentWeekStart;
-
-    const weeklyCards = isSameWeek ? (streak.weeklyCardsCompleted ?? 0) + 1 : 1;
-
-    // Increment study-days-this-week only when today is a new day within the same week
-    const isNewDayThisWeek = isSameWeek && streak.lastActiveDate !== today;
-    const isFirstDayOfWeek = !isSameWeek;
-    const studyDays = isSameWeek
-      ? (streak.studyDaysThisWeek ?? 1) + (isNewDayThisWeek ? 1 : 0)
-      : 1; // reset to 1 (today) for a new week
-
-    await ctx.db.patch(streak._id, {
-      cardsCompletedToday:   newCards,
-      perfectRecallsToday:   newPerfect,
-      minutesStudiedToday:   newMinutes,
-      todayCompleted:        goalMet,
-      currentStreak:         newStreak,
-      longestStreak:         longest,
-      lastActiveDate:        today,
-      weekStartDate:         currentWeekStart,
-      weeklyCardsCompleted:  weeklyCards,
-      studyDaysThisWeek:     studyDays,
-    });
+    await ctx.db.patch(streak._id, { ...patch, todayCompleted: goalMet });
   },
 });
 
@@ -193,7 +158,7 @@ export const resetProgressForUser = internalMutation({
       minutesStudiedToday:  0,
       weeklyCardsCompleted: 0,
       studyDaysThisWeek:    0,
-      weekStartDate:        new Date().toISOString().slice(0, 10),
+      weekStartDate:        getWeekStart(new Date().toISOString().slice(0, 10)),
     };
 
     if (streak) {

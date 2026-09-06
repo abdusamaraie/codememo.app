@@ -49,7 +49,7 @@ export function FlashcardDeck({ cards, sectionTitle, language, backHref, section
   const sidebarOffset = collapsed ? 'lg:left-[72px]' : 'lg:left-[256px]';
 
   const { currentCard, currentIndex, flipped, completed, xpEarned, ratings, reveal, rate, restart: resetSession } =
-    useStudySession(sessionCards, sectionPayloadId, sectionSlug);
+    useStudySession(sessionCards, sectionPayloadId, sectionSlug, cards.length);
 
   const restart = useCallback(() => {
     setSessionCards(pickSession(cards));

@@ -1,6 +1,6 @@
 import { mutation, query } from './_generated/server';
 import { v } from 'convex/values';
-import { calculateNextReview, incrementStreak, NEW_CARD_SM2 } from '@repo/domain';
+import { calculateNextReview, computeSectionMastery, computeStreakUpdate, NEW_CARD_SM2 } from '@repo/domain';
 import { getAuthedUser, requireAuth } from './auth';
 
 const NEW_CARDS_PER_SESSION = 10;
@@ -128,27 +128,28 @@ export const recordReview = mutation({
         .withIndex('by_section', (q) => q.eq('sectionId', sectionId))
         .collect();
 
-      const sectionCardIds = new Set(sectionCards.map((card) => card._id));
-      const userCardProgress = await ctx.db
-        .query('cardProgress')
-        .withIndex('by_user', (q) => q.eq('userId', userId))
-        .collect();
+      // Bounded by section size (typically tens of cards) rather than the
+      // user's entire review history — one point lookup per card via the
+      // by_user_card index, in parallel. Reflects the write from step 2
+      // above, since mutations see their own prior writes.
+      const cardProgressRows = await Promise.all(
+        sectionCards.map((card) =>
+          ctx.db
+            .query('cardProgress')
+            .withIndex('by_user_card', (q) => q.eq('userId', userId).eq('flashcardId', card._id))
+            .first(),
+        ),
+      );
 
-      let reviewedCards = 0;
-      let masteredCards = 0;
-      for (const progress of userCardProgress) {
-        if (!sectionCardIds.has(progress.flashcardId)) continue;
-        if (progress.totalReviews > 0) reviewedCards += 1;
-        if (progress.repetitions >= 3) masteredCards += 1;
-      }
+      const cardStates = cardProgressRows.map((progress) => ({
+        reviewed: progress !== null && progress.totalReviews > 0,
+        mastered: progress !== null && progress.repetitions >= 3,
+      }));
 
-      const totalCards = sectionCards.length;
-      const computedStatus: 'in_progress' | 'completed' | 'mastered' =
-        totalCards > 0 && masteredCards >= totalCards
-          ? 'mastered'
-          : totalCards > 0 && reviewedCards >= totalCards
-            ? 'completed'
-            : 'in_progress';
+      const { masteredCards, status: computedStatus } = computeSectionMastery(
+        cardStates,
+        sectionCards.length,
+      );
 
       const existingSP = await ctx.db
         .query('sectionProgress')
@@ -190,37 +191,25 @@ export const recordReview = mutation({
       .first();
 
     if (streak) {
-      const today      = new Date().toISOString().slice(0, 10);
-      const isNewDay = streak.lastActiveDate !== today;
-      const basePerfect = isNewDay ? 0 : streak.perfectRecallsToday;
+      const today = new Date().toISOString().slice(0, 10);
+
+      // Avoid double-counting a perfect recall when the SAME card is
+      // reviewed again later the same day.
       const reviewedTodayAlready =
-        existing !== null && new Date(existing.lastReviewedAt).toISOString().slice(0, 10) === today;
+        existing !== null &&
+        streak.lastActiveDate === today &&
+        new Date(existing.lastReviewedAt).toISOString().slice(0, 10) === today;
 
-      const allProgress = await ctx.db
-        .query('cardProgress')
-        .withIndex('by_user', (q) => q.eq('userId', userId))
-        .collect();
-
-      const newCards = allProgress.reduce((count, progress) => {
-        const reviewedDate = new Date(progress.lastReviewedAt).toISOString().slice(0, 10);
-        return reviewedDate === today ? count + 1 : count;
-      }, 0);
-
-      const newPerfect = basePerfect + (quality === 5 && !reviewedTodayAlready ? 1 : 0);
-      const goalMet    =
-        newCards   >= streak.cardsTarget &&
-        newPerfect >= streak.perfectRecallsTarget;
-      const newStreak = incrementStreak(streak.lastActiveDate, today, streak.currentStreak);
-      const longest   = Math.max(newStreak, streak.longestStreak);
-
-      await ctx.db.patch(streak._id, {
-        cardsCompletedToday: newCards,
-        perfectRecallsToday: newPerfect,
-        todayCompleted:      goalMet,
-        currentStreak:       newStreak,
-        longestStreak:       longest,
-        lastActiveDate:      today,
+      const patch = computeStreakUpdate(streak, {
+        today,
+        isPerfectRecall: quality === 5 && !reviewedTodayAlready,
       });
+
+      const goalMet =
+        patch.cardsCompletedToday >= streak.cardsTarget &&
+        patch.perfectRecallsToday >= streak.perfectRecallsTarget;
+
+      await ctx.db.patch(streak._id, { ...patch, todayCompleted: goalMet });
     }
 
     return next;
