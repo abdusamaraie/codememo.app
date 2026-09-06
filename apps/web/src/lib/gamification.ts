@@ -10,6 +10,7 @@ export type DailyStats = {
 export const DAILY_STATS_KEY = 'codememo-daily-stats';
 export const ACTIVITY_MAP_KEY = 'codememo-activity-map';
 export const FREEZE_KEY = 'codememo-streak-freezes';
+export const DAILY_METRIC_DEDUPE_KEY = 'codememo-daily-metric-dedupe';
 export const MOCK_STREAK = { current: 7, best: 14, freezes: 2 };
 export const MOCK_DAILY_STATS: DailyStats = { reviews: 18, practice: 2, quiz: 1 };
 
@@ -57,13 +58,36 @@ export function readDailyStats(now: Date = new Date()): DailyStats {
   return all[todayKey(now)] ?? { reviews: 0, practice: 0, quiz: 0 };
 }
 
-export function incrementDailyMetric(metric: DailyMetric, amount = 1, now: Date = new Date()): void {
+export function incrementDailyMetric(
+  metric: DailyMetric,
+  amount = 1,
+  now: Date = new Date(),
+  dedupeKey?: string,
+): void {
   if (typeof window === 'undefined') return;
   if (getClientAppDataSource() === 'mock') {
     window.dispatchEvent(new Event('codememo:stats-updated'));
     return;
   }
   const key = todayKey(now);
+
+  if (dedupeKey) {
+    const dedupeByDay = parseJson<Record<string, Record<string, true>>>(
+      localStorage.getItem(DAILY_METRIC_DEDUPE_KEY),
+      {},
+    );
+    const token = `${metric}:${dedupeKey}`;
+    const dayDedupe = dedupeByDay[key] ?? {};
+
+    if (dayDedupe[token]) {
+      window.dispatchEvent(new Event('codememo:stats-updated'));
+      return;
+    }
+
+    dayDedupe[token] = true;
+    dedupeByDay[key] = dayDedupe;
+    localStorage.setItem(DAILY_METRIC_DEDUPE_KEY, JSON.stringify(dedupeByDay));
+  }
 
   const allStats = parseJson<Record<string, DailyStats>>(localStorage.getItem(DAILY_STATS_KEY), {});
   const next = allStats[key] ?? { reviews: 0, practice: 0, quiz: 0 };
@@ -86,6 +110,56 @@ export function readActivityMap(): Record<string, number> {
 
 export function calculateDailyXP(daily: DailyStats): number {
   return daily.reviews * 10 + daily.practice * 20 + daily.quiz * 50;
+}
+
+export const SECTION_PROGRESS_KEY = 'codememo-section-progress';
+
+export type LocalSectionStatus = 'in_progress' | 'completed';
+
+export function readLocalSectionProgress(): Record<string, LocalSectionStatus> {
+  if (typeof window === 'undefined') return {};
+  return parseJson<Record<string, LocalSectionStatus>>(
+    localStorage.getItem(SECTION_PROGRESS_KEY),
+    {},
+  );
+}
+
+export function updateLocalSectionProgress(sectionSlug: string, status: LocalSectionStatus): void {
+  if (typeof window === 'undefined') return;
+  const all = readLocalSectionProgress();
+  // Never downgrade completed → in_progress
+  if (all[sectionSlug] === 'completed') return;
+  all[sectionSlug] = status;
+  localStorage.setItem(SECTION_PROGRESS_KEY, JSON.stringify(all));
+  window.dispatchEvent(new Event('codememo:stats-updated'));
+}
+
+/**
+ * Creates a useSyncExternalStore-compatible store backed by localStorage.
+ * The store caches the last read value and invalidates it whenever
+ * `codememo:stats-updated` fires, so consumers always get a stable reference
+ * between events and a fresh read after each update.
+ */
+export function createStatsStore<T>(read: () => T, serverFallback: T) {
+  let cache: T | null = null;
+
+  const subscribe = (callback: () => void) => {
+    function handler() {
+      cache = null;
+      callback();
+    }
+    window.addEventListener('codememo:stats-updated', handler);
+    return () => window.removeEventListener('codememo:stats-updated', handler);
+  };
+
+  const getSnapshot = (): T => {
+    if (cache === null) cache = read();
+    return cache;
+  };
+
+  const getServerSnapshot = () => serverFallback;
+
+  return { subscribe, getSnapshot, getServerSnapshot };
 }
 
 export function readStreak(): { current: number; best: number; freezes: number } {

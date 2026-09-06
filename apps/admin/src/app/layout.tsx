@@ -3,6 +3,7 @@ import { RootLayout, handleServerFunctions } from '@payloadcms/next/layouts'
 import type { ServerFunctionClient } from 'payload'
 import configPromise from '@payload-config'
 import { importMap } from './(payload)/importMap.js'
+import './globals.css' // Add global CSS variables
 
 export const metadata = {
   title: 'Admin',

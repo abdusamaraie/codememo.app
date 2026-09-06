@@ -1,7 +1,23 @@
 'use client';
 
 import { useRef, useState } from 'react';
+import type { Dispatch, SetStateAction } from 'react';
 import type { SeedCollection } from '../../services/seedService';
+
+type AppDataSource = 'real' | 'mock';
+type RequestStatus = 'idle' | 'running' | 'ok' | 'error';
+type UserOperationPath = '/api/seed-user-data' | '/api/reset-user-data';
+
+interface StreamEvent {
+  type?: string;
+  message?: string;
+}
+
+interface ApiResponse {
+  ok?: boolean;
+  error?: string;
+  message?: string;
+}
 
 const COLLECTIONS: { key: SeedCollection; label: string }[] = [
   { key: 'languages', label: 'Languages' },
@@ -11,22 +27,79 @@ const COLLECTIONS: { key: SeedCollection; label: string }[] = [
   { key: 'cheatSheetEntries', label: 'Cheat Sheets' },
 ];
 
-interface Counts {
-  languages: number;
-  sections: number;
-  flashcards: number;
-  exercises: number;
-  cheatSheetEntries: number;
-}
+const APP_DATA_SOURCE_OPTIONS: { value: AppDataSource; label: string }[] = [
+  { value: 'real', label: 'Real Data' },
+  { value: 'mock', label: 'Mock Seed Data' },
+];
+
+const CLEAR_ORDER: SeedCollection[] = ['cheatSheetEntries', 'exercises', 'flashcards', 'sections', 'languages'];
+
+type Counts = Record<SeedCollection, number>;
 
 interface Props {
   counts: Counts;
   appDataSource: string;
 }
 
+function normalizeAppDataSource(value: string): AppDataSource {
+  return value === 'mock' ? 'mock' : 'real';
+}
+
+async function postJson(url: string, body: unknown): Promise<Response> {
+  return fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+}
+
+async function readJsonSafe<T>(response: Response): Promise<T | null> {
+  try {
+    return await response.json() as T;
+  } catch {
+    return null;
+  }
+}
+
+async function readErrorMessage(response: Response): Promise<string> {
+  const text = await response.text();
+  if (!text) return response.statusText;
+
+  try {
+    const parsed = JSON.parse(text) as ApiResponse;
+    return parsed.error ?? parsed.message ?? text;
+  } catch {
+    return text;
+  }
+}
+
+function formatStreamLine(line: string): string {
+  try {
+    const event = JSON.parse(line) as StreamEvent;
+    if (event.type && event.message) {
+      return `[${event.type}] ${event.message}`;
+    }
+    if (event.message) {
+      return event.message;
+    }
+  } catch {
+    // Keep raw line if it is not valid JSON.
+  }
+
+  return line;
+}
+
+function getLogLineColor(line: string): string {
+  if (line.includes('[error]')) return '#ef4444';
+  if (line.includes('[summary]')) return '#10b981';
+  return 'inherit';
+}
+
 export function SeedDataClient({ counts: initialCounts, appDataSource: initialAppDataSource }: Props) {
   const [counts, setCounts] = useState(initialCounts);
-  const [appDataSource, setAppDataSource] = useState(initialAppDataSource);
+  const [appDataSource, setAppDataSource] = useState<AppDataSource>(
+    normalizeAppDataSource(initialAppDataSource),
+  );
   const [dataSourceError, setDataSourceError] = useState('');
   const [selected, setSelected] = useState<Set<SeedCollection>>(
     new Set(COLLECTIONS.map((c) => c.key)),
@@ -35,11 +108,13 @@ export function SeedDataClient({ counts: initialCounts, appDataSource: initialAp
   const [isRunning, setIsRunning] = useState(false);
   const [clearConfirm, setClearConfirm] = useState(false);
   const [clerkUserId, setClerkUserId] = useState('');
-  const [userSeedStatus, setUserSeedStatus] = useState<'idle' | 'running' | 'ok' | 'error'>('idle');
+  const [userSeedStatus, setUserSeedStatus] = useState<RequestStatus>('idle');
   const [userSeedError, setUserSeedError] = useState('');
-  const [resetStatus, setResetStatus] = useState<'idle' | 'running' | 'ok' | 'error'>('idle');
+  const [resetStatus, setResetStatus] = useState<RequestStatus>('idle');
   const [resetError, setResetError] = useState('');
   const logRef = useRef<HTMLDivElement>(null);
+  const trimmedClerkUserId = clerkUserId.trim();
+  const isCollectionSelectionEmpty = selected.size === 0;
 
   function toggleCollection(key: SeedCollection) {
     setSelected((prev) => {
@@ -58,17 +133,13 @@ export function SeedDataClient({ counts: initialCounts, appDataSource: initialAp
     }, 0);
   }
 
-  async function updateAppDataSource(value: string) {
+  async function updateAppDataSource(value: AppDataSource) {
     setDataSourceError('');
     try {
-      const res = await fetch('/api/globals/site-settings', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ appDataSource: value }),
-      });
+      const res = await postJson('/api/globals/site-settings', { appDataSource: value });
       if (!res.ok) {
-        const text = await res.text();
-        setDataSourceError(`Failed to save: ${res.status} ${text}`);
+        const errorMessage = await readErrorMessage(res);
+        setDataSourceError(`Failed to save: ${res.status} ${errorMessage}`);
         return; // don't update UI if DB write failed
       }
       setAppDataSource(value);
@@ -80,14 +151,23 @@ export function SeedDataClient({ counts: initialCounts, appDataSource: initialAp
   async function refreshCounts() {
     try {
       const results = await Promise.all(
-        COLLECTIONS.map((c) =>
-          fetch(`/api/${c.key}?limit=0`).then((r) => r.json()),
-        ),
+        COLLECTIONS.map(async (collection) => {
+          const response = await fetch(`/api/${collection.key}?limit=0`);
+          if (!response.ok) return null;
+          return readJsonSafe<{ totalDocs?: number }>(response);
+        }),
       );
-      const next = Object.fromEntries(
-        COLLECTIONS.map((c, i) => [c.key, results[i]?.totalDocs ?? counts[c.key]]),
-      ) as Counts;
-      setCounts(next);
+
+      setCounts((prev) => {
+        const next: Counts = { ...prev };
+        COLLECTIONS.forEach((collection, index) => {
+          const totalDocs = results[index]?.totalDocs;
+          if (typeof totalDocs === 'number') {
+            next[collection.key] = totalDocs;
+          }
+        });
+        return next;
+      });
     } catch {
       // Non-critical — counts just won't refresh
     }
@@ -99,33 +179,40 @@ export function SeedDataClient({ counts: initialCounts, appDataSource: initialAp
     setClearConfirm(false);
 
     try {
-      const res = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
-      });
+      const res = await postJson(url, body);
 
       if (!res.ok) {
-        appendLog(`Error: ${res.status} ${res.statusText}`);
+        const errorMessage = await readErrorMessage(res);
+        appendLog(`[error] ${res.status} ${errorMessage}`);
         return;
       }
 
       const reader = res.body?.getReader();
-      if (!reader) return;
+      if (!reader) {
+        appendLog('[error] Stream response is missing a body.');
+        return;
+      }
 
       const decoder = new TextDecoder();
+      let buffer = '';
+
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
-        const lines = decoder.decode(value, { stream: true }).split('\n').filter(Boolean);
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop() ?? '';
+
         for (const line of lines) {
-          try {
-            const event = JSON.parse(line) as { type: string; message: string };
-            appendLog(`[${event.type}] ${event.message}`);
-          } catch {
-            appendLog(line);
-          }
+          if (!line.trim()) continue;
+          appendLog(formatStreamLine(line));
         }
+      }
+
+      buffer += decoder.decode();
+      if (buffer.trim()) {
+        appendLog(formatStreamLine(buffer.trim()));
       }
     } catch (err) {
       appendLog(`Network error: ${String(err)}`);
@@ -140,12 +227,18 @@ export function SeedDataClient({ counts: initialCounts, appDataSource: initialAp
     setLog(['Clearing all content (reverse dependency order)…']);
     setClearConfirm(false);
 
-    const slugs: SeedCollection[] = ['cheatSheetEntries', 'exercises', 'flashcards', 'sections', 'languages'];
     try {
-      for (const slug of slugs) {
+      for (const slug of CLEAR_ORDER) {
         const res = await fetch(`/api/${slug}?where[id][exists][equals]=true`, {
           method: 'DELETE',
         });
+
+        if (!res.ok) {
+          const errorMessage = await readErrorMessage(res);
+          appendLog(`[error] Failed to clear ${slug} (${res.status}): ${errorMessage}`);
+          continue;
+        }
+
         appendLog(`Cleared ${slug} (${res.status})`);
       }
     } catch (err) {
@@ -156,50 +249,45 @@ export function SeedDataClient({ counts: initialCounts, appDataSource: initialAp
     }
   }
 
-  async function seedUserData() {
-    if (!clerkUserId.trim()) return;
-    setUserSeedStatus('running');
-    setUserSeedError('');
+  async function runUserOperation(
+    path: UserOperationPath,
+    setStatus: Dispatch<SetStateAction<RequestStatus>>,
+    setError: Dispatch<SetStateAction<string>>,
+  ) {
+    if (!trimmedClerkUserId) return;
+
+    setStatus('running');
+    setError('');
+
     try {
-      const res = await fetch('/api/seed-user-data', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ clerkUserId: clerkUserId.trim() }),
-      });
-      const json = await res.json() as { ok?: boolean; error?: string };
+      const res = await postJson(path, { clerkUserId: trimmedClerkUserId });
+      const json = await readJsonSafe<ApiResponse>(res);
+
       if (!res.ok) {
-        setUserSeedStatus('error');
-        setUserSeedError(json.error ?? res.statusText);
-      } else {
-        setUserSeedStatus('ok');
+        setStatus('error');
+        setError(json?.error ?? json?.message ?? res.statusText);
+        return;
       }
+
+      if (json?.ok === false) {
+        setStatus('error');
+        setError(json.error ?? json.message ?? 'Operation failed');
+        return;
+      }
+
+      setStatus('ok');
     } catch (err) {
-      setUserSeedStatus('error');
-      setUserSeedError(String(err));
+      setStatus('error');
+      setError(String(err));
     }
   }
 
+  async function seedUserData() {
+    await runUserOperation('/api/seed-user-data', setUserSeedStatus, setUserSeedError);
+  }
+
   async function resetUserData() {
-    if (!clerkUserId.trim()) return;
-    setResetStatus('running');
-    setResetError('');
-    try {
-      const res = await fetch('/api/reset-user-data', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ clerkUserId: clerkUserId.trim() }),
-      });
-      const json = await res.json() as { ok?: boolean; error?: string };
-      if (!res.ok) {
-        setResetStatus('error');
-        setResetError(json.error ?? res.statusText);
-      } else {
-        setResetStatus('ok');
-      }
-    } catch (err) {
-      setResetStatus('error');
-      setResetError(String(err));
-    }
+    await runUserOperation('/api/reset-user-data', setResetStatus, setResetError);
   }
 
   const btnBase: React.CSSProperties = {
@@ -213,7 +301,7 @@ export function SeedDataClient({ counts: initialCounts, appDataSource: initialAp
   };
 
   return (
-    <div style={{ padding: '2rem', maxWidth: 800, fontFamily: 'inherit' }}>
+    <div style={{ padding: '2rem', maxWidth: 800, fontFamily: 'inherit' }} data-testid="seed-data-manager">
       <h1 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '0.25rem' }}>
         Seed Data Manager
       </h1>
@@ -241,24 +329,31 @@ export function SeedDataClient({ counts: initialCounts, appDataSource: initialAp
           </p>
         </div>
         <div style={{ display: 'flex', gap: 6 }}>
-          {(['real', 'mock'] as const).map((val) => (
-            <button
-              key={val}
-              onClick={() => updateAppDataSource(val)}
-              style={{
-                padding: '6px 14px',
-                borderRadius: 6,
-                border: '1px solid var(--theme-elevation-300)',
-                cursor: 'pointer',
-                fontSize: 13,
-                fontWeight: 500,
-                background: appDataSource === val ? (val === 'mock' ? '#8b5cf6' : '#10b981') : 'var(--theme-elevation-50)',
-                color: appDataSource === val ? '#fff' : 'var(--theme-elevation-700)',
-              }}
-            >
-              {val === 'real' ? 'Real Data' : 'Mock Seed Data'}
-            </button>
-          ))}
+          {APP_DATA_SOURCE_OPTIONS.map(({ value, label }) => {
+            const isActive = appDataSource === value;
+            return (
+                <button
+                  key={value}
+                  data-testid={`app-data-source-${value}`}
+                  onClick={() => updateAppDataSource(value)}
+                  aria-pressed={isActive}
+                  disabled={isActive}
+                  style={{
+                    padding: '6px 14px',
+                    borderRadius: 6,
+                    border: '1px solid var(--theme-elevation-300)',
+                    cursor: isActive ? 'default' : 'pointer',
+                    fontSize: 13,
+                    fontWeight: 500,
+                    background: isActive ? (value === 'mock' ? '#8b5cf6' : '#10b981') : 'var(--theme-elevation-50)',
+                    color: isActive ? '#fff' : 'var(--theme-elevation-700)',
+                    opacity: isActive ? 0.9 : 1,
+                  }}
+                >
+                  {label}
+                </button>
+            );
+          })}
         </div>
       </div>
       {dataSourceError && (
@@ -307,7 +402,8 @@ export function SeedDataClient({ counts: initialCounts, appDataSource: initialAp
       {/* Action buttons */}
       <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginBottom: '1.5rem' }}>
         <button
-          disabled={isRunning || selected.size === 0}
+          data-testid="load-mock-data-btn"
+          disabled={isRunning || isCollectionSelectionEmpty}
           style={{ ...btnBase, background: '#3b82f6', color: '#fff' }}
           onClick={() =>
             streamOperation('/api/seed-data', {
@@ -320,7 +416,8 @@ export function SeedDataClient({ counts: initialCounts, appDataSource: initialAp
         </button>
 
         <button
-          disabled={isRunning || selected.size === 0}
+          data-testid="load-production-data-btn"
+          disabled={isRunning || isCollectionSelectionEmpty}
           style={{ ...btnBase, background: '#8b5cf6', color: '#fff' }}
           onClick={() =>
             streamOperation('/api/seed-data', {
@@ -333,6 +430,7 @@ export function SeedDataClient({ counts: initialCounts, appDataSource: initialAp
         </button>
 
         <button
+          data-testid="sync-to-convex-btn"
           disabled={isRunning}
           style={{ ...btnBase, background: '#10b981', color: '#fff' }}
           onClick={() => streamOperation('/api/sync-to-convex', {})}
@@ -342,6 +440,7 @@ export function SeedDataClient({ counts: initialCounts, appDataSource: initialAp
 
         {clearConfirm ? (
           <button
+            data-testid="confirm-clear-all-btn"
             disabled={isRunning}
             style={{ ...btnBase, background: '#ef4444', color: '#fff' }}
             onClick={clearAll}
@@ -350,6 +449,7 @@ export function SeedDataClient({ counts: initialCounts, appDataSource: initialAp
           </button>
         ) : (
           <button
+            data-testid="clear-all-btn"
             disabled={isRunning}
             style={{ ...btnBase, background: 'var(--theme-elevation-150)', color: 'var(--theme-text)' }}
             onClick={() => setClearConfirm(true)}
@@ -383,6 +483,7 @@ export function SeedDataClient({ counts: initialCounts, appDataSource: initialAp
         </p>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
           <input
+            data-testid="clerk-user-id-input"
             type="text"
             placeholder="Clerk User ID (user_xxxx)"
             value={clerkUserId}
@@ -398,27 +499,29 @@ export function SeedDataClient({ counts: initialCounts, appDataSource: initialAp
             }}
           />
           <button
-            disabled={!clerkUserId.trim() || userSeedStatus === 'running'}
+            data-testid="seed-user-data-btn"
+            disabled={!trimmedClerkUserId || userSeedStatus === 'running'}
             onClick={seedUserData}
             style={{
               ...btnBase,
               background: '#f59e0b',
               color: '#fff',
-              cursor: (!clerkUserId.trim() || userSeedStatus === 'running') ? 'not-allowed' : 'pointer',
-              opacity: (!clerkUserId.trim() || userSeedStatus === 'running') ? 0.5 : 1,
+              cursor: (!trimmedClerkUserId || userSeedStatus === 'running') ? 'not-allowed' : 'pointer',
+              opacity: (!trimmedClerkUserId || userSeedStatus === 'running') ? 0.5 : 1,
             }}
           >
             {userSeedStatus === 'running' ? 'Seeding…' : 'Seed Mock Data'}
           </button>
           <button
-            disabled={!clerkUserId.trim() || resetStatus === 'running'}
+            data-testid="reset-user-data-btn"
+            disabled={!trimmedClerkUserId || resetStatus === 'running'}
             onClick={resetUserData}
             style={{
               ...btnBase,
               background: '#6b7280',
               color: '#fff',
-              cursor: (!clerkUserId.trim() || resetStatus === 'running') ? 'not-allowed' : 'pointer',
-              opacity: (!clerkUserId.trim() || resetStatus === 'running') ? 0.5 : 1,
+              cursor: (!trimmedClerkUserId || resetStatus === 'running') ? 'not-allowed' : 'pointer',
+              opacity: (!trimmedClerkUserId || resetStatus === 'running') ? 0.5 : 1,
             }}
           >
             {resetStatus === 'running' ? 'Resetting…' : 'Reset to Zero'}
@@ -463,11 +566,7 @@ export function SeedDataClient({ counts: initialCounts, appDataSource: initialAp
               <div
                 key={i}
                 style={{
-                  color: line.includes('[error]')
-                    ? '#ef4444'
-                    : line.includes('[summary]')
-                      ? '#10b981'
-                      : 'inherit',
+                  color: getLogLineColor(line),
                 }}
               >
                 {line}

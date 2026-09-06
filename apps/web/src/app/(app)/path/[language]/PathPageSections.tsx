@@ -1,10 +1,13 @@
 'use client';
 
+import { useSyncExternalStore } from 'react';
 import Link from 'next/link';
 import { Lock, CheckCircle2, PlayCircle, BookOpen, ChevronRight } from 'lucide-react';
 import { useAuth } from '@clerk/nextjs';
 import { useQuery } from 'convex/react';
 import { api } from '@repo/convex';
+import { readLocalSectionProgress } from '@/lib/gamification';
+import type { LocalSectionStatus } from '@/lib/gamification';
 
 type SectionStatus = 'locked' | 'available' | 'in-progress' | 'completed';
 
@@ -21,6 +24,26 @@ type Props = {
   sections: CmsSection[];
 };
 
+let _sectionProgressCache: Record<string, LocalSectionStatus> | null = null;
+
+function subscribeToStats(callback: () => void) {
+  function handler() {
+    _sectionProgressCache = null;
+    callback();
+  }
+  window.addEventListener('codememo:stats-updated', handler);
+  return () => window.removeEventListener('codememo:stats-updated', handler);
+}
+
+const SERVER_SECTION_SNAPSHOT: Record<string, LocalSectionStatus> = {};
+const getServerSectionSnapshot = () => SERVER_SECTION_SNAPSHOT;
+function getClientSectionSnapshot(): Record<string, LocalSectionStatus> {
+  if (!_sectionProgressCache) {
+    _sectionProgressCache = readLocalSectionProgress();
+  }
+  return _sectionProgressCache;
+}
+
 const STATUS_CONFIG = {
   locked:        { icon: Lock,         bg: 'bg-[--secondary]',   text: 'text-[--muted-foreground]', label: 'Locked'   },
   available:     { icon: BookOpen,     bg: 'bg-[--primary]/10',  text: 'text-[--primary]',          label: 'Start'    },
@@ -30,6 +53,13 @@ const STATUS_CONFIG = {
 
 export function PathPageSections({ languageSlug, languageColor, sections }: Props) {
   const { isSignedIn } = useAuth();
+
+  // Reactive local section progress for anonymous users
+  const localSectionProgress = useSyncExternalStore(
+    subscribeToStats,
+    getClientSectionSnapshot,
+    getServerSectionSnapshot,
+  );
 
   // Get language from Convex to resolve its ID for section progress lookup
   const convexLanguage = useQuery(api.content.getLanguage, { slug: languageSlug });
@@ -64,6 +94,10 @@ export function PathPageSections({ languageSlug, languageColor, sections }: Prop
       } else if (progress.status === 'in_progress') {
         status = 'in-progress';
       }
+    } else if (!isSignedIn) {
+      const localStatus = localSectionProgress[section.slug];
+      if (localStatus === 'completed') status = 'completed';
+      else if (localStatus === 'in_progress') status = 'in-progress';
     }
 
     return { ...section, status, masteryPct };

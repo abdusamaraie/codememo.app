@@ -95,8 +95,6 @@ export const recordReview = mutation({
 
     const next = calculateNextReview(quality, currentParams);
     const isSuccess = quality >= 3;
-    const wasMastered = existing ? existing.repetitions >= 3 : false;
-    const isMastered  = next.repetitions >= 3;
 
     if (existing) {
       await ctx.db.patch(existing._id, {
@@ -125,7 +123,33 @@ export const recordReview = mutation({
     // ── 3. Update sectionProgress ─────────────────────────────────────────────
     if (section) {
       const sectionId = section._id;
-      const masteredDelta = !wasMastered && isMastered ? 1 : 0;
+      const sectionCards = await ctx.db
+        .query('flashcards')
+        .withIndex('by_section', (q) => q.eq('sectionId', sectionId))
+        .collect();
+
+      const sectionCardIds = new Set(sectionCards.map((card) => card._id));
+      const userCardProgress = await ctx.db
+        .query('cardProgress')
+        .withIndex('by_user', (q) => q.eq('userId', userId))
+        .collect();
+
+      let reviewedCards = 0;
+      let masteredCards = 0;
+      for (const progress of userCardProgress) {
+        if (!sectionCardIds.has(progress.flashcardId)) continue;
+        if (progress.totalReviews > 0) reviewedCards += 1;
+        if (progress.repetitions >= 3) masteredCards += 1;
+      }
+
+      const totalCards = sectionCards.length;
+      const computedStatus: 'in_progress' | 'completed' | 'mastered' =
+        totalCards > 0 && masteredCards >= totalCards
+          ? 'mastered'
+          : totalCards > 0 && reviewedCards >= totalCards
+            ? 'completed'
+            : 'in_progress';
+
       const existingSP = await ctx.db
         .query('sectionProgress')
         .withIndex('by_user_section', (q) =>
@@ -135,20 +159,25 @@ export const recordReview = mutation({
 
       if (existingSP) {
         const newStatus =
-          existingSP.status === 'available' ? 'in_progress' : existingSP.status;
+          existingSP.status === 'mastered'
+            ? 'mastered'
+            : existingSP.status === 'completed' && computedStatus !== 'mastered'
+              ? 'completed'
+              : computedStatus;
+
         await ctx.db.patch(existingSP._id, {
           status:        newStatus,
-          cardsMastered: existingSP.cardsMastered + masteredDelta,
+          cardsMastered: masteredCards,
           lastStudiedAt: Date.now(),
         });
       } else {
         await ctx.db.insert('sectionProgress', {
           userId,
           sectionId,
-          status:        'in_progress',
+          status:        computedStatus,
           cardsDue:      0,
           cardsNew:      0,
-          cardsMastered: isMastered ? 1 : 0,
+          cardsMastered: masteredCards,
           lastStudiedAt: Date.now(),
         });
       }
@@ -162,8 +191,22 @@ export const recordReview = mutation({
 
     if (streak) {
       const today      = new Date().toISOString().slice(0, 10);
-      const newCards   = streak.cardsCompletedToday + 1;
-      const newPerfect = streak.perfectRecallsToday + (quality === 5 ? 1 : 0);
+      const isNewDay = streak.lastActiveDate !== today;
+      const basePerfect = isNewDay ? 0 : streak.perfectRecallsToday;
+      const reviewedTodayAlready =
+        existing !== null && new Date(existing.lastReviewedAt).toISOString().slice(0, 10) === today;
+
+      const allProgress = await ctx.db
+        .query('cardProgress')
+        .withIndex('by_user', (q) => q.eq('userId', userId))
+        .collect();
+
+      const newCards = allProgress.reduce((count, progress) => {
+        const reviewedDate = new Date(progress.lastReviewedAt).toISOString().slice(0, 10);
+        return reviewedDate === today ? count + 1 : count;
+      }, 0);
+
+      const newPerfect = basePerfect + (quality === 5 && !reviewedTodayAlready ? 1 : 0);
       const goalMet    =
         newCards   >= streak.cardsTarget &&
         newPerfect >= streak.perfectRecallsTarget;

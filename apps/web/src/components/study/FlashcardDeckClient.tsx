@@ -14,6 +14,7 @@ type Props = {
   language: string;
   backHref: string;
   sectionPayloadId: string;
+  sectionSlug: string;
 };
 
 export function FlashcardDeckClient(props: Props) {

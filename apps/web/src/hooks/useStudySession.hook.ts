@@ -8,7 +8,7 @@ import { calculateNextReview } from '@repo/domain';
 import type { QualityRating, SM2Params } from '@repo/domain';
 import { incrementAnonReviewCount } from '@/components/layout/SaveProgressNudge';
 import type { StudyCard } from '@/components/study/FlashcardDeck';
-import { incrementDailyMetric } from '@/lib/gamification';
+import { incrementDailyMetric, updateLocalSectionProgress } from '@/lib/gamification';
 
 type RatingSummary = { forgot: number; hard: number; good: number; nailed: number };
 
@@ -39,7 +39,7 @@ function saveProgress(cardId: string, params: SM2Params) {
   localStorage.setItem(PROGRESS_STORAGE_KEY, JSON.stringify(all));
 }
 
-export function useStudySession(cards: StudyCard[], sectionPayloadId: string) {
+export function useStudySession(cards: StudyCard[], sectionPayloadId: string, sectionSlug: string) {
   const { isSignedIn } = useAuth();
   const recordReview = useMutation(api.flashcards.recordReview);
 
@@ -85,7 +85,12 @@ export function useStudySession(cards: StudyCard[], sectionPayloadId: string) {
       }).catch(() => {});
     } else {
       incrementAnonReviewCount();
-      incrementDailyMetric('reviews');
+      incrementDailyMetric('reviews', 1, new Date(), currentCard.id);
+      if (isLastCard) {
+        updateLocalSectionProgress(sectionSlug, 'completed');
+      } else {
+        updateLocalSectionProgress(sectionSlug, 'in_progress');
+      }
     }
 
     // Advance after short delay for UX feedback
@@ -97,7 +102,7 @@ export function useStudySession(cards: StudyCard[], sectionPayloadId: string) {
         setCurrentIndex((i) => i + 1);
       }
     }, 400);
-  }, [currentCard, isLastCard, isSignedIn, recordReview, sectionPayloadId]);
+  }, [currentCard, isLastCard, isSignedIn, recordReview, sectionPayloadId, sectionSlug]);
 
   const restart = useCallback(() => {
     setCurrentIndex(0);
