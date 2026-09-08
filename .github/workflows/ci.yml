@@ -1,0 +1,40 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+# One in-flight run per branch; newer pushes cancel older runs.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  branch-name:
+    name: Branch name
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Enforce <type>/<kebab-name>
+        env:
+          BRANCH: ${{ github.head_ref }}
+        run: |
+          if [[ ! "$BRANCH" =~ ^(feat|fix|chore|docs|refactor|test|ci|perf|build)/[a-z0-9._-]+$ ]]; then
+            echo "::error::Branch '$BRANCH' must be <type>/<kebab-name> — one of: feat fix chore docs refactor test ci perf build"
+            exit 1
+          fi
+          echo "OK: $BRANCH"
+
+  verify:
+    name: Lint · Typecheck · Test · Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+      - name: Run verify.sh (lint, typecheck, test, build — excludes apps/mobile)
+        run: ./scripts/verify.sh
