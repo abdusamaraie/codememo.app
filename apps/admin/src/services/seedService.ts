@@ -11,16 +11,6 @@
 import pg from 'pg';
 import type { BasePayload } from 'payload';
 import { syncToConvex } from '../endpoints';
-import {
-  cheatSheetEntries,
-  exercises,
-  jcrExercises,
-  jcrFlashcards,
-  jsFlashcards,
-  languages,
-  pythonFlashcards,
-  sections,
-} from '@repo/mock-data';
 
 export type SeedCollection =
   | 'languages'
@@ -114,6 +104,20 @@ async function migrateEnums(): Promise<string[]> {
 // ── Main seed generator ───────────────────────────────────────────────────────
 
 export async function* runSeed(options: SeedOptions): AsyncGenerator<SeedEvent> {
+  // Loaded lazily (not as a top-level import) so Payload's CLI and server
+  // boot don't eagerly pull in the full seed-data set — it's only needed
+  // when this generator actually runs.
+  const {
+    cheatSheetEntries,
+    exercises,
+    jcrExercises,
+    jcrFlashcards,
+    jsFlashcards,
+    languages,
+    pythonFlashcards,
+    sections,
+  } = await import('@repo/mock-data');
+
   const { collections: requested, payload } = options;
   const want = new Set(requested);
 

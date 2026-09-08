@@ -96,6 +96,10 @@ export default buildConfig({
     pool: {
       connectionString: process.env.DATABASE_URL,
     },
+    // Committed migrations live here — production expects them to have
+    // already been run (postgresAdapter only auto-pushes schema outside
+    // production). See docs/CICD.md for the deploy-time migrate step.
+    migrationDir: path.resolve(dirname, 'migrations'),
   }),
   editor: lexicalEditor({}),
 })
